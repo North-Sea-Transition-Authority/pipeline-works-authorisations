@@ -12,6 +12,11 @@ public final class PwaAppChargeRequestTestUtil {
     throw new UnsupportedOperationException("no util for you!");
   }
 
+  public static PwaAppChargeRequest createChargeRequest(PwaApplication pwaApplication) {
+    var chargeRequest = new PwaAppChargeRequest();
+    chargeRequest.setPwaApplication(pwaApplication);
+    return chargeRequest;
+  }
 
   public static PwaAppChargeRequestDetail createDefaultChargeRequest(PwaApplication pwaApplication,
                                                                      Person person,

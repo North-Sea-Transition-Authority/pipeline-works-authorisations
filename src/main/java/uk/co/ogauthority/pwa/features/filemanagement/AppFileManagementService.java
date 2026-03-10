@@ -1,7 +1,5 @@
 package uk.co.ogauthority.pwa.features.filemanagement;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -10,8 +8,6 @@ import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 @Service
 public class AppFileManagementService {
@@ -93,27 +89,6 @@ public class AppFileManagementService {
 
   public ResponseStatusException getFileNotFoundException(PwaApplication pwaApplication, UUID fileId) {
     return fileManagementService.getFileNotFoundException(fileId, getUsageType(), getUsageId(pwaApplication));
-  }
-
-  public UploadedFileView getUploadedFileView(PwaApplication pwaApplication, UUID fileId) {
-    return createUploadedFileView(getUploadedFile(pwaApplication, fileId));
-  }
-
-  public List<UploadedFileView> getUploadedFileViews(PwaApplication pwaApplication, FileDocumentType fileDocumentType) {
-    return getUploadedFiles(pwaApplication, fileDocumentType).stream()
-        .map(this::createUploadedFileView)
-        .toList();
-  }
-
-  private UploadedFileView createUploadedFileView(UploadedFile uploadedFile) {
-    return new UploadedFileView(
-        String.valueOf(uploadedFile.getId()),
-        uploadedFile.getName(),
-        uploadedFile.getContentLength(),
-        uploadedFile.getDescription(),
-        uploadedFile.getUploadedAt(),
-        ReverseRouter.route(on(FileManagementRestController.class).download(uploadedFile.getId(), null))
-    );
   }
 
   private String getUsageId(PwaApplication pwaApplication) {

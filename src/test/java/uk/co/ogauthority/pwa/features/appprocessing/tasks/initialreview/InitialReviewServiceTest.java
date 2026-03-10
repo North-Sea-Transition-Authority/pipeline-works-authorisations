@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.ApplicationFeeReport;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.ApplicationFeeReportTestUtil;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.ApplicationFeeService;
+import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
@@ -62,6 +63,8 @@ class InitialReviewServiceTest {
 
   private static String FEE_REPORT_SUMMARY = "SUMMARY";
   private static int FEE_REPORT_AMOUNT = 200;
+  private static PwaApplicationFeeType FEE_ITEM_1_FEE_TYPE = PwaApplicationFeeType.DEFAULT;
+  private static PwaApplicationFeeType FEE_ITEM_2_FEE_TYPE = PwaApplicationFeeType.FAST_TRACK;
   private static String FEE_ITEM_DESC = "FEE_ITEM";
   private static int FEE_ITEM_AMOUNT = 100;
 
@@ -118,7 +121,7 @@ class InitialReviewServiceTest {
         app,
         FEE_REPORT_AMOUNT,
         FEE_REPORT_SUMMARY,
-        List.of(ApplicationFeeReportTestUtil.createApplicationFeeItem(FEE_ITEM_DESC, FEE_ITEM_AMOUNT))
+        List.of(ApplicationFeeReportTestUtil.createApplicationFeeItem(FEE_ITEM_1_FEE_TYPE, FEE_ITEM_DESC, FEE_ITEM_AMOUNT))
     );
     when(applicationFeeService.getApplicationFeeReport(detail)).thenReturn(applicationFeeReport);
 
@@ -167,11 +170,11 @@ class InitialReviewServiceTest {
       assertThat(requestSpecification.getChargeWaivedReason()).isEqualTo(WAIVE_REASON);
       assertThat(requestSpecification.getOnPaymentCompleteCaseOfficerPersonId()).isEqualTo(caseOfficerPerson.getId());
       assertThat(requestSpecification.getApplicationChargeItems()).hasOnlyOneElementSatisfying(applicationChargeItem -> {
+            assertThat(applicationChargeItem.getPwaApplicationFeeType()).isEqualTo(FEE_ITEM_1_FEE_TYPE);
             assertThat(applicationChargeItem.getDescription()).isEqualTo(FEE_ITEM_DESC);
             assertThat(applicationChargeItem.getPennyAmount()).isEqualTo(FEE_ITEM_AMOUNT);
           });
     });
-
 
   }
 
@@ -205,6 +208,7 @@ class InitialReviewServiceTest {
       assertThat(requestSpecification.getChargeWaivedReason()).isNull();
       assertThat(requestSpecification.getOnPaymentCompleteCaseOfficerPersonId()).isEqualTo(caseOfficerPerson.getId());
       assertThat(requestSpecification.getApplicationChargeItems()).hasOnlyOneElementSatisfying(applicationChargeItem -> {
+        assertThat(applicationChargeItem.getPwaApplicationFeeType()).isEqualTo(FEE_ITEM_1_FEE_TYPE);
         assertThat(applicationChargeItem.getDescription()).isEqualTo(FEE_ITEM_DESC);
         assertThat(applicationChargeItem.getPennyAmount()).isEqualTo(FEE_ITEM_AMOUNT);
       });
@@ -222,8 +226,8 @@ class InitialReviewServiceTest {
         FEE_REPORT_AMOUNT,
         FEE_REPORT_SUMMARY,
         List.of(
-            ApplicationFeeReportTestUtil.createApplicationFeeItem(FEE_ITEM_DESC+"1", FEE_ITEM_AMOUNT),
-            ApplicationFeeReportTestUtil.createApplicationFeeItem(FEE_ITEM_DESC+"2", FEE_ITEM_AMOUNT)
+            ApplicationFeeReportTestUtil.createApplicationFeeItem(FEE_ITEM_1_FEE_TYPE, FEE_ITEM_DESC+"1", FEE_ITEM_AMOUNT),
+            ApplicationFeeReportTestUtil.createApplicationFeeItem(FEE_ITEM_2_FEE_TYPE, FEE_ITEM_DESC+"2", FEE_ITEM_AMOUNT)
         )
     );
     when(applicationFeeService.getApplicationFeeReport(detail)).thenReturn(applicationFeeReport);
@@ -241,10 +245,12 @@ class InitialReviewServiceTest {
     assertThat(chargeRequestSpecCaptor.getValue().getApplicationChargeItems())
         .hasSize(2)
         .anySatisfy(applicationChargeItem -> {
+          assertThat(applicationChargeItem.getPwaApplicationFeeType()).isEqualTo(FEE_ITEM_1_FEE_TYPE);
           assertThat(applicationChargeItem.getDescription()).isEqualTo(FEE_ITEM_DESC+"1");
           assertThat(applicationChargeItem.getPennyAmount()).isEqualTo(FEE_ITEM_AMOUNT);
         })
         .anySatisfy(applicationChargeItem -> {
+          assertThat(applicationChargeItem.getPwaApplicationFeeType()).isEqualTo(FEE_ITEM_2_FEE_TYPE);
           assertThat(applicationChargeItem.getDescription()).isEqualTo(FEE_ITEM_DESC+"2");
           assertThat(applicationChargeItem.getPennyAmount()).isEqualTo(FEE_ITEM_AMOUNT);
         });

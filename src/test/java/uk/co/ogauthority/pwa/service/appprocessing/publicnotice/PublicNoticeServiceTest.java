@@ -31,6 +31,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.util.unit.DataSize;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeFileManagementRestController;
@@ -50,6 +51,7 @@ import uk.co.ogauthority.pwa.features.filemanagement.FileManagementService;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -60,12 +62,10 @@ import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumen
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.TemplateTextType;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
-import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileViewTestUtil;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDatesRepository;
@@ -127,7 +127,7 @@ class PublicNoticeServiceTest {
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
-  private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
+  private static final String USAGE_TYPE = PwaApplication.class.getSimpleName();
   private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.PUBLIC_NOTICE;
   private static final UUID FILE_ID = UUID.randomUUID();
 
@@ -854,9 +854,9 @@ class PublicNoticeServiceTest {
     var documentLink = new PublicNoticeDocumentLink(document, publicNoticeAppFile);
     when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
 
-    var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
-    when(appFileManagementService.getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())))
-        .thenReturn(documentFileView);
+    var documentFile = createUploadedFile();
+    when(appFileManagementService.getUploadedFile(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())))
+        .thenReturn(documentFile);
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
@@ -936,9 +936,10 @@ class PublicNoticeServiceTest {
     when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
     when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document2)).thenReturn(Optional.of(documentLink));
 
-    var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
-    when(appFileManagementService.getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())))
-        .thenReturn(documentFileView);
+    var documentFile = createUploadedFile();
+
+    when(appFileManagementService.getUploadedFile(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())))
+        .thenReturn(documentFile);
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail, Set.of(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE, PwaAppProcessingPermission.OGA_EDIT_PUBLIC_NOTICE));
@@ -1033,9 +1034,9 @@ class PublicNoticeServiceTest {
     when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
     when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document2)).thenReturn(Optional.of(documentLink));
 
-    var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
-    when(appFileManagementService.getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())))
-        .thenReturn(documentFileView);
+    var documentFile = createUploadedFile();
+    when(appFileManagementService.getUploadedFile(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())))
+        .thenReturn(documentFile);
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE, PwaAppProcessingPermission.OGA_EDIT_PUBLIC_NOTICE));
@@ -1148,12 +1149,12 @@ class PublicNoticeServiceTest {
     var documentLink = new PublicNoticeDocumentLink(document, publicNoticeAppFile);
     when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
 
-    var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
-    when(appFileManagementService.getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())))
-        .thenReturn(documentFileView);
+    var documentFile = createUploadedFile();
+    when(appFileManagementService.getUploadedFile(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())))
+        .thenReturn(documentFile);
 
     var actualFileView = publicNoticeService.getLatestPublicNoticeDocumentFileView(pwaApplication);
-    assertThat(actualFileView).isEqualTo(documentFileView);
+    assertThat(actualFileView).isEqualTo(createUploadedFileViewForFile(documentFile));
   }
 
   @Test
@@ -1171,7 +1172,6 @@ class PublicNoticeServiceTest {
 
   @Test
   void getPublicNoticeDocumentFileViewIfExists_documentLinkExists() {
-
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
         Optional.of(publicNotice));
@@ -1184,17 +1184,30 @@ class PublicNoticeServiceTest {
     var documentLink = new PublicNoticeDocumentLink(document, publicNoticeAppFile);
     when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
 
-    var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
-    when(appFileManagementService.getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())))
-        .thenReturn(documentFileView);
+    var documentFile = createUploadedFile();
+
+    when(appFileManagementService.getUploadedFile(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())))
+        .thenReturn(documentFile);
+
+    var documentFileView = createUploadedFileViewForFile(documentFile);
 
     var actualFileView = publicNoticeService.getLatestPublicNoticeDocumentFileViewIfExists(pwaApplication);
     assertThat(actualFileView).isEqualTo(Optional.of(documentFileView));
   }
 
   @Test
-  void getPublicNoticeDocumentFileViewIfExists_documentLinkDoesNotExist() {
+  void getUploadedFileView() {
+    var uploadedFile = createUploadedFile();
 
+    var uploadedFileView = createUploadedFileViewForFile(uploadedFile);
+
+    when(appFileManagementService.getUploadedFile(pwaApplication, FILE_ID)).thenReturn(uploadedFile);
+
+    assertThat(publicNoticeService.getUploadedFileView(pwaApplication, FILE_ID)).isEqualTo(uploadedFileView);
+  }
+
+  @Test
+  void getPublicNoticeDocumentFileViewIfExists_documentLinkDoesNotExist() {
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
         Optional.of(publicNotice));
@@ -1216,7 +1229,6 @@ class PublicNoticeServiceTest {
 
   @Test
   void publicNoticeInProgress_no() {
-
     var endedNotice = new PublicNotice();
     endedNotice.setStatus(PublicNoticeStatus.ENDED);
 
@@ -1228,12 +1240,10 @@ class PublicNoticeServiceTest {
     boolean inProgress = publicNoticeService.publicNoticeInProgress(new PwaApplication());
 
     assertThat(inProgress).isFalse();
-
   }
 
   @Test
   void publicNoticeInProgress_yes() {
-
     var endedNotice = new PublicNotice();
     endedNotice.setStatus(PublicNoticeStatus.PUBLISHED);
 
@@ -1245,7 +1255,32 @@ class PublicNoticeServiceTest {
     boolean inProgress = publicNoticeService.publicNoticeInProgress(new PwaApplication());
 
     assertThat(inProgress).isTrue();
+  }
 
+
+  private UploadedFile createUploadedFile() {
+    var uploadedFile = new UploadedFile();
+    uploadedFile.setId(FILE_ID);
+    uploadedFile.setName("name");
+    uploadedFile.setContentLength(50000L);
+    uploadedFile.setDescription("description");
+    uploadedFile.setUploadedAt(Instant.now());
+    uploadedFile.setUsageId(pwaApplication.getId().toString());
+    uploadedFile.setUsageType(USAGE_TYPE);
+
+    return uploadedFile;
+  }
+
+  private UploadedFileView createUploadedFileViewForFile(UploadedFile uploadedFile) {
+    return new UploadedFileView(
+        String.valueOf(uploadedFile.getId()),
+        uploadedFile.getName(),
+        uploadedFile.getContentLength(),
+        uploadedFile.getDescription(),
+        uploadedFile.getUploadedAt(),
+        ReverseRouter.route(on(PublicNoticeFileManagementRestController.class)
+            .download(Integer.parseInt(uploadedFile.getUsageId()), uploadedFile.getId()))
+    );
   }
 
   @Test

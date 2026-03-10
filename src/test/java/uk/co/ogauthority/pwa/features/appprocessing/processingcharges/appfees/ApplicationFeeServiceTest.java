@@ -65,7 +65,7 @@ class ApplicationFeeServiceTest {
 
 
     feePeriodDetail = FeePeriodTestUtil.createDefaultFeePeriodDetail();
-    applicationFeeItem = ApplicationFeeItemTestUtil.createAppFeeItem(FEE_DESC, FEE_AMOUNT);
+    applicationFeeItem = ApplicationFeeItemTestUtil.createAppFeeItem(PwaApplicationFeeType.DEFAULT, FEE_DESC, FEE_AMOUNT);
     when(feeItemProvider.provideFees(any(), any())).thenReturn(List.of(applicationFeeItem));
     when(feeItemProvider.canProvideFeeItems(any())).thenReturn(true);
     when(feeItemProvider.getProvisionOrdering()).thenReturn(1);
@@ -99,7 +99,7 @@ class ApplicationFeeServiceTest {
     var maxDateMinimum = LocalDate.of(4000, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
     assertThat(maxPeriodInstantCaptor.getValue()).isAfterOrEqualTo(maxDateMinimum);
 
-    assertThat(report.getPaymentItems()).containsExactly(ApplicationFeeItemTestUtil.createAppFeeItem(FEE_DESC, FEE_AMOUNT));
+    assertThat(report.getPaymentItems()).containsExactly(ApplicationFeeItemTestUtil.createAppFeeItem(PwaApplicationFeeType.DEFAULT, FEE_DESC, FEE_AMOUNT));
     assertThat(report.getPwaApplication()).isEqualTo(pwaApplicationDetail.getPwaApplication());
     assertThat(report.getSummary()).containsOnlyOnce(APP_REF);
     assertThat(report.getSummary()).doesNotContain(FAST_TRACK_STRING);
@@ -154,7 +154,7 @@ class ApplicationFeeServiceTest {
     when(feeItemProvider2.getApplicationFeeType()).thenReturn(PwaApplicationFeeType.FAST_TRACK);
     when(feeItemProvider2.getProvisionOrdering()).thenReturn(2);
 
-    var appFeeItem2 = ApplicationFeeItemTestUtil.createAppFeeItem("Fee item 2", 200);
+    var appFeeItem2 = ApplicationFeeItemTestUtil.createAppFeeItem(PwaApplicationFeeType.FAST_TRACK, "Fee item 2", 200);
     when(feeItemProvider2.provideFees(any(), any())).thenReturn(List.of(appFeeItem2));
 
     applicationFeeService = new ApplicationFeeService(

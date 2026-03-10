@@ -1,0 +1,26 @@
+consultee-group-id-to-epas-scope-type-and-id:
+  21:
+    scope-type: ORGANISATION_UNIT
+    scope-id: 776 # Crown Estate Scotland
+  1:
+    scope-type: ORGANISATION_GROUP
+    scope-id: 10002  # Environmental Management Team - OPRED org group
+  2:
+    scope-type: ORGANISATION_GROUP
+    scope-id: 10002 # Offshore Decommissioning Unit - OPRED org group
+  3:
+    scope-type: ORGANISATION_GROUP
+    scope-id: 10005 # Health and Safety Executive - HSE org group
+  4:
+    scope-type: ORGANISATION_UNIT
+    scope-id: 775 # Crown Estate
+  5:
+    scope-type: ORGANISATION_UNIT
+    scope-id: 663 # BT
+  6:
+    scope-type: ORGANISATION_GROUP
+    scope-id: 10001  # OGA Technical Team - NSTA org group
+#  7: # Norway treaty consultees
+#  8: # Ireland treaty consultees
+#  10:  # Netherlands treaty consultees
+#  11: # Belgium treaty consultees

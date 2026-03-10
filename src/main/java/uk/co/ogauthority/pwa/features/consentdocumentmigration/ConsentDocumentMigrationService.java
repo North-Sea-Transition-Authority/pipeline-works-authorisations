@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -152,16 +153,21 @@ public class ConsentDocumentMigrationService {
     if (consentDoc.equals(pwaReference)) {
       return fileKeys.stream()
           .filter(key -> key.contains("PWA Consent Document"))
-          .filter(key -> key.contains(consentDoc.replace("/", "-")))
+          .filter(key -> containsCompleteReference(key, consentDoc.replace("/", "-")))
           .findFirst()
           .orElse(null);
     }
 
     return fileKeys.stream()
-        .filter(key -> key.contains(consentDoc.replace("/", "-")))
-        .filter(key -> key.contains(pwaReference.replace("/", "-")))
+        .filter(key -> containsCompleteReference(key, consentDoc.replace("/", "-")))
+        .filter(key -> containsCompleteReference(key, pwaReference.replace("/", "-")))
         .findFirst()
         .orElse(null);
+  }
+
+  private boolean containsCompleteReference(String filename, String reference) {
+    var tokens = filename.split("[()]");
+    return Arrays.asList(tokens).contains(reference);
   }
 
   private String cleanseConsentType(String consentType) {

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
@@ -114,6 +115,9 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
   public void respondToApplicationOpenUpdateRequest(PwaApplicationDetail pwaApplicationDetail,
                                                     Person respondingPerson,
                                                     String response) {
+    if (pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)) {
+      LOGGER.info("Submitting update response for options variation with pad id %s".formatted(pwaApplicationDetail.getId()));
+    }
 
     var openUpdateRequest = getOpenUpdateRequestOrThrow(pwaApplicationDetail);
 
@@ -129,6 +133,10 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
     applicationUpdateRequestRepository.save(openUpdateRequest);
 
     var requestedByPerson = personService.getPersonById(openUpdateRequest.getRequestedByPersonId());
+
+    if (pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)) {
+      LOGGER.info("Options variation with pad id %s update email will be sent".formatted(pwaApplicationDetail.getId()));
+    }
     sendApplicationUpdateRespondedEmail(pwaApplicationDetail, requestedByPerson);
 
   }
@@ -221,6 +229,10 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
         requestedByperson,
         pwaApplicationDetail.getPwaApplicationRef()
     );
+
+    if (pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)) {
+      LOGGER.info("Update request email for options variation with pad id %s has been sent".formatted(pwaApplicationDetail.getId()));
+    }
   }
 
   public boolean applicationHasOpenUpdateRequest(PwaApplicationDetail pwaApplicationDetail) {

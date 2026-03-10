@@ -11,6 +11,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseFileController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
@@ -20,29 +21,23 @@ import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseFileLink;
-import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseFileLinkRepository;
-import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.util.RouteUtils;
 
 @Service
 public class ConsultationFileService {
 
-  private final AppFileService appFileService;
   private final ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository;
   private final PwaConsentService pwaConsentService;
-
-  private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.CONSULTATION_RESPONSE;
   private final AppFileManagementService appFileManagementService;
 
   @Autowired
-  public ConsultationFileService(AppFileService appFileService,
-                                 ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository,
-                                 PwaConsentService pwaConsentService,
-                                 AppFileManagementService appFileManagementService
+  public ConsultationFileService(
+      ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository,
+      PwaConsentService pwaConsentService,
+      AppFileManagementService appFileManagementService
   ) {
-    this.appFileService = appFileService;
     this.consultationResponseFileLinkRepository = consultationResponseFileLinkRepository;
     this.pwaConsentService = pwaConsentService;
     this.appFileManagementService = appFileManagementService;
@@ -51,7 +46,7 @@ public class ConsultationFileService {
   public Map<Integer, List<UploadedFileView>> getConsultationResponseIdToFileViewsMap(PwaApplication pwaApplication,
                                                                                Set<ConsultationResponse> responses) {
 
-    var appFileIdToViewMap = appFileManagementService.getUploadedFileViews(pwaApplication, FileDocumentType.CONSULTATION_RESPONSE)
+    var appFileIdToViewMap = getUploadedFileViews(pwaApplication, FileDocumentType.CONSULTATION_RESPONSE)
         .stream()
         .collect(Collectors.toMap(UploadedFileView::getFileId, Function.identity()));
 
@@ -84,6 +79,23 @@ public class ConsultationFileService {
     return RouteUtils.routeWithUriVariables(on(ConsultationResponseFileController.class).download(
         application.getId(), null, null),
         Map.of("consultationRequestId", request.getId()));
+  }
+
+  public List<UploadedFileView> getUploadedFileViews(PwaApplication pwaApplication, FileDocumentType fileDocumentType) {
+    return appFileManagementService.getUploadedFiles(pwaApplication, fileDocumentType).stream()
+        .map(this::createUploadedFileView)
+        .toList();
+  }
+
+  private UploadedFileView createUploadedFileView(UploadedFile uploadedFile) {
+    return new UploadedFileView(
+        String.valueOf(uploadedFile.getId()),
+        uploadedFile.getName(),
+        uploadedFile.getContentLength(),
+        uploadedFile.getDescription(),
+        uploadedFile.getUploadedAt(),
+        ""
+    );
   }
 
 }

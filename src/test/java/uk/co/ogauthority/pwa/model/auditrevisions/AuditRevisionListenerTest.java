@@ -8,7 +8,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.util.SecurityUtils;
 
@@ -88,5 +91,21 @@ class AuditRevisionListenerTest {
 
     assertThat(auditRevision.getPersonId()).isNull();
     assertThat(auditRevision.getProxyWuaId()).isNull();
+  }
+  @Test
+  void newRevision_whenNoAuthenticatedUser_thenUseFallbackUser() {
+    SecurityContextHolder.setContext(new SecurityContextImpl(null));
+
+    var auditRevision = new AuditRevision();
+    var authenticatedUserAccount = AuthenticatedUserAccountTestUtil.defaultAllPrivUserAccount();
+
+    try (MockedStatic<AuditRevisionUtil> mockedUtil = Mockito.mockStatic(AuditRevisionUtil.class)) {
+      mockedUtil.when(AuditRevisionUtil::getFallbackAuditUser)
+          .thenReturn(authenticatedUserAccount);
+
+      auditRevisionListener.newRevision(auditRevision);
+    }
+
+    assertThat(auditRevision.getPersonId()).isEqualTo(authenticatedUserAccount.getLinkedPerson().getId().asInt());
   }
 }

@@ -7,6 +7,8 @@ CREATE OR REPLACE VIEW ${datasource.user}.portal_organisation_units AS
 SELECT
   xou.organ_id ou_id
 , xou.name
+, xou.registered_number
+, xou.foreign_registered_number
 , cogo.org_grp_id
 , xou.start_date start_date -- organisation started, not record started
 , xou.end_date end_date -- organisation ended, not record ended

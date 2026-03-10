@@ -28,6 +28,7 @@ public class PadFileService {
     this.entityCopyingService = entityCopyingService;
   }
 
+  @Transactional
   public void savePadFileIfValid(
       FileUploadResponse response,
       PwaApplicationDetail pwaApplicationDetail,

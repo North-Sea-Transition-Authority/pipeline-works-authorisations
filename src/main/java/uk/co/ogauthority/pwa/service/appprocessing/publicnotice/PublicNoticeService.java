@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeFileManagementRestController;
@@ -592,7 +593,7 @@ public class PublicNoticeService implements AppProcessingService {
         .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
             "Couldn't find public notice document link with public notice document ID: %s", latestPublicNoticeDocument.getId())));
 
-    return appFileManagementService.getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId()));
+    return getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId()));
   }
 
   public UploadedFileView getLatestPublicNoticeDocumentFileView(PwaApplication pwaApplication) {
@@ -616,8 +617,7 @@ public class PublicNoticeService implements AppProcessingService {
           .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
               "Couldn't find public notice document link with public notice document ID: %s", latestPublicNoticeDocument.getId())));
 
-      return Optional.of(appFileManagementService
-          .getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())));
+      return Optional.of(getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())));
     }
     return Optional.empty();
   }
@@ -625,6 +625,22 @@ public class PublicNoticeService implements AppProcessingService {
   public Optional<UploadedFileView> getLatestPublicNoticeDocumentFileViewIfExists(PwaApplication pwaApplication) {
     var publicNotice = getLatestPublicNoticeOpt(pwaApplication);
     return publicNotice.flatMap(notice -> getPublicNoticeDocumentFileViewForPublicNoticeIfExists(notice, pwaApplication));
+  }
+
+  public UploadedFileView getUploadedFileView(PwaApplication pwaApplication, UUID fileId) {
+    return createUploadedFileView(appFileManagementService.getUploadedFile(pwaApplication, fileId));
+  }
+
+  private UploadedFileView createUploadedFileView(UploadedFile uploadedFile) {
+    return new UploadedFileView(
+        String.valueOf(uploadedFile.getId()),
+        uploadedFile.getName(),
+        uploadedFile.getContentLength(),
+        uploadedFile.getDescription(),
+        uploadedFile.getUploadedAt(),
+        ReverseRouter.route(on(PublicNoticeFileManagementRestController.class)
+            .download(Integer.parseInt(uploadedFile.getUsageId()), uploadedFile.getId()))
+    );
   }
 
   private PublicNoticeDocument getArchivedPublicNoticeDocument(PublicNotice publicNotice) {
@@ -639,8 +655,10 @@ public class PublicNoticeService implements AppProcessingService {
         .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
             "Couldn't find public notice document link with public notice document ID: %s", publicNoticeDocument.getId())));
 
-    return appFileManagementService.getUploadedFileView(
-        publicNotice.getPwaApplication(), UUID.fromString(documentLink.getAppFile().getFileId()));
+    return getUploadedFileView(
+        publicNotice.getPwaApplication(),
+        UUID.fromString(documentLink.getAppFile().getFileId())
+    );
   }
 
   private String getArchivedPublicNoticeDocumentDownloadUrl(PublicNotice publicNotice) {

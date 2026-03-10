@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +25,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.unit.DataSize;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteFileManagementRestController;
@@ -81,7 +83,11 @@ class CaseNoteServiceTest {
   private final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
   private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.CASE_NOTES;
-  
+  private static final String USAGE_TYPE = PwaApplication.class.getSimpleName();
+  private static final UUID FILE_ID = UUID.randomUUID();
+
+  private PwaApplication pwaApplication;
+
   @Captor
   private ArgumentCaptor<CaseNote> caseNoteCaptor;
 
@@ -99,6 +105,9 @@ class CaseNoteServiceTest {
         appFileManagementService,
         fileManagementService
     );
+
+    pwaApplication = new PwaApplication();
+    pwaApplication.setId(1);
   }
 
   @Test
@@ -128,20 +137,19 @@ class CaseNoteServiceTest {
   @Test
   void createCaseNote_noDocuments() {
 
-    var app = new PwaApplication();
     var person = new Person(1, null, null, null, null);
     var user = new WebUserAccount(1, person);
 
     var form = new AddCaseNoteForm();
     form.setNoteText("some note text");
 
-    caseNoteService.createCaseNote(app, form, user);
+    caseNoteService.createCaseNote(pwaApplication, form, user);
 
     verify(caseNoteRepository, times(1)).save(caseNoteCaptor.capture());
 
     var caseNote = caseNoteCaptor.getValue();
 
-    assertThat(caseNote.getPwaApplication()).isEqualTo(app);
+    assertThat(caseNote.getPwaApplication()).isEqualTo(pwaApplication);
     assertThat(caseNote.getPersonId()).isEqualTo(person.getId());
     assertThat(caseNote.getDateTime()).isEqualTo(clock.instant());
     assertThat(caseNote.getItemType()).isEqualTo(CaseHistoryItemType.CASE_NOTE);
@@ -152,7 +160,6 @@ class CaseNoteServiceTest {
   @Test
   void createCaseNote_withDocuments() {
 
-    var app = new PwaApplication();
     var person = new Person(1, null, null, null, null);
     var user = new WebUserAccount(1, person);
 
@@ -163,23 +170,23 @@ class CaseNoteServiceTest {
         FileManagementValidatorTestUtils.createUploadedFileForm()
     ));
 
-    var appFile1 = new AppFile(app, "id", AppFilePurpose.CASE_NOTES, ApplicationFileLinkStatus.FULL);
-    var appFile2 = new AppFile(app, "id2", AppFilePurpose.CASE_NOTES, ApplicationFileLinkStatus.FULL);
+    var appFile1 = new AppFile(pwaApplication, "id", AppFilePurpose.CASE_NOTES, ApplicationFileLinkStatus.FULL);
+    var appFile2 = new AppFile(pwaApplication, "id2", AppFilePurpose.CASE_NOTES, ApplicationFileLinkStatus.FULL);
 
-    when(appFileService.getFilesByIdIn(eq(app), eq(AppFilePurpose.CASE_NOTES), any())).thenReturn(List.of(
+    when(appFileService.getFilesByIdIn(eq(pwaApplication), eq(AppFilePurpose.CASE_NOTES), any())).thenReturn(List.of(
         appFile1,
         appFile2
     ));
 
-    caseNoteService.createCaseNote(app, form, user);
+    caseNoteService.createCaseNote(pwaApplication, form, user);
 
     verify(caseNoteRepository, times(1)).save(caseNoteCaptor.capture());
 
-    verify(appFileManagementService, times(1)).saveFiles(form, app, DOCUMENT_TYPE);
+    verify(appFileManagementService, times(1)).saveFiles(form, pwaApplication, DOCUMENT_TYPE);
 
     var caseNote = caseNoteCaptor.getValue();
 
-    assertThat(caseNote.getPwaApplication()).isEqualTo(app);
+    assertThat(caseNote.getPwaApplication()).isEqualTo(pwaApplication);
     assertThat(caseNote.getPersonId()).isEqualTo(person.getId());
     assertThat(caseNote.getDateTime()).isEqualTo(clock.instant());
     assertThat(caseNote.getItemType()).isEqualTo(CaseHistoryItemType.CASE_NOTE);
@@ -199,11 +206,9 @@ class CaseNoteServiceTest {
   @Test
   void getCaseHistoryItemViews() {
 
-    var app = new PwaApplication();
-
-    var caseNote1 = new CaseNote(app, new PersonId(1), clock.instant(), "noteText");
+    var caseNote1 = new CaseNote(pwaApplication, new PersonId(1), clock.instant(), "noteText");
     caseNote1.setId(10);
-    var caseNote2 = new CaseNote(app, new PersonId(2), clock.instant().minusSeconds(10), "note2");
+    var caseNote2 = new CaseNote(pwaApplication, new PersonId(2), clock.instant().minusSeconds(10), "note2");
     caseNote2.setId(11);
 
     when(caseNoteRepository.getAllByPwaApplication(any())).thenReturn(List.of(
@@ -211,21 +216,35 @@ class CaseNoteServiceTest {
         caseNote2
     ));
 
-    var fileView1 = new UploadedFileView("id", "name", 1L, "desc", clock.instant(), "#id");
-    var fileView2 = new UploadedFileView("id2", "abc", 2L, "desc2", clock.instant().minusSeconds(10), "#id2");
-    when(appFileManagementService.getUploadedFileViews(app, DOCUMENT_TYPE)).thenReturn(List.of(fileView1, fileView2));
+    var file1 = new UploadedFile();
+    file1.setId(UUID.randomUUID());
+    file1.setName("name");
+    file1.setContentLength(1L);
+    file1.setDescription("desc");
+    file1.setUploadedAt(clock.instant());
+    file1.setUsageId(String.valueOf(pwaApplication.getId()));
+
+    var file2 = new UploadedFile();
+    file2.setId(UUID.randomUUID());
+    file2.setName("abc");
+    file2.setContentLength(2L);
+    file2.setDescription("desc2");
+    file2.setUploadedAt(clock.instant().minusSeconds(10));
+    file2.setUsageId(String.valueOf(pwaApplication.getId()));
+
+    when(appFileManagementService.getUploadedFiles(pwaApplication, DOCUMENT_TYPE)).thenReturn(List.of(file1, file2));
 
     var appFile1 = new AppFile();
-    appFile1.setFileId("id");
+    appFile1.setFileId(String.valueOf(file1.getId()));
     var docLink1 = new CaseNoteDocumentLink(caseNote1, appFile1);
 
     var appFile2 = new AppFile();
-    appFile2.setFileId("id2");
+    appFile2.setFileId(String.valueOf(file2.getId()));
     var docLink2 = new CaseNoteDocumentLink(caseNote1, appFile2);
 
     when(documentLinkRepository.findAllByCaseNoteIn(any())).thenReturn(List.of(docLink1, docLink2));
 
-    var views = caseNoteService.getCaseHistoryItemViews(app);
+    var views = caseNoteService.getCaseHistoryItemViews(pwaApplication);
 
     assertThat(views)
         .extracting(
@@ -283,5 +302,39 @@ class CaseNoteServiceTest {
         );
 
     verify(fileManagementService).getFileUploadComponentAttributesBuilder(existingFileForms, DOCUMENT_TYPE);
+  }
+
+  @Test
+  void getUploadedFileViews() {
+    var uploadedFile = createUploadedFile();
+
+    when(appFileManagementService.getUploadedFiles(pwaApplication, DOCUMENT_TYPE)).thenReturn(List.of(uploadedFile));
+
+    assertThat(caseNoteService.getUploadedFileViews(pwaApplication, DOCUMENT_TYPE)).isEqualTo(List.of(createUploadedFileViewForFile(uploadedFile)));
+  }
+
+  private UploadedFile createUploadedFile() {
+    var uploadedFile = new UploadedFile();
+    uploadedFile.setId(FILE_ID);
+    uploadedFile.setName("name");
+    uploadedFile.setContentLength(50000L);
+    uploadedFile.setDescription("description");
+    uploadedFile.setUploadedAt(Instant.now());
+    uploadedFile.setUsageId(pwaApplication.getId().toString());
+    uploadedFile.setUsageType(USAGE_TYPE);
+
+    return uploadedFile;
+  }
+
+  private UploadedFileView createUploadedFileViewForFile(UploadedFile uploadedFile) {
+    return new UploadedFileView(
+        String.valueOf(uploadedFile.getId()),
+        uploadedFile.getName(),
+        uploadedFile.getContentLength(),
+        uploadedFile.getDescription(),
+        uploadedFile.getUploadedAt(),
+        ReverseRouter.route(on(CaseNoteFileManagementRestController.class)
+            .download(Integer.parseInt(uploadedFile.getUsageId()), uploadedFile.getId()))
+    );
   }
 }

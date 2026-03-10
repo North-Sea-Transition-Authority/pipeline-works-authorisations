@@ -36,6 +36,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.Pw
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.ApplicationChargeRequestReport;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.ApplicationChargeRequestReportTestUtil;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
+import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.CancelAppChargeFormValidator;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.CancelAppPaymentOutcome;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.CancelPaymentRequestAppProcessingService;
@@ -93,7 +94,7 @@ class CancelPaymentRequestControllerTest extends PwaAppProcessingContextAbstract
     applicationChargeRequestReport = ApplicationChargeRequestReportTestUtil.createOpenReport(
         100,
         "Summary",
-        List.of(ApplicationChargeRequestReportTestUtil.createApplicationChargeItem("Item 1", 100))
+        List.of(ApplicationChargeRequestReportTestUtil.createApplicationChargeItem(PwaApplicationFeeType.DEFAULT, "Item 1", 100))
     );
     applicationPaymentDisplaySummary = ApplicationPaymentDisplaySummaryTestUtil.getDefaultPaymentDisplaySummary();
 

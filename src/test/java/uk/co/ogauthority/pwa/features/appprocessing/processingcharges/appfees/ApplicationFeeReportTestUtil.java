@@ -24,9 +24,8 @@ public class ApplicationFeeReportTestUtil {
     );
   }
 
-  public static ApplicationFeeItem createApplicationFeeItem(String desc, int amount){
-    return ApplicationFeeItemTestUtil.createAppFeeItem(desc, amount);
-
+  public static ApplicationFeeItem createApplicationFeeItem(PwaApplicationFeeType pwaApplicationFeeType, String desc, int amount) {
+    return ApplicationFeeItemTestUtil.createAppFeeItem(pwaApplicationFeeType, desc, amount);
   }
 
 }

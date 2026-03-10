@@ -1,9 +1,12 @@
 package uk.co.ogauthority.pwa.features.application.submission;
 
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationSubmitResult;
@@ -17,6 +20,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
  */
 @Service
 class PwaApplicationUpdateRequestedSubmissionService implements ApplicationSubmissionService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PwaApplicationUpdateRequestedSubmissionService.class);
 
   private final ApplicationUpdateRequestService applicationUpdateRequestService;
   private final ApplicationInvolvementService applicationInvolvementService;
@@ -59,6 +64,10 @@ class PwaApplicationUpdateRequestedSubmissionService implements ApplicationSubmi
   public void doBeforeSubmit(PwaApplicationDetail pwaApplicationDetail, Person submittedByPerson,
                              @Nullable String submissionDescription) {
     padPipelineNumberingService.assignPipelineReferences(pwaApplicationDetail);
+
+    if (pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)) {
+      LOGGER.info("Update request for options variation with pad id %s is being responded to".formatted(pwaApplicationDetail.getId()));
+    }
 
     applicationUpdateRequestService.respondToApplicationOpenUpdateRequest(pwaApplicationDetail, submittedByPerson,
         submissionDescription);

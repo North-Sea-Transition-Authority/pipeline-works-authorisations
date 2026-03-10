@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharge
 
 import java.time.Instant;
 import java.util.List;
+import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 
 public class ApplicationChargeRequestReportTestUtil {
@@ -118,8 +119,8 @@ public class ApplicationChargeRequestReportTestUtil {
   }
 
 
-  public static ApplicationChargeItem createApplicationChargeItem(String desc, int amount) {
-    return new ApplicationChargeItem(desc, amount);
+  public static ApplicationChargeItem createApplicationChargeItem(PwaApplicationFeeType pwaApplicationFeeType, String desc, int amount) {
+    return new ApplicationChargeItem(pwaApplicationFeeType, desc, amount);
   }
 
 }

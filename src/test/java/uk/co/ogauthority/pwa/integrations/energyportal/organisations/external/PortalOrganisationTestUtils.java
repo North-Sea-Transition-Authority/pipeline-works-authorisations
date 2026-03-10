@@ -5,12 +5,13 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 
 public class PortalOrganisationTestUtils {
 
-  private final static Integer DEFAULT_GROUP_ID = 100;
-  public final static String DEFAULT_GROUP_UREF = DEFAULT_GROUP_ID.toString() + "++REGORGGRP";
-  public final static Integer DEFAULT_UNIT_ID = 1000;
-  private final static String DEFAULT_GROUP_NAME = "ORGANISATION_GROUP";
-  private final static String DEFAULT_GROUP_SHORT_NAME = "ORG_GRP";
-  private final static String DEFAULT_UNIT_NAME = "ORGANISATION_UNIT";
+  private static final Integer DEFAULT_GROUP_ID = 100;
+  public static final String DEFAULT_GROUP_UREF = DEFAULT_GROUP_ID.toString() + "++REGORGGRP";
+  public static final Integer DEFAULT_UNIT_ID = 1000;
+  private static final String DEFAULT_GROUP_NAME = "ORGANISATION_GROUP";
+  private static final String DEFAULT_GROUP_SHORT_NAME = "ORG_GRP";
+  private static final String DEFAULT_UNIT_NAME = "ORGANISATION_UNIT";
+  private static final String DEFAULT_REGISTERED_NUMBER = "12345678";
 
 
   public static PortalOrganisationGroup getOrganisationGroup() {
@@ -41,6 +42,8 @@ public class PortalOrganisationTestUtils {
     return new PortalOrganisationUnit(
         ouId,
         name,
+        DEFAULT_REGISTERED_NUMBER,
+        null,
         portalOrganisationGroup,
         LocalDate.of(2000, 1, 1),
         null,
@@ -54,6 +57,8 @@ public class PortalOrganisationTestUtils {
     return new PortalOrganisationUnit(
         ouId,
         name,
+        DEFAULT_REGISTERED_NUMBER,
+        null,
         portalOrganisationGroup,
         LocalDate.of(2000, 1, 1),
         null,
@@ -76,6 +81,25 @@ public class PortalOrganisationTestUtils {
                                                                 PortalOrganisationGroup portalOrganisationGroup) {
     PortalOrganisationUnit organisationUnit = genActiveOrgUnitHelper(ouId, name, portalOrganisationGroup);
     return organisationUnit;
+  }
+
+  public static PortalOrganisationUnit generateOrganisationUnit(
+      int ouId,
+      String name,
+      String registeredNumber,
+      String foreignRegisteredNumber
+  ) {
+    return new PortalOrganisationUnit(
+        ouId,
+        name,
+        registeredNumber,
+        foreignRegisteredNumber,
+        null,
+        LocalDate.of(2000, 1, 1),
+        null,
+        false,
+        true
+    );
   }
 
   public static PortalOrganisationSearchUnit generateOrganisationSearchUnit(int ouId,

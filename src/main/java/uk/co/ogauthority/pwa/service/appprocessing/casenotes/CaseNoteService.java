@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteFileManagementRestController;
@@ -121,7 +122,7 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
 
     var caseNotes = caseNoteRepository.getAllByPwaApplication(pwaApplication);
 
-    var appFileIdToViewMap = appFileManagementService.getUploadedFileViews(pwaApplication, DOCUMENT_TYPE).stream()
+    var appFileIdToViewMap = getUploadedFileViews(pwaApplication, DOCUMENT_TYPE).stream()
         .collect(Collectors.toMap(UploadedFileView::getFileId, Function.identity()));
 
     var caseNoteIdToDocLinksMap = caseNoteDocumentLinkRepository.findAllByCaseNoteIn(caseNotes).stream()
@@ -175,6 +176,24 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
         .withDownloadUrl(ReverseRouter.route(on(controller).download(pwaApplication.getId(), null)))
         .withDeleteUrl(ReverseRouter.route(on(controller).delete(pwaApplication.getId(), null)))
         .build();
+  }
+
+  public List<UploadedFileView> getUploadedFileViews(PwaApplication pwaApplication, FileDocumentType fileDocumentType) {
+    return appFileManagementService.getUploadedFiles(pwaApplication, fileDocumentType).stream()
+        .map(this::createUploadedFileView)
+        .toList();
+  }
+
+  private UploadedFileView createUploadedFileView(UploadedFile uploadedFile) {
+    return new UploadedFileView(
+        String.valueOf(uploadedFile.getId()),
+        uploadedFile.getName(),
+        uploadedFile.getContentLength(),
+        uploadedFile.getDescription(),
+        uploadedFile.getUploadedAt(),
+        ReverseRouter.route(on(CaseNoteFileManagementRestController.class)
+            .download(Integer.parseInt(uploadedFile.getUsageId()), uploadedFile.getId()))
+    );
   }
 
 }
