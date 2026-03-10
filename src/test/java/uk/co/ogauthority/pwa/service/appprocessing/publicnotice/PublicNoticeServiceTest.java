@@ -1307,4 +1307,29 @@ class PublicNoticeServiceTest {
     );
   }
 
+  @Test
+  void fileUploadComponentAttributes_VerifyMethodCall() {
+    var app = new PwaApplication();
+
+    List<UploadedFileForm> existingFileForms = Collections.emptyList();
+
+    var builder = FileUploadComponentAttributes.newBuilder()
+        .withMaximumSize(DataSize.ofBytes(1));
+    when(fileManagementService.getFileUploadComponentAttributesBuilder(existingFileForms, DOCUMENT_TYPE))
+        .thenReturn(builder);
+
+    assertThat(publicNoticeService.getFileUploadComponentAttributes(existingFileForms, app))
+        .extracting(
+            FileUploadComponentAttributes::uploadUrl,
+            FileUploadComponentAttributes::downloadUrl,
+            FileUploadComponentAttributes::deleteUrl
+        ).containsExactly(
+            ReverseRouter.route(on(AppFileUploadRestController.class).upload(app.getId(), DOCUMENT_TYPE.name(), null)),
+            ReverseRouter.route(on(PublicNoticeFileManagementRestController.class).download(app.getId(), null)),
+            ReverseRouter.route(on(PublicNoticeFileManagementRestController.class).delete(app.getId(), null))
+        );
+
+    verify(fileManagementService).getFileUploadComponentAttributesBuilder(existingFileForms, DOCUMENT_TYPE);
+  }
+
 }
