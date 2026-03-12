@@ -371,11 +371,10 @@ class ConsentDocumentMigrationServiceTest {
   @Test
   void verifyDestinations() {
     var docRecord = new DocumentMigrationRecord();
-    docRecord.setConsentDoc("ref");
 
     when(documentMigrationRecordRepository.findAllByMigrationSuccessfulIsFalse()).thenReturn(List.of(docRecord));
 
-    when(pwaConsentService.getConsentByReference("ref")).thenReturn(Optional.of(new PwaConsent()));
+    when(pwaConsentService.getConsentByRecord(docRecord)).thenReturn(Optional.of(new PwaConsent()));
 
     consentDocumentMigrationService.verifyDestinations();
 
@@ -387,11 +386,10 @@ class ConsentDocumentMigrationServiceTest {
   @Test
   void verifyDestinations_destinationRecordDoesNotExist() {
     var docRecord = new DocumentMigrationRecord();
-    docRecord.setConsentDoc("ref");
 
     when(documentMigrationRecordRepository.findAllByMigrationSuccessfulIsFalse()).thenReturn(List.of(docRecord));
 
-    when(pwaConsentService.getConsentByReference("ref")).thenReturn(Optional.empty());
+    when(pwaConsentService.getConsentByRecord(docRecord)).thenReturn(Optional.empty());
 
     consentDocumentMigrationService.verifyDestinations();
 
@@ -400,14 +398,12 @@ class ConsentDocumentMigrationServiceTest {
 
   @Test
   void migrate() throws S3Exception, IOException {
-    String test = "1-w-2";
-
     var documentRecord1 = new DocumentMigrationRecord();
     documentRecord1.setId(1);
     documentRecord1.setFilename("Field 1 (1-w-2) PWA Consent Document (1-w-2).pdf");
     documentRecord1.setPwaReference("1-w-2");
     documentRecord1.setFieldName("Field 1");
-    documentRecord1.setConsentDoc(test);
+    documentRecord1.setConsentDoc("1-w-2");
     documentRecord1.setConsentDate("12/12/12");
     documentRecord1.setConsentType("PWA");
     documentRecord1.setAction("upload");
@@ -442,8 +438,8 @@ class ConsentDocumentMigrationServiceTest {
     var pwaConsent2 = new PwaConsent();
     pwaConsent2.setReference(documentRecord2.getConsentDoc());
 
-    when(pwaConsentService.getConsentByReference(test)).thenReturn(Optional.of(pwaConsent1));
-    when(pwaConsentService.getConsentByReference(documentRecord2.getConsentDoc())).thenReturn(Optional.empty());
+    when(pwaConsentService.getConsentByRecord(documentRecord1)).thenReturn(Optional.of(pwaConsent1));
+    when(pwaConsentService.getConsentByRecord(documentRecord2)).thenReturn(Optional.empty());
     when(pwaConsentService.createLegacyConsent(documentRecord2)).thenReturn(pwaConsent2);
 
     when(pwaS3FileService.downloadFile(devtoolsProperties.migrationS3Bucket(), documentRecord1.getFilename()))

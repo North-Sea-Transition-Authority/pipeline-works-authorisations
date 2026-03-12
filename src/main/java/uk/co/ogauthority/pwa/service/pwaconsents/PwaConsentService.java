@@ -85,8 +85,16 @@ public class PwaConsentService {
     return pwaConsentRepository.findByMasterPwa(masterPwa);
   }
 
-  public Optional<PwaConsent> getConsentByReference(String reference) {
-    return pwaConsentRepository.findByReference(reference);
+  public Optional<PwaConsent> getConsentByRecord(DocumentMigrationRecord documentMigrationRecord) {
+    var masterPwaDetail = masterPwaService.getLatestConsentedDetailByReference(documentMigrationRecord.getPwaReference());
+
+    if (masterPwaDetail.isEmpty()) {
+      return Optional.empty();
+    }
+
+    var masterPwa = masterPwaDetail.get().getMasterPwa();
+
+    return pwaConsentRepository.findByReferenceAndMasterPwa(documentMigrationRecord.getConsentDoc(), masterPwa);
   }
 
   public PwaConsent getConsentById(Integer consentId) {

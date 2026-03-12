@@ -182,7 +182,7 @@ public class ConsentDocumentMigrationService {
     var records = documentMigrationRecordRepository.findAllByMigrationSuccessfulIsFalse();
 
     for (var docRecord : records) {
-      var consent = pwaConsentService.getConsentByReference(docRecord.getConsentDoc());
+      var consent = pwaConsentService.getConsentByRecord(docRecord);
 
       if (consent.isPresent()) {
         docRecord.setDestinationRecordExists(true);
@@ -233,7 +233,7 @@ public class ConsentDocumentMigrationService {
     var documentMigrationRecord = documentMigrationRecordRepository.findById(documentMigrationRecordId)
         .orElseThrow(() -> new RuntimeException("Cannot find migration record with ID: " + documentMigrationRecordId));
 
-    var pwaConsent = pwaConsentService.getConsentByReference(documentMigrationRecord.getConsentDoc())
+    var pwaConsent = pwaConsentService.getConsentByRecord(documentMigrationRecord)
         .orElseGet(() -> generateDestinationRecord(documentMigrationRecord));
 
     var fileStream = getByteArrayInputStream(

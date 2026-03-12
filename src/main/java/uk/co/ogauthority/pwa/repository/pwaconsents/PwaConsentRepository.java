@@ -26,5 +26,5 @@ public interface PwaConsentRepository extends CrudRepository<PwaConsent, Integer
 
   Optional<PwaConsent> findBySourcePwaApplication(PwaApplication pwaApplication);
 
-  Optional<PwaConsent> findByReference(String reference);
+  Optional<PwaConsent> findByReferenceAndMasterPwa(String reference, MasterPwa masterPwa);
 }
