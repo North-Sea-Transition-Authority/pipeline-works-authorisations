@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.consentdocumentmigration;
 
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -42,8 +43,20 @@ class ConsentDocumentMigrationControllerTest extends AbstractControllerTest {
 
   @Test
   void migrate() throws Exception {
+    when(consentDocumentMigrationService.migrate()).thenReturn(false);
+
     mockMvc.perform(get(ReverseRouter.route(on(ConsentDocumentMigrationController.class).migrate())))
         .andExpect(status().isOk());
+
+    Mockito.verify(consentDocumentMigrationService).migrate();
+  }
+
+  @Test
+  void migrate_incompleteMigration_recallEndpoint() throws Exception {
+    when(consentDocumentMigrationService.migrate()).thenReturn(true);
+
+    mockMvc.perform(get(ReverseRouter.route(on(ConsentDocumentMigrationController.class).migrate())))
+        .andExpect(status().is3xxRedirection());
 
     Mockito.verify(consentDocumentMigrationService).migrate();
   }

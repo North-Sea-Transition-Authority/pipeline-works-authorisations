@@ -45,7 +45,7 @@ class ConsentDocumentMigrationServiceTest {
   @Mock
   private FileUploadProperties fileUploadProperties;
 
-  private final DevtoolsProperties devtoolsProperties = new DevtoolsProperties("pwa-migration", "csv-key", 100);
+  private final DevtoolsProperties devtoolsProperties = new DevtoolsProperties("pwa-migration", "csv-key", 2);
 
   @Mock
   private DocumentMigrationRecordRepository documentMigrationRecordRepository;
@@ -453,7 +453,7 @@ class ConsentDocumentMigrationServiceTest {
     when(fileService.upload(any())).thenReturn(response);
     when(response.getError()).thenReturn(null);
 
-    consentDocumentMigrationService.migrate();
+    assertThat(consentDocumentMigrationService.migrate()).isTrue();
 
     Mockito.verify(fileService, times(2)).upload(any());
     Mockito.verify(consentDocumentFileManagementService).saveConsentDocument(any(), eq(pwaConsent1));

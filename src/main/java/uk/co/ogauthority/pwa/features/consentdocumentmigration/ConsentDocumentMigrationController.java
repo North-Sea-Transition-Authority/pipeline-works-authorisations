@@ -1,14 +1,19 @@
 package uk.co.ogauthority.pwa.features.consentdocumentmigration;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.io.IOException;
+import java.net.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import uk.co.fivium.fileuploadlibrary.s3.S3Exception;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 @Controller
 @Profile("devtools")
@@ -37,7 +42,14 @@ public class ConsentDocumentMigrationController {
   @GetMapping("/migrate")
   ResponseEntity<String> migrate() {
     try {
-      consentDocumentMigrationService.migrate();
+      var continueMigration = consentDocumentMigrationService.migrate();
+
+      if (continueMigration) {
+        return ResponseEntity
+            .status(HttpStatus.FOUND)
+            .location(URI.create(ReverseRouter.route(on(ConsentDocumentMigrationController.class).migrate())))
+            .build();
+      }
     } catch (S3Exception | IOException e) {
       var message = "Failed to migrate consent documents";
       LOGGER.error(message, e);
