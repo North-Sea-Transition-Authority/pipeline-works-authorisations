@@ -24,6 +24,8 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -42,6 +44,7 @@ import uk.co.ogauthority.pwa.teams.management.form.MemberRolesFormValidator;
 import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 import uk.co.ogauthority.pwa.teams.management.view.TeamTypeView;
 import uk.co.ogauthority.pwa.teams.management.view.TeamView;
+import uk.co.ogauthority.pwa.user.AllowedDomainService;
 
 @SuppressWarnings({"unchecked", "DataFlowIssue"})
 @WebMvcTest(TeamManagementController.class)
@@ -57,6 +60,9 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
   @MockBean
   private EnergyPortalConfiguration energyPortalConfiguration;
 
+  @MockBean
+  private AllowedDomainService allowedDomainService;
+
   private static Team regTeam;
   private static Team organisationTeam;
   private static TeamMemberView regTeamMemberView;
@@ -71,6 +77,8 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
     organisationTeam = new Team(UUID.randomUUID());
     organisationTeam.setTeamType(TeamType.ORGANISATION);
     organisationTeam.setName("org team");
+    organisationTeam.setScopeType("ORGGRP");
+    organisationTeam.setScopeId("1");
 
     regTeamMemberView = new TeamMemberView(
         1L,
@@ -597,8 +605,9 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
         .andExpect(status().isForbidden());
   }
 
-  @Test
-  public void renderUserTeamRoles() throws Exception {
+  @ParameterizedTest
+  @ValueSource(booleans =  {true, false})
+  public void renderUserTeamRoles(boolean isAllowed) throws Exception {
     when(teamManagementService.getTeam(regTeam.getId()))
         .thenReturn(Optional.of(regTeam));
 
@@ -608,9 +617,14 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
     when(teamManagementService.getTeamMemberView(regTeam, 999L))
         .thenReturn(regTeamMemberView);
 
+    when(allowedDomainService.isAllowedDomain(regTeamMemberView.email(), regTeam)).thenReturn(
+        isAllowed
+    );
+
     var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(TeamManagementController.class).renderUserTeamRoles(regTeam.getId(), 999L, null)))
         .with(user(invokingUser)))
         .andExpect(status().isOk())
+        .andExpect(model().attribute("userHasAllowedEmail", isAllowed))
         .andReturn().getModelAndView();
 
     var roleMap = (Map<String, String>) modelAndView.getModel().get("rolesNamesMap");

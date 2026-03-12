@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.teams.management.form.MemberRolesForm;
 import uk.co.ogauthority.pwa.teams.management.form.MemberRolesFormValidator;
 import uk.co.ogauthority.pwa.teams.management.view.TeamTypeView;
 import uk.co.ogauthority.pwa.teams.management.view.TeamView;
+import uk.co.ogauthority.pwa.user.AllowedDomainService;
 import uk.co.ogauthority.pwa.util.StreamUtil;
 
 @RestController
@@ -43,16 +44,19 @@ public class TeamManagementController {
   private final MemberRolesFormValidator memberRolesFormValidator;
   private final AddMemberFormValidator addMemberFormValidator;
   private final EnergyPortalConfiguration energyPortalConfiguration;
+  private final AllowedDomainService allowedDomainService;
 
   public TeamManagementController(TeamManagementService teamManagementService, TeamQueryService teamQueryService,
                                   MemberRolesFormValidator memberRolesFormValidator,
                                   AddMemberFormValidator addMemberFormValidator,
-                                  EnergyPortalConfiguration energyPortalConfiguration) {
+                                  EnergyPortalConfiguration energyPortalConfiguration,
+                                  AllowedDomainService allowedDomainService) {
     this.teamManagementService = teamManagementService;
     this.teamQueryService = teamQueryService;
     this.memberRolesFormValidator = memberRolesFormValidator;
     this.addMemberFormValidator = addMemberFormValidator;
     this.energyPortalConfiguration = energyPortalConfiguration;
+    this.allowedDomainService = allowedDomainService;
   }
 
   @GetMapping
@@ -280,10 +284,13 @@ public class TeamManagementController {
     Map<String, String> rolesNamesMap = availableRoles.stream()
         .collect(StreamUtil.toLinkedHashMap(Enum::name, Role::getName));
 
+    boolean userHasAllowedEmail = allowedDomainService.isAllowedDomain(teamMemberView.email(), team);
+
     return new ModelAndView("teamManagement/editMemberRoles")
         .addObject("rolesNamesMap", rolesNamesMap)
         .addObject("rolesInTeam", availableRoles)
         .addObject("teamMemberView", teamMemberView)
+        .addObject("userHasAllowedEmail", userHasAllowedEmail)
         .addObject(
             "cancelUrl",
             ReverseRouter.route(on(TeamManagementController.class).renderTeamMemberList(team.getId(), null))
