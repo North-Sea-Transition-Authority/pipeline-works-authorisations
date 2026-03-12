@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.consentdocumentmigration;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
 import org.slf4j.Logger;
@@ -40,14 +41,14 @@ public class ConsentDocumentMigrationController {
   }
 
   @GetMapping("/migrate")
-  ResponseEntity<String> migrate() {
+  ResponseEntity<String> migrate(HttpServletRequest request) {
     try {
       var continueMigration = consentDocumentMigrationService.migrate();
 
       if (continueMigration) {
         return ResponseEntity
             .status(HttpStatus.FOUND)
-            .location(URI.create(ReverseRouter.route(on(ConsentDocumentMigrationController.class).migrate())))
+            .location(getRedirectUri(request.getContextPath()))
             .build();
       }
     } catch (S3Exception | IOException e) {
@@ -56,6 +57,10 @@ public class ConsentDocumentMigrationController {
       return ResponseEntity.internalServerError().body(message);
     }
     return ResponseEntity.ok().body("Migration Successful");
+  }
+
+  private URI getRedirectUri(String contextPath) {
+    return URI.create(contextPath + ReverseRouter.route(on(ConsentDocumentMigrationController.class).migrate(null)));
   }
 
 }

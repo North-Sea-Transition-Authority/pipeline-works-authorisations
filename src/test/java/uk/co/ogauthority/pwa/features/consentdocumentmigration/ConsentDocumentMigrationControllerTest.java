@@ -45,7 +45,7 @@ class ConsentDocumentMigrationControllerTest extends AbstractControllerTest {
   void migrate() throws Exception {
     when(consentDocumentMigrationService.migrate()).thenReturn(false);
 
-    mockMvc.perform(get(ReverseRouter.route(on(ConsentDocumentMigrationController.class).migrate())))
+    mockMvc.perform(get(ReverseRouter.route(on(ConsentDocumentMigrationController.class).migrate(null))))
         .andExpect(status().isOk());
 
     Mockito.verify(consentDocumentMigrationService).migrate();
@@ -55,7 +55,7 @@ class ConsentDocumentMigrationControllerTest extends AbstractControllerTest {
   void migrate_incompleteMigration_recallEndpoint() throws Exception {
     when(consentDocumentMigrationService.migrate()).thenReturn(true);
 
-    mockMvc.perform(get(ReverseRouter.route(on(ConsentDocumentMigrationController.class).migrate())))
+    mockMvc.perform(get(ReverseRouter.route(on(ConsentDocumentMigrationController.class).migrate(null))))
         .andExpect(status().is3xxRedirection());
 
     Mockito.verify(consentDocumentMigrationService).migrate();
@@ -65,7 +65,7 @@ class ConsentDocumentMigrationControllerTest extends AbstractControllerTest {
   void migrate_failed() throws Exception {
     doThrow(new S3Exception("")).when(consentDocumentMigrationService).migrate();
 
-    mockMvc.perform(get(ReverseRouter.route(on(ConsentDocumentMigrationController.class).migrate())))
+    mockMvc.perform(get(ReverseRouter.route(on(ConsentDocumentMigrationController.class).migrate(null))))
         .andExpect(status().is5xxServerError());
   }
 }
