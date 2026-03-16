@@ -455,19 +455,27 @@ public class PermanentDepositService implements ApplicationFormSectionService {
             Function.identity())
         );
 
+    LOGGER.info("Deposit drawing original FUL files %s".formatted(fromFiles.toString()));
+
     var toFiles = padFileManagementService.getUploadedFiles(toDetail, FileDocumentType.DEPOSIT_DRAWINGS).stream()
         .collect(
             Collectors.toMap(file -> Pair.of(file.getName(), file.getUploadedAt()),
             Function.identity())
         );
 
+    LOGGER.info("Deposit drawing copied FUL files %s".formatted(toFiles.toString()));
+
     var originalToCopiedFileIDs = fromFiles.entrySet().stream()
         .collect(Collectors.toMap(e -> e.getValue().getId(), e -> toFiles.get(e.getKey()).getId()));
+
+    LOGGER.info("Deposit drawing original pad file ids %s".formatted(originalToCopiedFileIDs.keySet().toString()));
 
     //5. duplicate all drawing files and point duplicated drawings at new versions
     var copiedDrawingPadFileEntityIds = padFileService.copyPadFilesToPwaApplicationDetail(
         fromDetail, toDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL
     );
+
+    LOGGER.info("Deposit drawing copied pad file ids %s".formatted(copiedDrawingPadFileEntityIds.toString()));
 
     var toDetailDrawingPadFileLookup = padFileService.getAllByPwaApplicationDetailAndPurpose(
         toDetail,

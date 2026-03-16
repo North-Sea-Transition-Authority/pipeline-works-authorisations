@@ -30,6 +30,10 @@ CVE-2025-46701
 CVE-2025-48988
 CVE-2025-49125
 CVE-2025-48989
+CVE-2025-52520
+CVE-2025-53506
+CVE-2025-66614
+CVE-2026-24733
 
 # org.bouncycastle:bcprov-jdk18on/bcpkix-jdk18on
 CVE-2023-33201
@@ -97,3 +101,6 @@ CVE-2026-1225
 
 # com.fasterxml.jackson.core:jackson-core
 GHSA-72hv-8253-57qq
+
+# com.mchange:mchange-commons-java
+CVE-2026-27727

@@ -154,11 +154,22 @@ class PwaConsentServiceTest {
   }
 
   @Test
-  void getConsentByReference() {
+  void getConsentByRecord() {
 
-    pwaConsentService.getConsentByReference("ref");
+    var masterPwa = new MasterPwa();
 
-    verify(pwaConsentRepository).findByReference("ref");
+    var masterPwaDetail = new MasterPwaDetail();
+    masterPwaDetail.setMasterPwa(masterPwa);
+
+    var docRecord = new DocumentMigrationRecord();
+    docRecord.setConsentDoc("ref");
+    docRecord.setPwaReference("pwaRef");
+
+    when(masterPwaService.getLatestConsentedDetailByReference("pwaRef")).thenReturn(Optional.of(masterPwaDetail));
+
+    pwaConsentService.getConsentByRecord(docRecord);
+
+    verify(pwaConsentRepository).findByReferenceAndMasterPwa("ref", masterPwa);
 
   }
 

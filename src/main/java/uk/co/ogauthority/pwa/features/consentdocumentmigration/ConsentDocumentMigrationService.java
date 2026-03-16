@@ -182,7 +182,7 @@ public class ConsentDocumentMigrationService {
     var records = documentMigrationRecordRepository.findAllByMigrationSuccessfulIsFalse();
 
     for (var docRecord : records) {
-      var consent = pwaConsentService.getConsentByReference(docRecord.getConsentDoc());
+      var consent = pwaConsentService.getConsentByRecord(docRecord);
 
       if (consent.isPresent()) {
         docRecord.setDestinationRecordExists(true);
@@ -191,7 +191,7 @@ public class ConsentDocumentMigrationService {
     }
   }
 
-  void migrate() throws S3Exception, IOException {
+  boolean migrate() throws S3Exception, IOException {
     var filesToMigrate = documentMigrationRecordRepository.findAllByMigrationSuccessfulIsFalseAndFileLocatedIsTrue();
     var fileSizeMap = getS3FileSizeMap();
     var batchId = UUID.randomUUID();
@@ -218,6 +218,9 @@ public class ConsentDocumentMigrationService {
     }
 
     LOGGER.info("Finished migrating {} files (batch id: {})", devtoolsProperties.migrationMaxFilesPerRequest(), batchId);
+
+    // If current batch was at full permitted size, there are still files to migrate and the endpoint should be hit again.
+    return i >= devtoolsProperties.migrationMaxFilesPerRequest();
   }
 
   private Map<String, Long> getS3FileSizeMap() throws S3Exception {
@@ -233,7 +236,7 @@ public class ConsentDocumentMigrationService {
     var documentMigrationRecord = documentMigrationRecordRepository.findById(documentMigrationRecordId)
         .orElseThrow(() -> new RuntimeException("Cannot find migration record with ID: " + documentMigrationRecordId));
 
-    var pwaConsent = pwaConsentService.getConsentByReference(documentMigrationRecord.getConsentDoc())
+    var pwaConsent = pwaConsentService.getConsentByRecord(documentMigrationRecord)
         .orElseGet(() -> generateDestinationRecord(documentMigrationRecord));
 
     var fileStream = getByteArrayInputStream(
