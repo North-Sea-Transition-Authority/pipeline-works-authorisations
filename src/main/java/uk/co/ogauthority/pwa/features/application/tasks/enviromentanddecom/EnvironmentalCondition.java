@@ -2,8 +2,9 @@ package uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum EnvironmentalCondition {
+public enum EnvironmentalCondition implements Displayable {
 
   DISCHARGE_FUNDS_AVAILABLE(10,
       "I hereby confirm that the holder has funds available to discharge any liability for damage " +
@@ -25,6 +26,12 @@ public enum EnvironmentalCondition {
     this.summaryText = summaryText;
   }
 
+  @Override
+  public String getDisplayName() {
+    return "Summary Text: %s%nCondition Text: %s".formatted(summaryText, conditionText);
+  }
+
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

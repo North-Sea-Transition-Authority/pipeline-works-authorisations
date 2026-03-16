@@ -1,7 +1,9 @@
 package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 
 
-public enum PipelineCoreType {
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
+
+public enum PipelineCoreType implements Displayable {
 
   SINGLE_CORE("Single core", "PL"),
   MULTI_CORE("Multi core", "PLU");
@@ -14,6 +16,7 @@ public enum PipelineCoreType {
     this.referencePrefix = referencePrefix;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

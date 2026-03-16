@@ -117,7 +117,7 @@ public class WebSecurityConfig {
 
     return RelyingPartyRegistration
         .withRegistrationId(samlProperties.getRegistrationId())
-        .assertingPartyDetails(party -> party
+        .assertingPartyMetadata(party -> party
             .entityId(samlProperties.getEntityId())
             .singleSignOnServiceLocation(samlProperties.getLoginUrl())
             .singleSignOnServiceBinding(Saml2MessageBinding.POST)

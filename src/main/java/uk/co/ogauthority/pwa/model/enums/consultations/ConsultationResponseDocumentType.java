@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.model.enums.consultations;
 
-public enum ConsultationResponseDocumentType {
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
+
+public enum ConsultationResponseDocumentType implements Displayable {
 
   DEFAULT("Supporting documents", "Provide documents to support your response (optional)", ""),
   SECRETARY_OF_STATE_DECISION("Secretary of State’s decision", "Provide a copy of the Secretary of State's decision",
@@ -17,6 +19,7 @@ public enum ConsultationResponseDocumentType {
     this.questionGuidance = questionGuidance;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

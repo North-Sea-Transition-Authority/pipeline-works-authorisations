@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
-import uk.co.ogauthority.pwa.util.EnumUtils;
+import uk.co.ogauthority.pwa.util.enumutils.EnumUtils;
 
 @Converter
 public class HuooRoleConverter implements AttributeConverter<Set<HuooRole>, String> {

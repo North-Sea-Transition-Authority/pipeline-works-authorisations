@@ -37,7 +37,9 @@ import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
 import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
+import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 
 @WebMvcTest(controllers = PublicNoticeFileManagementRestController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
@@ -57,6 +59,9 @@ class PublicNoticeFileManagementRestControllerTest extends PwaApplicationContext
 
   @MockBean
   private AppFileService appFileService;
+
+  @MockBean
+  private PublicNoticeService publicNoticeService;
 
   private AuthenticatedUserAccount user;
 
@@ -139,6 +144,10 @@ class PublicNoticeFileManagementRestControllerTest extends PwaApplicationContext
     when(appFileService.getAppFileByPwaApplicationAndFileId(pwaApplication, String.valueOf(FILE_ID)))
         .thenReturn(appFile);
 
+    var docLink = new PublicNoticeDocumentLink();
+
+    when(publicNoticeService.getPublicNoticeDocumentLink(appFile)).thenReturn(Optional.of(docLink));
+
     mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER)
             .delete(PWA_ID, FILE_ID)))
             .with(csrf())
@@ -146,6 +155,7 @@ class PublicNoticeFileManagementRestControllerTest extends PwaApplicationContext
         .andExpect(status().isOk());
 
     verify(appFileManagementService).throwIfFileDoesNotBelongToApplicationOrDocumentType(uploadedFile, pwaApplication, FileDocumentType.PUBLIC_NOTICE);
+    verify(publicNoticeService).deleteFileLinkAndPublicNoticeDocument(docLink);
     verify(appFileService).processFileDeletion(appFile);
     verify(fileService).delete(uploadedFile);
   }

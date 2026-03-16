@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.model.docgen;
 
-public enum DocgenRunStatus {
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
+
+public enum DocgenRunStatus implements Displayable {
 
   PENDING("Pending"),
   COMPLETE("Completed"),
@@ -12,6 +14,7 @@ public enum DocgenRunStatus {
     this.displayName = displayName;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

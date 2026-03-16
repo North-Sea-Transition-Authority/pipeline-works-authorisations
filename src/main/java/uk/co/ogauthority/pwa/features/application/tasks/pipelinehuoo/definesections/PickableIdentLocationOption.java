@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentView;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
 /**
  * Defines points that can be selected as start of end points of a HUOO pipeline section.
@@ -90,7 +91,7 @@ public class PickableIdentLocationOption implements Comparable<PickableIdentLoca
     return Objects.hash(pickableString);
   }
 
-  public enum IdentPoint {
+  public enum IdentPoint implements Displayable {
     FROM_LOCATION(1, "from"),
     TO_LOCATION(2, "to");
 
@@ -100,6 +101,11 @@ public class PickableIdentLocationOption implements Comparable<PickableIdentLoca
     IdentPoint(int displayOrder, String midStringDisplay) {
       this.displayOrder = displayOrder;
       this.midStringDisplay = midStringDisplay;
+    }
+
+    @Override
+    public String getDisplayName() {
+      return midStringDisplay;
     }
 
     public int getDisplayOrder() {

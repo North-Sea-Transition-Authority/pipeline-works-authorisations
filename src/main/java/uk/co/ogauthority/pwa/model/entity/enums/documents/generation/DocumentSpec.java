@@ -11,8 +11,9 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum DocumentSpec {
+public enum DocumentSpec implements Displayable {
 
   INITIAL_PETROLEUM_CONSENT_DOCUMENT(
       Map.of(
@@ -218,6 +219,7 @@ public enum DocumentSpec {
     return documentSectionDisplayOrderMap;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

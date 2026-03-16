@@ -44,8 +44,8 @@ final class GovUkPayConfiguration {
     this.defaultRequestMetadata.put(REQUEST_METADATA_CONTEXT_KEY, requestSourceContextPath);
 
     this.restTemplate = restTemplateBuilder
-        .setConnectTimeout(Duration.ofSeconds(apiConnectionTimeoutSeconds))
-        .setReadTimeout(Duration.ofSeconds(apiReadTimeoutSeconds))
+        .connectTimeout(Duration.ofSeconds(apiConnectionTimeoutSeconds))
+        .readTimeout(Duration.ofSeconds(apiReadTimeoutSeconds))
         .defaultHeader("User-Agent", "fivium-gov-uk-payment-client")
         .requestFactory(() -> clientHttpRequestFactory)
         .build();

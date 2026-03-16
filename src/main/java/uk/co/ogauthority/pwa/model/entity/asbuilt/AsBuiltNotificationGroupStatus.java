@@ -1,9 +1,11 @@
 package uk.co.ogauthority.pwa.model.entity.asbuilt;
 
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
+
 /**
  * Describes the current state of an as built notification group.
  */
-public enum AsBuiltNotificationGroupStatus {
+public enum AsBuiltNotificationGroupStatus implements Displayable {
 
   NOT_STARTED("Not started"), // no pipeline notifications submitted
   IN_PROGRESS("In progress"), // some pipeline notifications submitted
@@ -15,6 +17,7 @@ public enum AsBuiltNotificationGroupStatus {
     this.displayName = displayName;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

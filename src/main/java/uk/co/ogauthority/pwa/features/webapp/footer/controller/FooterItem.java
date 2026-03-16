@@ -2,8 +2,9 @@ package uk.co.ogauthority.pwa.features.webapp.footer.controller;
 
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum FooterItem {
+public enum FooterItem implements Displayable {
 
   ACCESSIBILITY_STATEMENT(
       "Accessibility statement",
@@ -39,6 +40,7 @@ public enum FooterItem {
     this.displayOrder = displayOrder;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }
@@ -47,6 +49,7 @@ public enum FooterItem {
     return url;
   }
 
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

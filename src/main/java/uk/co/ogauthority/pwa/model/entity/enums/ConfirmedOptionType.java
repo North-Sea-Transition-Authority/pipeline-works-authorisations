@@ -3,9 +3,10 @@ package uk.co.ogauthority.pwa.model.entity.enums;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.Stream;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
 
-public enum ConfirmedOptionType {
+public enum ConfirmedOptionType implements Displayable {
   WORK_COMPLETE_AS_PER_OPTIONS("Work completed as per option", 10),
   WORK_DONE_BUT_NOT_PRESENTED_AS_OPTION("Work done but not covered by option", 20),
   NO_WORK_DONE("No work done", 20);
@@ -18,10 +19,12 @@ public enum ConfirmedOptionType {
     this.displayOrder = displayOrder;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }
 
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

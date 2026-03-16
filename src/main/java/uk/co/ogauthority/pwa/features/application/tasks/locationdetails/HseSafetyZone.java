@@ -2,8 +2,9 @@ package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum HseSafetyZone {
+public enum HseSafetyZone implements Displayable {
 
   YES(10, "Yes"),
   PARTIALLY(20, "Partially"),
@@ -21,6 +22,12 @@ public enum HseSafetyZone {
     return displayText;
   }
 
+  @Override
+  public String getDisplayName() {
+    return displayText;
+  }
+
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

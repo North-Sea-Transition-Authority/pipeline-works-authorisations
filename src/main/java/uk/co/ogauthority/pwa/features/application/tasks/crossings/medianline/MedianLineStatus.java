@@ -2,8 +2,9 @@ package uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum MedianLineStatus {
+public enum MedianLineStatus implements Displayable {
 
   NOT_CROSSED(10, "No median lines will be crossed", "Not crossed"),
   NEGOTIATIONS_ONGOING(20, "Median line will be crossed and negotiations are ongoing", "Negotiations ongoing"),
@@ -19,6 +20,12 @@ public enum MedianLineStatus {
     this.labelText = labelText;
   }
 
+  @Override
+  public String getDisplayName() {
+    return displayText;
+  }
+
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

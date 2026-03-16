@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
 /**
  * Describes the highest level category of pipelines supported by the application.
@@ -13,7 +14,7 @@ import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
  * <p><b>If this list changes you MUST update the following the database API view: api_vw_pwa_pipeline_details.</b></p>
  *
  */
-public enum PipelineType implements DiffableAsString {
+public enum PipelineType implements DiffableAsString, Displayable {
 
   // We need this type to support pipelines migrated from the legacy system where we cannot know the type.
   UNKNOWN(
@@ -126,10 +127,12 @@ public enum PipelineType implements DiffableAsString {
     this.applicableResourceType = PwaResourceType.getAll();
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }
 
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

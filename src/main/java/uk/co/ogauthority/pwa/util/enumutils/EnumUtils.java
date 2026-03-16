@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.util;
+package uk.co.ogauthority.pwa.util.enumutils;
 
 import org.springframework.web.bind.annotation.ResponseStatus;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;

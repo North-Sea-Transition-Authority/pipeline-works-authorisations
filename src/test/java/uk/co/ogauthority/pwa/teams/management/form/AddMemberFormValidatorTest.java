@@ -39,7 +39,7 @@ class AddMemberFormValidatorTest {
     form = new AddMemberForm();
 
     user = new User();
-    user.setWebUserAccountId(1);
+    user.setWebUserAccountId(1L);
 
     teamId = UUID.randomUUID();
     team = new Team(teamId);

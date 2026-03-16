@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.start.StartPwaApplicatio
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
-import uk.co.ogauthority.pwa.util.EnumUtils;
 import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
+import uk.co.ogauthority.pwa.util.enumutils.EnumUtils;
 
 @Controller
 @RequestMapping("/start-application/{resourceType}")

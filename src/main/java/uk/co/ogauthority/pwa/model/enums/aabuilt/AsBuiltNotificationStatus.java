@@ -8,8 +8,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum AsBuiltNotificationStatus {
+public enum AsBuiltNotificationStatus implements Displayable {
   MIGRATION("Migrated", List.of(), StatusCategory.INACTIVE),
 
   PER_CONSENT("Exactly as per consent", List.of()),
@@ -35,6 +36,7 @@ public enum AsBuiltNotificationStatus {
     this(displayName, nonSupportedPipelineStatuses, StatusCategory.ACTIVE);
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

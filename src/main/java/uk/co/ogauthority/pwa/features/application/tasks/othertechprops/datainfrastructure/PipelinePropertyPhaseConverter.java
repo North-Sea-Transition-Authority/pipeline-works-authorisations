@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PropertyPhase;
-import uk.co.ogauthority.pwa.util.EnumUtils;
+import uk.co.ogauthority.pwa.util.enumutils.EnumUtils;
 
 @Converter
 public class PipelinePropertyPhaseConverter implements AttributeConverter<Set<PropertyPhase>, String> {

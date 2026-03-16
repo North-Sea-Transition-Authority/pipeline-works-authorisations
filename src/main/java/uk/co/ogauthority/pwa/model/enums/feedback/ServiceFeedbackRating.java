@@ -3,8 +3,9 @@ package uk.co.ogauthority.pwa.model.enums.feedback;
 import java.util.Arrays;
 import java.util.Map;
 import uk.co.ogauthority.pwa.util.StreamUtils;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum ServiceFeedbackRating {
+public enum ServiceFeedbackRating implements Displayable {
 
   VERY_SATISFIED("Very satisfied"),
   SATISFIED("Satisfied"),
@@ -18,6 +19,7 @@ public enum ServiceFeedbackRating {
     this.displayName = displayName;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

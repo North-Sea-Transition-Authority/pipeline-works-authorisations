@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.features.appprocessing.tasklist;
 
-public enum TaskRequirement {
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
+
+public enum TaskRequirement implements Displayable {
 
   REQUIRED("Required tasks", 10),
   OPTIONAL("Optional tasks", 20);
@@ -13,10 +15,12 @@ public enum TaskRequirement {
     this.displayOrder = displayOrder;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }
 
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }
