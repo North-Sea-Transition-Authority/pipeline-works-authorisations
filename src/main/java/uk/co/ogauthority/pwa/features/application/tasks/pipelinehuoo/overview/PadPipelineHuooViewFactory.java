@@ -227,6 +227,7 @@ public class PadPipelineHuooViewFactory {
         huooRole)) {
       var pipelineNumberList = roleGroup.getPipelineIdentifierSet().stream()
           .map(pipelineNumberLookup::get)
+          .filter(Objects::nonNull)
           .map(this::getPipelineDisplayName)
           .sorted(Comparator.comparing(String::toLowerCase))
           .collect(Collectors.toList());

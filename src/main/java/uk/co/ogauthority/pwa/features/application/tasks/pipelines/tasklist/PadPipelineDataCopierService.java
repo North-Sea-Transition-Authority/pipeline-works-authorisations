@@ -176,7 +176,11 @@ public class PadPipelineDataCopierService {
     // 5. manually set the drawing PadFile links as they still point to previous detail's files.
     var duplicatedTechnicalDrawings = padTechnicalDrawingService.getDrawings(toDetail);
 
-    LOGGER.info("Pipeline drawing copied pad files %s".formatted(duplicatedTechnicalDrawings.toString()));
+    var duplicatedTechnicalDrawingIds = duplicatedTechnicalDrawings.stream()
+        .map(PadTechnicalDrawing::getId)
+        .toList();
+
+    LOGGER.info("Pipeline drawing copied pad files %s".formatted(duplicatedTechnicalDrawingIds.toString()));
 
     duplicatedTechnicalDrawings.forEach(padTechnicalDrawing -> {
           // point the new pad file to the new file id
