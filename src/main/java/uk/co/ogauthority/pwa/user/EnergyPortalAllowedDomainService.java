@@ -33,6 +33,9 @@ public class EnergyPortalAllowedDomainService implements AllowedDomainService {
       emailDomains = group.get().emailDomains();
     }
 
-    return emailDomains.contains(userEmail.split("@")[1]);
+    return emailDomains.isEmpty() || emailDomains
+        .stream()
+        .map(String::toLowerCase)
+        .anyMatch(domain -> userEmail.toLowerCase().endsWith('@' + domain));
   }
 }

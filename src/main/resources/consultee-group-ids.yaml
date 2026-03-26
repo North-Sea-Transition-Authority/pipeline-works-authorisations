@@ -1,3 +1,6 @@
+# This maps a consultee group id to a organisation unit/group id.
+# For ids 7/8/10/11 we have decided not to allow access requests or make these teams visible from EPAS.
+# When adding a new consultee group you'll need to update this map if you want the associated team to be visible on EPAS.
 consultee-group-id-to-epas-scope-type-and-id:
   1:
     scope-type: ORGANISATION_GROUP
@@ -19,7 +22,7 @@ consultee-group-id-to-epas-scope-type-and-id:
     scope-id: 8421  # OGA Technical Team - NSTA org group
 #  7: # Norway treaty consultees
 #  8: # Ireland treaty consultees
-#  10:  # Netherlands treaty consultees
+#  10: # Netherlands treaty consultees
 #  11: # Belgium treaty consultees
   12:
     scope-type: ORGANISATION_UNIT

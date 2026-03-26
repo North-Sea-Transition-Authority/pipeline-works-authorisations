@@ -32,7 +32,7 @@ class EnergyPortalAllowedDomainServiceTest {
 
   @ParameterizedTest
   @MethodSource("provideDomainIsAllowedCombinations")
-  void isAllowedDomain_industry(String domain, boolean isAllowed) {
+  void isAllowedDomain_industry(List<String> domains, boolean isAllowed) {
     var industryTeam = new Team(UUID.randomUUID());
     industryTeam.setTeamType(TeamType.ORGANISATION);
     industryTeam.setName("industry team");
@@ -42,7 +42,7 @@ class EnergyPortalAllowedDomainServiceTest {
     var orgGroup = new OrganisationGroupDto(
         1,
         "Org group",
-        List.of(domain)
+        domains
     );
 
     when(organisationGroupQueryService.getOrganisationGroupById(Integer.parseInt(industryTeam.getScopeId()))).thenReturn(
@@ -54,7 +54,7 @@ class EnergyPortalAllowedDomainServiceTest {
 
   @ParameterizedTest
   @MethodSource("provideDomainIsAllowedCombinations")
-  void isAllowedDomain_regulator(String domain, boolean isAllowed) {
+  void isAllowedDomain_regulator(List<String> domains, boolean isAllowed) {
     var regTeam = new Team(UUID.randomUUID());
     regTeam.setTeamType(TeamType.REGULATOR);
     regTeam.setName("regulator team");
@@ -62,7 +62,7 @@ class EnergyPortalAllowedDomainServiceTest {
     var orgGroup = new OrganisationGroupDto(
         1,
         "Org group",
-        List.of(domain)
+        domains
     );
 
     when(organisationGroupQueryService.getRegulatorOrganisationGroup()).thenReturn(
@@ -74,7 +74,7 @@ class EnergyPortalAllowedDomainServiceTest {
 
   @ParameterizedTest
   @MethodSource("provideDomainIsAllowedCombinations")
-  void isAllowedDomain_consultee(String domain, boolean isAllowed) {
+  void isAllowedDomain_consultee(List<String> domains, boolean isAllowed) {
     var consulteeTeam = new Team(UUID.randomUUID());
     consulteeTeam.setTeamType(TeamType.CONSULTEE);
     consulteeTeam.setName("consultee team");
@@ -84,7 +84,7 @@ class EnergyPortalAllowedDomainServiceTest {
     var orgGroup = new OrganisationGroupDto(
         1,
         "Org group",
-        List.of(domain)
+        domains
     );
 
     when(organisationGroupQueryService.getConsulteeOrganisationGroup(consulteeTeam.getScopeId())).thenReturn(
@@ -96,8 +96,10 @@ class EnergyPortalAllowedDomainServiceTest {
 
   private static Stream<Arguments> provideDomainIsAllowedCombinations() {
     return Stream.of(
-        Arguments.of("example.com", true),
-        Arguments.of("domain.com", false)
+        Arguments.of(List.of("example.com"), true),
+        Arguments.of(List.of("domain.com"), false),
+        Arguments.of(List.of("mple.com"), false),
+        Arguments.of(List.of(), true)
     );
   }
 }

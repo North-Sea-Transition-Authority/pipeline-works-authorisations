@@ -231,4 +231,9 @@ class OrganisationGroupQueryServiceTest {
             )
         );
   }
+
+  @Test
+  void getConsulteeOrganisationGroup_whenNoAssociatedEpasScope() {
+    assertThat(organisationGroupQueryService.getConsulteeOrganisationGroup("NON-EXISTING-ID")).isEmpty();
+  }
 }

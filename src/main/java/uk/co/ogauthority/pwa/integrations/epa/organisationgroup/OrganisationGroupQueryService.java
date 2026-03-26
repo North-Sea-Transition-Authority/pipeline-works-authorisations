@@ -67,7 +67,12 @@ public class OrganisationGroupQueryService {
   }
 
   public Optional<OrganisationGroupDto> getConsulteeOrganisationGroup(String scopeId) {
+    if (!consulteeGroupIdToEpasScopeTypeAndIdConfigProps.hasAssociatedEpas(scopeId)) {
+      return Optional.empty();
+    }
+
     var scopeTypeAndId = consulteeGroupIdToEpasScopeTypeAndIdConfigProps.getScopeTypeAndEpasScopeId(scopeId);
+
     return switch (scopeTypeAndId.scopeType()) {
       case ORGANISATION_GROUP -> getOrganisationGroupById(scopeTypeAndId.scopeId());
       case ORGANISATION_UNIT ->  getOrganisationGroupFromOrganisationById(scopeTypeAndId.scopeId());
