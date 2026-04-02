@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import uk.co.fivium.energyportalapi.client.LogCorrelationId;
+import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -100,7 +102,7 @@ class ScopedTeamManagementControllerTest extends AbstractControllerTest {
     when(newOrganisationTeamFormValidator.isValid(any(), any()))
         .thenReturn(true);
 
-    when(organisationApi.findOrganisationGroup(eq(50), any(), any()))
+    when(organisationApi.findOrganisationGroup(eq(50), any(), any(RequestPurpose.class), any(LogCorrelationId.class)))
         .thenReturn(Optional.of(orgGroup));
 
     when(teamManagementService.createScopedTeam(eq(orgGroup.getName()), eq(TeamType.ORGANISATION), refEq(TeamScopeReference.from("50", "ORGGRP"))))
@@ -158,7 +160,7 @@ class ScopedTeamManagementControllerTest extends AbstractControllerTest {
     orgGroup2.setOrganisationGroupId(2);
     orgGroup2.setName("SHELL two");
 
-    when(organisationApi.searchOrganisationGroups(eq("shell"), any(), any()))
+    when(organisationApi.searchOrganisationGroups(eq("shell"), any(), any(RequestPurpose.class), any(LogCorrelationId.class)))
         .thenReturn(List.of(orgGroup2, orgGroup1));
 
     mockMvc.perform(get(ReverseRouter.route(on(ScopedTeamManagementController.class).searchOrganisation("shell")))

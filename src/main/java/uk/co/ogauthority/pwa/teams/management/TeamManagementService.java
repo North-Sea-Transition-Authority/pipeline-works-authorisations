@@ -25,6 +25,7 @@ import uk.co.fivium.energyportalapi.generated.types.User;
 import uk.co.ogauthority.pwa.config.ConsulteeGroupIdToEpasScopeTypeAndIdConfigurationProperties;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
+import uk.co.ogauthority.pwa.integrations.epa.correlationid.CorrelationIdUtil;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.Team;
 import uk.co.ogauthority.pwa.teams.TeamMemberQueryService;
@@ -207,7 +208,11 @@ public class TeamManagementService {
         .webUserAccountId()
         .isAccountShared()
         .canLogin();
-    return userApi.searchUsersByEmail(username, projection, new RequestPurpose("Find user to add to team"));
+    return userApi.searchUsersByEmail(
+        username,
+        projection,
+        new RequestPurpose("Find user to add to team"),
+        CorrelationIdUtil.getLogCorrelationId());
   }
 
   TeamMemberView getTeamMemberView(Team team, Long wuaId) {
@@ -230,7 +235,12 @@ public class TeamManagementService {
     var projection = new UserProjectionRoot()
         .isAccountShared()
         .canLogin();
-    var userOptional = userApi.findUserById(Math.toIntExact(wuaId), projection, new RequestPurpose("Validate user account"));
+    var userOptional = userApi.findUserById(
+        Math.toIntExact(wuaId),
+        projection,
+        new RequestPurpose("Validate user account"),
+        CorrelationIdUtil.getLogCorrelationId()
+    );
     if (userOptional.isEmpty()) {
       throw new TeamManagementException("User account with wuaId %s does not exist".formatted(wuaId));
     }

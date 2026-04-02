@@ -79,12 +79,15 @@ CVE-2025-48924
 
 # org.springframework:spring-webmvc
 CVE-2025-41242
+CVE-2026-22737
+CVE-2026-22735
 
 # org.bouncycastle:bcpkix-jdk18on
 CVE-2025-8916
 
 # io.netty:netty-codec-http2
 CVE-2025-55163
+CVE-2026-33871
 
 # io.netty:netty-codec
 CVE-2025-58057
@@ -92,6 +95,7 @@ CVE-2025-58057
 # io.netty:netty-codec-http
 CVE-2025-58056
 CVE-2025-67735
+CVE-2026-33870
 
 # org.springframework:spring-core
 CVE-2025-41249
@@ -104,3 +108,6 @@ GHSA-72hv-8253-57qq
 
 # com.mchange:mchange-commons-java
 CVE-2026-27727
+
+# org.springframework.security:spring-security-web
+CVE-2026-22732

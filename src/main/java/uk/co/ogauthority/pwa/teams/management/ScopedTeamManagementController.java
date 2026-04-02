@@ -20,6 +20,7 @@ import uk.co.fivium.energyportalapi.generated.client.OrganisationGroupProjection
 import uk.co.fivium.energyportalapi.generated.client.OrganisationGroupsProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
 import uk.co.ogauthority.pwa.fds.searchselector.SearchSelectorResults;
+import uk.co.ogauthority.pwa.integrations.epa.correlationid.CorrelationIdUtil;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.teams.Role;
@@ -74,9 +75,11 @@ public class ScopedTeamManagementController {
         .name();
 
     var organisationGroup = organisationApi.findOrganisationGroup(
-          Integer.parseInt(form.getOrgGroupId()),
-          projection,
-          new RequestPurpose("Find org group to create team"))
+            Integer.parseInt(form.getOrgGroupId()),
+            projection,
+            new RequestPurpose("Find org group to create team"),
+            CorrelationIdUtil.getLogCorrelationId()
+        )
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
             "Org group with id %s not found".formatted(form.getOrgGroupId())));
 
@@ -93,8 +96,12 @@ public class ScopedTeamManagementController {
         .organisationGroupId()
         .name();
 
-    var requestPurpose = new RequestPurpose("Find org group to create team");
-    var selectorResults = organisationApi.searchOrganisationGroups(searchTerm, projection, requestPurpose).stream()
+    var selectorResults = organisationApi.searchOrganisationGroups(
+            searchTerm,
+            projection,
+            new RequestPurpose("Find org group to create team"),
+            CorrelationIdUtil.getLogCorrelationId()
+        ).stream()
         .sorted(Comparator.comparing(OrganisationGroup::getName, String.CASE_INSENSITIVE_ORDER))
         .map(organisationGroup ->
             new SearchSelectorResults.Result(organisationGroup.getOrganisationGroupId().toString(), organisationGroup.getName()))

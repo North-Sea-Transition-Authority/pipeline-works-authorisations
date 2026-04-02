@@ -20,6 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerMapping;
 import uk.co.ogauthority.pwa.auth.saml.EnergyPortalSamlAttribute;
 import uk.co.ogauthority.pwa.hibernate.HibernateQueryCounter;
+import uk.co.ogauthority.pwa.integrations.epa.correlationid.CorrelationIdUtil;
 
 @Component
 public class RequestLogFilter extends OncePerRequestFilter {
@@ -44,6 +45,7 @@ public class RequestLogFilter extends OncePerRequestFilter {
                                   @NotNull HttpServletResponse response,
                                   FilterChain filterChain) throws ServletException, IOException {
     var stopwatch = Stopwatch.createStarted();
+    String correlationId;
 
     var nonMvcPath = request.getRequestURI().contains("/actuator/health")
         || request.getRequestURI().contains("/assets/");
@@ -54,6 +56,8 @@ public class RequestLogFilter extends OncePerRequestFilter {
     }
 
     try {
+      correlationId = CorrelationIdUtil.getOrCreateCorrelationId(request);
+      CorrelationIdUtil.setCorrelationIdOnMdc(correlationId);
       filterChain.doFilter(request, response);
     } finally {
       String queryString = StringUtils.defaultString(request.getQueryString());
@@ -84,6 +88,7 @@ public class RequestLogFilter extends OncePerRequestFilter {
           value("proxy_wua_id", proxyWuaId),
           value("query_count_overall", overallQueryCount));
 
+      CorrelationIdUtil.removeCorrelationIdFromMdc();
       hibernateQueryCounter.clearQueryCount();
     }
   }

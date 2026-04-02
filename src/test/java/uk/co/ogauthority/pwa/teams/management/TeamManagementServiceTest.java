@@ -33,6 +33,7 @@ import uk.co.fivium.energyportal.serviceproviders.epmq.messages.ServiceProviderT
 import uk.co.fivium.energyportal.starter.accounts.EnergyPortalServiceAccessService;
 import uk.co.fivium.energyportal.starter.serviceproviders.EnergyPortalServiceProviderTeamService;
 import uk.co.fivium.energyportal.starter.serviceproviders.EnergyPortalServiceProviderUserRolesService;
+import uk.co.fivium.energyportalapi.client.LogCorrelationId;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.user.UserApi;
 import uk.co.fivium.energyportalapi.generated.client.UserProjectionRoot;
@@ -438,7 +439,7 @@ class TeamManagementServiceTest {
 
     teamManagementService.getEnergyPortalUser("foo");
 
-    verify(userApi).searchUsersByEmail(eq("foo"), refEq(expectedProjection), any(RequestPurpose.class));
+    verify(userApi).searchUsersByEmail(eq("foo"), refEq(expectedProjection), any(RequestPurpose.class), any(LogCorrelationId.class));
   }
 
   @Test
@@ -449,7 +450,7 @@ class TeamManagementServiceTest {
     var expectedProjection = new UserProjectionRoot()
         .isAccountShared()
         .canLogin();
-    when(userApi.findUserById(eq(1L), refEq(expectedProjection), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(1L), refEq(expectedProjection), any(RequestPurpose.class), any(LogCorrelationId.class)))
         .thenReturn(Optional.of(user1));
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage)); // Make doesTeamHaveTeamManager() check return true
@@ -487,7 +488,7 @@ class TeamManagementServiceTest {
 
   @Test
   void setUserTeamRoles_noTeamManagerLeft() {
-    when(userApi.findUserById(eq(1L), any(), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(1L), any(), any(RequestPurpose.class), any(LogCorrelationId.class)))
         .thenReturn(Optional.of(user1));
     when(userAccountService.getWebUserAccount(user1WuaId.intValue())).thenReturn(new WebUserAccount());
     when(teamRoleRepository.findByTeam(regTeam))
@@ -527,7 +528,7 @@ class TeamManagementServiceTest {
 
   @Test
   void setUserTeamRoles_noEpaUser() {
-    when(userApi.findUserById(eq(1L), any(), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(1L), any(), any(RequestPurpose.class), any(LogCorrelationId.class)))
         .thenReturn(Optional.empty());
 
     long instigatingUser = 2L;
@@ -551,7 +552,7 @@ class TeamManagementServiceTest {
     var epaUser = new User();
     epaUser.setIsAccountShared(true);
 
-    when(userApi.findUserById(eq(1L), any(), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(1L), any(), any(RequestPurpose.class), any(LogCorrelationId.class)))
         .thenReturn(Optional.empty());
 
     long instigatingUser = 2L;
@@ -575,7 +576,7 @@ class TeamManagementServiceTest {
     var epaUser = new User();
     epaUser.setCanLogin(false);
 
-    when(userApi.findUserById(eq(1L), any(), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(1L), any(), any(RequestPurpose.class), any(LogCorrelationId.class)))
         .thenReturn(Optional.empty());
 
     long instigatingUser = 2L;
@@ -597,7 +598,7 @@ class TeamManagementServiceTest {
 
   @Test
   void setUserTeamRoles_newUser() {
-    when(userApi.findUserById(eq(user1WuaId), any(), eq(new RequestPurpose("Validate user account"))))
+    when(userApi.findUserById(eq(user1WuaId), any(), eq(new RequestPurpose("Validate user account")), any(LogCorrelationId.class)))
         .thenReturn(Optional.of(user1));
 
     when(teamRoleRepository.findAllByWuaId(user1WuaId))

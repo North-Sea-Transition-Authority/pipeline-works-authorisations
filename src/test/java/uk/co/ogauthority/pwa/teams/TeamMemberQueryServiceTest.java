@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.energyportalapi.client.LogCorrelationId;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.user.UserApi;
 import uk.co.fivium.energyportalapi.generated.client.UserProjectionRoot;
@@ -118,7 +119,7 @@ class TeamMemberQueryServiceTest {
     user.setCanLogin(true);
     user.setIsAccountShared(false);
 
-    when(userApi.findUserById(eq(1L), refEq(expectedProjection), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(1L), refEq(expectedProjection), any(RequestPurpose.class), any(LogCorrelationId.class)))
         .thenReturn(Optional.of(user));
 
     var teamMemberView = teamMemberQueryService.getTeamMemberView(regTeam, user1WuaId);
@@ -148,7 +149,7 @@ class TeamMemberQueryServiceTest {
         .primaryEmailAddress()
         .telephoneNumber();
 
-    when(userApi.searchUsersByIds(eq(List.of(1L,2L)), refEq(expectedProjection), any(RequestPurpose.class)))
+    when(userApi.searchUsersByIds(eq(List.of(1L,2L)), refEq(expectedProjection), any(RequestPurpose.class), any(LogCorrelationId.class)))
         .thenReturn(List.of(user1, user2));
 
     var teamMemberViews = teamMemberQueryService.getTeamMemberViewsForTeam(regTeam);
@@ -248,7 +249,7 @@ class TeamMemberQueryServiceTest {
     user2.setPrimaryEmailAddress("example@example.com");
     user2.setTelephoneNumber("9876543210");
 
-    when(userApi.searchUsersByIds(eq(List.of(1L, 2L)), refEq(expectedProjection), any(RequestPurpose.class)))
+    when(userApi.searchUsersByIds(eq(List.of(1L, 2L)), refEq(expectedProjection), any(RequestPurpose.class), any(LogCorrelationId.class)))
         .thenReturn(List.of(user1, user2));
 
     var result = teamMemberQueryService.getTeamMemberViewsByTeamRoles(List.of(teamRole1, teamRole2, teamRole3, teamRole4, teamRole5));

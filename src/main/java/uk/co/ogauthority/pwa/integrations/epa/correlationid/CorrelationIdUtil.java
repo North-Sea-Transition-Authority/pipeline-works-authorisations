@@ -1,11 +1,11 @@
 package uk.co.ogauthority.pwa.integrations.epa.correlationid;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import uk.co.fivium.energyportalapi.client.LogCorrelationId;
 
 public class CorrelationIdUtil {
 
@@ -26,16 +26,15 @@ public class CorrelationIdUtil {
     MDC.put(MDC_CORRELATION_ID_ATTR, value);
   }
 
-  public static String setCorrelationIdOnMdcFromRequest(HttpServletRequest request) {
-    var correlationId = Optional
-        .ofNullable(request.getHeader(HTTP_CORRELATION_ID_HEADER))
-        .orElseGet(() -> UUID.randomUUID().toString());
-
-    setCorrelationIdOnMdc(correlationId);
-
-    return correlationId;
+  public static String getOrCreateCorrelationId(HttpServletRequest request) {
+    var existingCorrelationId = request.getHeader(HTTP_CORRELATION_ID_HEADER);
+    if (existingCorrelationId == null || existingCorrelationId.isBlank()) {
+      return UUID.randomUUID().toString();
+    } else {
+      LOGGER.debug("Accepted correlationId from request - {}", existingCorrelationId);
+      return existingCorrelationId;
+    }
   }
-
 
   public static String getCorrelationIdFromMdc() {
     return MDC.get(MDC_CORRELATION_ID_ATTR);
@@ -43,5 +42,9 @@ public class CorrelationIdUtil {
 
   public static void removeCorrelationIdFromMdc() {
     MDC.remove(MDC_CORRELATION_ID_ATTR);
+  }
+
+  public static LogCorrelationId getLogCorrelationId() {
+    return new LogCorrelationId(getCorrelationIdFromMdc());
   }
 }

@@ -11,6 +11,7 @@ import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.user.UserApi;
 import uk.co.fivium.energyportalapi.generated.client.UserProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.UsersProjectionRoot;
+import uk.co.ogauthority.pwa.integrations.epa.correlationid.CorrelationIdUtil;
 import uk.co.ogauthority.pwa.teams.management.TeamManagementException;
 import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 
@@ -42,8 +43,12 @@ public class TeamMemberQueryService {
         .primaryEmailAddress()
         .telephoneNumber();
 
-    var user = userApi.findUserById(Math.toIntExact(wuaId), userProjection,
-            new RequestPurpose("Fetch user in team"))
+    var user = userApi.findUserById(
+            Math.toIntExact(wuaId),
+            userProjection,
+            new RequestPurpose("Fetch user in team"),
+            CorrelationIdUtil.getLogCorrelationId()
+        )
         .orElseThrow(() -> new TeamManagementException("WuaId %s not found via EPA".formatted(wuaId)));
 
     return TeamMemberView.fromEpaUser(user, team.getId(), teamRoles);
@@ -69,7 +74,11 @@ public class TeamMemberQueryService {
         .primaryEmailAddress()
         .telephoneNumber();
 
-    var epaUsers = userApi.searchUsersByIds(memberWuaIds, userProjection, new RequestPurpose("Fetch users in team"));
+    var epaUsers = userApi.searchUsersByIds(memberWuaIds,
+        userProjection,
+        new RequestPurpose("Fetch users in team"),
+        CorrelationIdUtil.getLogCorrelationId()
+    );
 
     return memberWuaIds.stream()
         .flatMap(wuaId -> {
