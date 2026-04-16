@@ -1,41 +1,14 @@
-# spring-security-core needs 6.3.2 (not released yet)
-CVE-2024-38810
-CVE-2024-38827
-CVE-2025-22223
-CVE-2025-41248
-
-# org.springframework.security:spring-security-crypto
-CVE-2025-22228
-
-# org.springframework.security:spring-security-crypto
-CVE-2025-22228
-
-# io.netty:netty-common
-CVE-2024-47535
-
 # commons-io:commons-io
 CVE-2024-47554
 
-# ch.qos.logback:logback-core
-CVE-2024-12798
-CVE-2024-12801
+# org.apache.commons:commons-lang3
+CVE-2025-48924
 
-# org.apache.tomcat.embed:tomcat-embed-core
-CVE-2024-50379
-CVE-2024-56337
-CVE-2025-24813
-CVE-2025-31650
-CVE-2025-31651
-CVE-2025-46701
-CVE-2025-48988
-CVE-2025-49125
-CVE-2025-48989
-CVE-2025-52520
-CVE-2025-53506
-CVE-2025-66614
-CVE-2026-24733
+# org.bouncycastle:bcpkix-jdk18on
+CVE-2023-33202
+CVE-2025-8916
 
-# org.bouncycastle:bcprov-jdk18on/bcpkix-jdk18on
+# org.bouncycastle:bcprov-jdk18on
 CVE-2023-33201
 CVE-2023-33202
 CVE-2024-29857
@@ -43,71 +16,7 @@ CVE-2024-30171
 CVE-2024-34447
 CVE-2025-8885
 
-# com.google.protobuf:protobuf-java
-CVE-2024-7254
-
-# net.minidev:json-smart
-CVE-2024-57699
-
-# io.netty:netty-common
-CVE-2025-25193
-
-# io.netty:netty-handler
-CVE-2025-24970
-
-# org.springframework.boot:spring-boot
-CVE-2025-22235
-CVE-2025-41248
-CVE-2025-41249
-CVE-2025-11226
-
-# commons-beanutils:commons-beanutils
-CVE-2025-48734
-
-# org.springframework:spring-context
-CVE-2025-22233
-
-# org.springframework:spring-web
-CVE-2025-41234
-CVE-2025-55752
-CVE-2025-49124
-CVE-2025-55754
-CVE-2025-61795
-
-# org.apache.commons:commons-lang3
-CVE-2025-48924
-
-# org.springframework:spring-webmvc
-CVE-2025-41242
-CVE-2026-22737
-CVE-2026-22735
-
-# org.bouncycastle:bcpkix-jdk18on
-CVE-2025-8916
-
-# io.netty:netty-codec-http2
-CVE-2025-55163
-CVE-2026-33871
-
-# io.netty:netty-codec
-CVE-2025-58057
-
-# io.netty:netty-codec-http
-CVE-2025-58056
-CVE-2025-67735
-CVE-2026-33870
-
-# org.springframework:spring-core
-CVE-2025-41249
-
-# ch.qos.logback:logback-core
-CVE-2026-1225
-
-# com.fasterxml.jackson.core:jackson-core
-GHSA-72hv-8253-57qq
-
-# com.mchange:mchange-commons-java
-CVE-2026-27727
-
-# org.springframework.security:spring-security-web
-CVE-2026-22732
+# org.apache.tomcat.embed:tomcat-embed-core
+CVE-2026-34483
+CVE-2026-34487
+CVE-2026-34500
