@@ -16,10 +16,10 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -48,19 +48,19 @@ class CaseManagementControllerTest extends PwaAppProcessingContextAbstractContro
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
-  @MockBean
+  @MockitoBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
 
-  @MockBean
+  @MockitoBean
   private ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService;
 
-  @MockBean
+  @MockitoBean
   private AppProcessingTabService appProcessingTabService;
   
-  @MockBean
+  @MockitoBean
   private PwaApplicationEventService pwaApplicationEventService;
 
-  @MockBean
+  @MockitoBean
   private CaseManagementController caseManagementController;
 
   private PwaApplicationEvent consentIssueFailedEvent;
@@ -72,7 +72,8 @@ class CaseManagementControllerTest extends PwaAppProcessingContextAbstractContro
         .setAllowedProcessingPermissions(
             PwaAppProcessingPermission.CASE_MANAGEMENT_OGA,
             PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY,
-            PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE);
+            PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE,
+            PwaAppProcessingPermission.CASE_MANAGEMENT_SECONDARY_REGULATOR);
 
     var app = new PwaApplication();
     var user = new WebUserAccount();

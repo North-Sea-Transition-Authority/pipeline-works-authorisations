@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
-public class HasTeamRoleServiceTest {
+class HasTeamRoleServiceTest {
 
   private final AuthenticatedUserAccount USER = AuthenticatedUserAccountTestUtil.defaultAllPrivUserAccount();
 
@@ -65,6 +65,8 @@ public class HasTeamRoleServiceTest {
         .thenReturn(false);
     lenient().when(teamQueryService.userHasAtLeastOneRole(eq((long) USER.getWuaId()), eq(TeamType.CONSULTEE), anySet()))
         .thenReturn(false);
+    lenient().when(teamQueryService.userHasAtLeastOneRole(eq((long) USER.getWuaId()), eq(TeamType.SECONDARY_REGULATOR), anySet()))
+        .thenReturn(false);
 
     boolean result = underTest.userHasAnyRoleInTeamTypes(USER, RoleGroup.APPLICATION_SEARCH.getRolesByTeamType());
 
@@ -78,6 +80,8 @@ public class HasTeamRoleServiceTest {
     when(teamQueryService.userHasAtLeastOneRole(eq((long) USER.getWuaId()), eq(TeamType.ORGANISATION), anySet()))
         .thenReturn(false);
     when(teamQueryService.userHasAtLeastOneRole(eq((long) USER.getWuaId()), eq(TeamType.CONSULTEE), anySet()))
+        .thenReturn(false);
+    when(teamQueryService.userHasAtLeastOneRole(eq((long) USER.getWuaId()), eq(TeamType.SECONDARY_REGULATOR), anySet()))
         .thenReturn(false);
 
     boolean result = underTest.userHasAnyRoleInTeamTypes(USER, RoleGroup.APPLICATION_SEARCH.getRolesByTeamType());

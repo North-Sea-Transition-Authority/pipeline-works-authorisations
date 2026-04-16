@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -25,9 +26,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
@@ -52,13 +53,13 @@ import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 @WithDefaultPageControllerAdvice
 class WorkAreaControllerTest extends ResolverAbstractControllerTest {
 
-  @MockBean
+  @MockitoBean
   private WorkAreaService workAreaService;
 
-  @MockBean
+  @MockitoBean
   private WorkAreaContextService workAreaContextService;
 
-  @MockBean
+  @MockitoBean
   private MetricsProvider metricsProvider;
 
   @Mock
@@ -66,9 +67,6 @@ class WorkAreaControllerTest extends ResolverAbstractControllerTest {
 
   @Captor
   private ArgumentCaptor<LoggingEvent> loggingEventCaptor;
-
-
-  private Timer timer;
 
   private final AuthenticatedUserAccount pwaManagerUser = new AuthenticatedUserAccount(new WebUserAccount(1, new Person()),
       EnumSet.of(PwaUserPrivilege.PWA_ACCESS));
@@ -87,7 +85,7 @@ class WorkAreaControllerTest extends ResolverAbstractControllerTest {
     when(workAreaContextService.createWorkAreaContext(pwaManagerUser))
         .thenReturn(pwaManagerWorkAreaContext);
 
-    timer = TimerMetricTestUtils.setupTimerMetric(
+    Timer timer = TimerMetricTestUtils.setupTimerMetric(
         WorkAreaController.class, "pwa.workAreaTabTimer", appender);
     when(metricsProvider.getWorkAreaTabTimer()).thenReturn(timer);
 
@@ -113,10 +111,20 @@ class WorkAreaControllerTest extends ResolverAbstractControllerTest {
     when(workAreaContextService.createWorkAreaContext(pwaManagerUser))
         .thenReturn(WorkAreaContextTestUtil.createContextWithZeroUserTabs(pwaManagerUser));
 
-    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
+    var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .with(user(pwaManagerUser)))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isOk())
+        .andReturn()
+        .getModelAndView();
 
+    assertThat(modelAndView).isNotNull();
+    var model = modelAndView.getModel();
+
+    assertThat(model)
+        .containsEntry("hasNoWorkAreaTabs", true)
+        .containsEntry("workAreaResult", null);
+
+    TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "work-area tab");
   }
 
   @Test

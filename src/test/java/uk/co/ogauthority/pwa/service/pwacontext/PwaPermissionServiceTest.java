@@ -89,4 +89,20 @@ class PwaPermissionServiceTest {
     assertThat(permissions).isEmpty();
   }
 
+  @Test
+  void getPwaPermissions_userIsSecondaryRegulator() {
+    when(pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user)).thenReturn(false);
+    when(teamQueryService.userIsMemberOfStaticTeam((long) user.getWuaId(), TeamType.REGULATOR))
+        .thenReturn(false);
+    when(teamQueryService.userIsMemberOfStaticTeam((long) user.getWuaId(), TeamType.SECONDARY_REGULATOR))
+        .thenReturn(true);
+
+    var permissions = pwaPermissionService.getPwaPermissions(masterPwa, user);
+    assertThat(permissions).containsExactlyInAnyOrder(
+        PwaPermission.VIEW_PWA,
+        PwaPermission.VIEW_PWA_PIPELINE,
+        PwaPermission.SHOW_PWA_NAVIGATION
+    );
+  }
+
 }

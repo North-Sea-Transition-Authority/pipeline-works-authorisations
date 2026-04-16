@@ -70,6 +70,10 @@ class EnergyPortalDataServiceTest {
         .withScopeId("no associated org group")
         .withScopeType(TeamType.CONSULTEE.getScopeType())
         .build();
+    var secondaryRegulatorTeam = TeamTestUtil.newBuilder()
+        .withTeamType(TeamType.SECONDARY_REGULATOR)
+        .withScopeType(TeamType.SECONDARY_REGULATOR.getScopeType())
+        .build();
 
     var expectedDto1 = new ServiceProviderTeamDto(
         team1.getId().toString(),
@@ -92,16 +96,24 @@ class EnergyPortalDataServiceTest {
         "Consultee name",
         consulteeTeamWhichHasAssociatedOrgGroup.getTeamType().name()
     );
+    var expectedDto4 = new ServiceProviderTeamDto(
+        secondaryRegulatorTeam.getId().toString(),
+        secondaryRegulatorTeam.getScopeId(),
+        ScopeType.ORGANISATION_GROUP,
+        null,
+        secondaryRegulatorTeam.getTeamType().name()
+    );
 
     when(teamRepository.findAll()).thenReturn(List.of(
         team1,
         team2,
         consulteeTeamWhichHasAssociatedOrgGroup,
-        consulteeTeamWhichHasNoAssociatedOrgGroup
+        consulteeTeamWhichHasNoAssociatedOrgGroup,
+        secondaryRegulatorTeam
     ));
 
     assertThat(energyPortalDataService.getServiceProviderTeamDtos())
-        .containsExactlyInAnyOrder(expectedDto1, expectedDto2, expectedDto3);
+        .containsExactlyInAnyOrder(expectedDto1, expectedDto2, expectedDto3, expectedDto4);
   }
 
   @Test
@@ -131,12 +143,18 @@ class EnergyPortalDataServiceTest {
         createServiceRoleDto(Role.AS_BUILT_NOTIFICATION_SUBMITTER, false)
     );
 
+    var secondaryRegulatorServiceRoleDtos = Set.of(
+        createServiceRoleDto(Role.TEAM_ADMINISTRATOR, true),
+        createServiceRoleDto(Role.CONSENT_VIEWER, false)
+    );
+
     assertThat(energyPortalDataService.getTeamTypeToServiceProviderTeamTypeRoleDtos())
         .isEqualTo(
             Map.of(
                 TeamType.REGULATOR.name(), regulatorServiceRoleDtos,
                 TeamType.CONSULTEE.name(), consulteeServiceRoleDtos,
-                TeamType.ORGANISATION.name(), organisationServiceRoleDtos
+                TeamType.ORGANISATION.name(), organisationServiceRoleDtos,
+                TeamType.SECONDARY_REGULATOR.name(), secondaryRegulatorServiceRoleDtos
             )
         );
   }
@@ -146,7 +164,8 @@ class EnergyPortalDataServiceTest {
     assertThat(energyPortalDataService.getTeamTypes()).isEqualTo(Set.of(
         TeamType.REGULATOR.name(),
         TeamType.CONSULTEE.name(),
-        TeamType.ORGANISATION.name()
+        TeamType.ORGANISATION.name(),
+        TeamType.SECONDARY_REGULATOR.name()
     ));
   }
 

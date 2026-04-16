@@ -57,6 +57,17 @@ public enum TeamType implements Displayable {
           () -> ReverseRouter.route(on(ScopedTeamManagementController.class).renderCreateNewOrgTeam(null)),
       UserMembershipRestriction.MULTIPLE_TEAMS
   ),
+  SECONDARY_REGULATOR(
+      "Secondary regulator",
+      "secondary-regulator",
+      null,
+      List.of(
+          Role.TEAM_ADMINISTRATOR,
+          Role.CONSENT_VIEWER
+      ),
+      null,
+      UserMembershipRestriction.SINGLE_TEAM
+  ),
   ;
 
   public enum UserMembershipRestriction { SINGLE_TEAM, MULTIPLE_TEAMS }

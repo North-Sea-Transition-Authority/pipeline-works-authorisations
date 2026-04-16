@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import com.google.common.base.Stopwatch;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -73,11 +74,7 @@ public class WorkAreaController {
 
     var workAreaContext = workAreaContextService.createWorkAreaContext(authenticatedUserAccount);
 
-    var defaultTab = workAreaContext.getDefaultTab()
-        .orElseThrow(() -> new AccessDeniedException(
-            String.format("User with login id [%s] cannot access any work area tabs",
-                authenticatedUserAccount.getLoginId()))
-        );
+    var defaultTab = workAreaContext.getDefaultTab().orElse(null);
 
     return getWorkAreaModelAndView(workAreaContext, defaultTab, DEFAULT_PAGE);
 
@@ -131,17 +128,23 @@ public class WorkAreaController {
     var stopwatch = Stopwatch.createStarted();
     boolean canStartApps = systemAreaAccessService.canStartApplication(workareaContext.getAuthenticatedUserAccount());
 
+    List<WorkAreaTab> userTabs = workareaContext.getSortedUserTabs();
+
+    boolean hasNoWorkAreaTabs = tab == null && userTabs.isEmpty();
+
     var modelAndView = new ModelAndView("workArea")
         .addObject("startPwaApplicationUrl",
             ReverseRouter.route(on(PwaResourceTypeController.class).renderResourceTypeForm(null, null)))
-        .addObject("workAreaResult", workAreaService.getWorkAreaResult(workareaContext, tab, page))
+        .addObject("workAreaResult", tab != null ? workAreaService.getWorkAreaResult(workareaContext, tab, page) : null)
         .addObject("tabUrlFactory", new WorkAreaTabUrlFactory())
         .addObject("currentWorkAreaTab", tab)
-        .addObject("availableTabs", workareaContext.getSortedUserTabs())
-        .addObject("showStartButton", canStartApps);
+        .addObject("availableTabs", userTabs)
+        .addObject("showStartButton", canStartApps)
+        .addObject("hasNoWorkAreaTabs", hasNoWorkAreaTabs);
 
     MetricTimerUtils.recordTime(
-        stopwatch, LOGGER, metricsProvider.getWorkAreaTabTimer(), tab.getLabel() + " work-area tab processing done.");
+        stopwatch, LOGGER, metricsProvider.getWorkAreaTabTimer(),
+        "%s work-area tab processing done.".formatted(tab != null ? tab.getLabel() : "empty"));
 
     return modelAndView;
   }

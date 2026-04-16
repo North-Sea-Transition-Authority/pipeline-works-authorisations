@@ -351,7 +351,7 @@ public class PwaApplicationDetailService {
       return lastSubmittedDetail;
     }
 
-    if (userTypes.contains(UserType.CONSULTEE)) {
+    if (userTypes.contains(UserType.CONSULTEE) || userTypes.contains(UserType.SECONDARY_REGULATOR)) {
       return latestSatisfactoryDetail;
     }
 

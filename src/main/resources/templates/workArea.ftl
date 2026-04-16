@@ -9,6 +9,7 @@
 <#-- @ftlvariable name="currentWorkAreaTab" type="uk.co.ogauthority.pwa.service.workarea.WorkAreaTab" -->
 <#-- @ftlvariable name="availableTabs" type="java.util.List<uk.co.ogauthority.pwa.service.workarea.WorkAreaTab>" -->
 <#-- @ftlvariable name="showStartButton" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="hasNoWorkAreaTabs" type="java.lang.Boolean" -->
 
 <@defaultPage htmlTitle="Work area" pageHeading="Work area" topNavigation=true fullWidthColumn=true wrapperWidth=true>
 
@@ -16,28 +17,32 @@
         <@fdsAction.link linkText="Start PWA application" linkUrl=springUrl(startPwaApplicationUrl) linkClass="govuk-button" role=true/>
     </#if>
 
-    <@fdsBackendTabs.tabs tabsHeading="Work area tabs">
-        <@fdsBackendTabs.tabList>
-            <#list availableTabs as tab>
-              <@fdsBackendTabs.tab tabLabel=tab.label tabUrl=tabUrlFactory.getTabUrl(tab.value) tabAnchor=tab.anchor currentTab=currentWorkAreaTab.value tabValue=tab.value />
-            </#list>
-        </@fdsBackendTabs.tabList>
-        <#list availableTabs as tab>
+    <#if !hasNoWorkAreaTabs>
+      <@fdsBackendTabs.tabs tabsHeading="Work area tabs">
+          <@fdsBackendTabs.tabList>
+              <#list availableTabs as tab>
+                  <@fdsBackendTabs.tab tabLabel=tab.label tabUrl=tabUrlFactory.getTabUrl(tab.value) tabAnchor=tab.anchor currentTab=currentWorkAreaTab.value tabValue=tab.value />
+              </#list>
+          </@fdsBackendTabs.tabList>
+          <#list availableTabs as tab>
 
-            <@fdsBackendTabs.tabContent tabAnchor=tab.anchor currentTab=currentWorkAreaTab.value tabValue=tab.value>
+              <@fdsBackendTabs.tabContent tabAnchor=tab.anchor currentTab=currentWorkAreaTab.value tabValue=tab.value>
 
-                <#if tab == "OPEN_CONSULTATIONS">
-                    <@consultationsTab.tab workAreaPageView=workAreaResult.getConsultationsTabPages()! />
-                 <#elseif tab == "AS_BUILT_NOTIFICATIONS">
-                     <@asBuiltNotificationsTab.tab workAreaPageView=workAreaResult.getAsBuiltNotificationTabPages()! />
-                 <#else>
-                    <@applicationsTab.tab workAreaPageView=workAreaResult.getApplicationsTabPages()! />
-                </#if>
+                  <#if tab == "OPEN_CONSULTATIONS">
+                      <@consultationsTab.tab workAreaPageView=workAreaResult.getConsultationsTabPages()! />
+                  <#elseif tab == "AS_BUILT_NOTIFICATIONS">
+                      <@asBuiltNotificationsTab.tab workAreaPageView=workAreaResult.getAsBuiltNotificationTabPages()! />
+                  <#else>
+                      <@applicationsTab.tab workAreaPageView=workAreaResult.getApplicationsTabPages()! />
+                  </#if>
 
-            </@fdsBackendTabs.tabContent>
+              </@fdsBackendTabs.tabContent>
 
-        </#list>
-
-    </@fdsBackendTabs.tabs>
-
+          </#list>
+      </@fdsBackendTabs.tabs>
+      <#else>
+        <@fdsInsetText.insetText>
+          <p>You have no items in your work area</p>
+        </@fdsInsetText.insetText>
+    </#if>
 </@defaultPage>

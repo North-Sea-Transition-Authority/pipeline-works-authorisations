@@ -27,10 +27,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -95,10 +99,9 @@ class PwaApplicationDetailServiceTest {
 
   private PwaApplicationDetailService pwaApplicationDetailService;
   private PwaApplicationDetail pwaApplicationDetail;
-  private WebUserAccount webUserAccount1;
   private WebUserAccount webUserAccount2;
-  private Person wua1Person = new Person(WUA_1_PERSON_ID.asInt(), "Industry", "Person", "industry@pwa.co.uk", null);
-  private Person wua2Person = new Person(WUA_2_PERSON_ID.asInt(), "Industry2", "Person2", "industry@pwa.co.uk", null);
+  private final Person wua1Person = new Person(WUA_1_PERSON_ID.asInt(), "Industry", "Person", "industry@pwa.co.uk", null);
+  private final Person wua2Person = new Person(WUA_2_PERSON_ID.asInt(), "Industry2", "Person2", "industry@pwa.co.uk", null);
   private AuthenticatedUserAccount user;
 
   private Clock clock;
@@ -106,7 +109,7 @@ class PwaApplicationDetailServiceTest {
   @BeforeEach
   void setUp() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID);
-    webUserAccount1 = new WebUserAccount(WUA_ID_1, wua1Person);
+    WebUserAccount webUserAccount1 = new WebUserAccount(WUA_ID_1, wua1Person);
     webUserAccount2 = new WebUserAccount(WUA_ID_2, wua2Person);
     user = new AuthenticatedUserAccount(webUserAccount1, List.of());
 
@@ -570,8 +573,9 @@ class PwaApplicationDetailServiceTest {
 
   }
 
-  @Test
-  void getLatestDetailForUser_consultee_satisfactory() {
+  @ParameterizedTest
+  @MethodSource("getConsulteeOrSecondaryRegulatorUserTypes")
+  void getLatestDetailForUser_consultee_or_secondaryRegulator_satisfactory(Set<UserType> userType) {
 
     var draftDetail = createDetail(PwaApplicationStatus.DRAFT, 1);
     var satisfactoryDetail1 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 2);
@@ -586,7 +590,7 @@ class PwaApplicationDetailServiceTest {
 
     when(applicationDetailRepository.findByPwaApplicationId(APP_ID))
         .thenReturn(List.of(draftDetail, satisfactoryDetail1, satisfactoryDetail2, submittedDetail));
-    when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.CONSULTEE));
+    when(userTypeService.getUserTypes(user)).thenReturn(userType);
 
     var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
 
@@ -594,6 +598,14 @@ class PwaApplicationDetailServiceTest {
         .isPresent()
         .contains(satisfactoryDetail2);
 
+  }
+
+  private static Stream<Arguments> getConsulteeOrSecondaryRegulatorUserTypes() {
+    return Stream.of(
+        Arguments.of(Set.of(UserType.CONSULTEE)),
+        Arguments.of(Set.of(UserType.SECONDARY_REGULATOR)),
+        Arguments.of(Set.of(UserType.CONSULTEE, UserType.SECONDARY_REGULATOR))
+    );
   }
 
   @Test
@@ -808,5 +820,4 @@ class PwaApplicationDetailServiceTest {
 
     verifyNoInteractions(detailHandlerFunction);
   }
-
 }

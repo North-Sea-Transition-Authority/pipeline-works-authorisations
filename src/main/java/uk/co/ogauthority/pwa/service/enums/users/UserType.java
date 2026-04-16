@@ -13,7 +13,10 @@ public enum UserType {
 
   OGA(100, TeamType.REGULATOR),
 
-  CONSULTEE(60, TeamType.CONSULTEE);
+  CONSULTEE(60, TeamType.CONSULTEE),
+
+  SECONDARY_REGULATOR(50, TeamType.SECONDARY_REGULATOR);
+
 
   /**
    * Higher priority user types tend to open up more permissions within the application.

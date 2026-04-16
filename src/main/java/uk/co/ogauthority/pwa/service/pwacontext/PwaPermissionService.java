@@ -30,22 +30,29 @@ public class PwaPermissionService {
                                               AuthenticatedUserAccount user) {
     var personInHolderTeam = pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user);
     var userIsRegulator = userIsRegulator(user);
+    var userIsSecondaryRegulator = userIsSecondaryRegulator(user);
 
     return Arrays.stream(PwaPermission.values())
         .filter(permission -> switch (permission) {
           case VIEW_PWA_PIPELINE ->
               personInHolderTeam
               || userIsRegulator
-              || user.hasPrivilege(PwaUserPrivilege.PIPELINE_VIEW);
+              || user.hasPrivilege(PwaUserPrivilege.PIPELINE_VIEW)
+              || userIsSecondaryRegulator;
           case VIEW_PWA, SHOW_PWA_NAVIGATION ->
               // split out show nav priv so users with external access only do not see other system areas they cannot access.
               personInHolderTeam
-              || userIsRegulator;
+              || userIsRegulator
+              || userIsSecondaryRegulator;
         })
         .collect(Collectors.toSet());
   }
 
   private boolean userIsRegulator(AuthenticatedUserAccount userAccount) {
     return teamQueryService.userIsMemberOfStaticTeam((long) userAccount.getWuaId(), TeamType.REGULATOR);
+  }
+
+  private boolean userIsSecondaryRegulator(AuthenticatedUserAccount userAccount) {
+    return teamQueryService.userIsMemberOfStaticTeam((long) userAccount.getWuaId(), TeamType.SECONDARY_REGULATOR);
   }
 }
