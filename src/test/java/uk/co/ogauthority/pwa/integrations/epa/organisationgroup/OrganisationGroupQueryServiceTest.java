@@ -65,6 +65,9 @@ class OrganisationGroupQueryServiceTest {
   @Mock
   private WellKnownOrganisationGroupsConfigurationProperties.WellKnownOrgGroup nsta;
 
+  @Mock
+  private WellKnownOrganisationGroupsConfigurationProperties.WellKnownOrgGroup opred;
+
   private OrganisationGroupQueryService organisationGroupQueryService;
 
   @BeforeEach
@@ -178,6 +181,22 @@ class OrganisationGroupQueryServiceTest {
     when(nsta.idAsInteger()).thenReturn(expectedId);
 
     organisationGroupQueryService.getRegulatorOrganisationGroup();
+
+    verify(organisationApi).findOrganisationGroup(
+        eq(expectedId),
+        any(),
+        any(RequestPurpose.class)
+    );
+  }
+
+  @Test
+  void getSecondaryRegulatorOrganisationGroup() {
+    var expectedId = Math.toIntExact(10001L);
+
+    when(wellKnownGroups.opred()).thenReturn(opred);
+    when(opred.idAsInteger()).thenReturn(expectedId);
+
+    organisationGroupQueryService.getSecondaryRegulatorOrganisationGroup();
 
     verify(organisationApi).findOrganisationGroup(
         eq(expectedId),

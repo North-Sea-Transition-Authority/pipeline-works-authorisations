@@ -66,6 +66,10 @@ public class OrganisationGroupQueryService {
     return getOrganisationGroupById(wellKnownOrganisationGroups.nsta().idAsInteger());
   }
 
+  public Optional<OrganisationGroupDto> getSecondaryRegulatorOrganisationGroup() {
+    return getOrganisationGroupById(wellKnownOrganisationGroups.opred().idAsInteger());
+  }
+
   public Optional<OrganisationGroupDto> getConsulteeOrganisationGroup(String scopeId) {
     if (!consulteeGroupIdToEpasScopeTypeAndIdConfigProps.hasAssociatedEpas(scopeId)) {
       return Optional.empty();

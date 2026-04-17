@@ -22,6 +22,7 @@ public class AllowedDomainService {
       case ORGANISATION -> group = organisationGroupQueryService.getOrganisationGroupById(Integer.parseInt(team.getScopeId()));
       case REGULATOR -> group = organisationGroupQueryService.getRegulatorOrganisationGroup();
       case CONSULTEE -> group = organisationGroupQueryService.getConsulteeOrganisationGroup(team.getScopeId());
+      case SECONDARY_REGULATOR ->  group = organisationGroupQueryService.getSecondaryRegulatorOrganisationGroup();
       default -> throw new IllegalStateException("Unexpected value: " + team.getTeamType());
     }
 

@@ -74,6 +74,26 @@ class AllowedDomainServiceTest {
 
   @ParameterizedTest
   @MethodSource("provideDomainIsAllowedCombinations")
+  void isAllowedDomain_secondaryRegulator(List<String> domains, boolean isAllowed) {
+    var regTeam = new Team(UUID.randomUUID());
+    regTeam.setTeamType(TeamType.SECONDARY_REGULATOR);
+    regTeam.setName("secondary regulator team");
+
+    var orgGroup = new OrganisationGroupDto(
+        1,
+        "Org group",
+        domains
+    );
+
+    when(organisationGroupQueryService.getSecondaryRegulatorOrganisationGroup()).thenReturn(
+        Optional.of(orgGroup)
+    );
+
+    assertThat(allowedDomainService.isAllowedDomain(USER_EMAIL, regTeam)).isEqualTo(isAllowed);
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideDomainIsAllowedCombinations")
   void isAllowedDomain_consultee(List<String> domains, boolean isAllowed) {
     var consulteeTeam = new Team(UUID.randomUUID());
     consulteeTeam.setTeamType(TeamType.CONSULTEE);
