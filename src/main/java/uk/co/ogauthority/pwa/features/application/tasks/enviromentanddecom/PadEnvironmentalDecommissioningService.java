@@ -46,6 +46,7 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
   public Set<EnvDecomQuestion> getAvailableQuestions(PwaApplicationDetail detail) {
 
     if (detail.getPwaApplicationType() == PwaApplicationType.CAT_2_VARIATION
+        || detail.getPwaApplicationType() == PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
         || detail.getPwaApplicationType() == PwaApplicationType.DEPOSIT_CONSENT) {
       return Set.of(EnvDecomQuestion.BEIS_EMT_PERMITS);
     } else if (detail.getPwaApplicationType() == PwaApplicationType.DECOMMISSIONING) {

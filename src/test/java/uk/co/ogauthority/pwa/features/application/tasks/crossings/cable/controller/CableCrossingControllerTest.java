@@ -82,7 +82,9 @@ class CableCrossingControllerTest extends PwaApplicationContextAbstractControlle
         PwaApplicationType.INITIAL,
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
-        PwaApplicationType.DECOMMISSIONING);
+        PwaApplicationType.DECOMMISSIONING,
+        PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+    );
 
     when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(pwaApplicationDetail);
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
@@ -94,7 +96,8 @@ class CableCrossingControllerTest extends PwaApplicationContextAbstractControlle
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
-            PwaApplicationType.DECOMMISSIONING
+            PwaApplicationType.DECOMMISSIONING,
+            PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
         )
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);

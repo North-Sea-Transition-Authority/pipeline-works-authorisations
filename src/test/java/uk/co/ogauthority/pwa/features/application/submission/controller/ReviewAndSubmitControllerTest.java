@@ -439,6 +439,7 @@ class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstractControl
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
+            PwaApplicationType.PIPELINE_RECORD_MANAGEMENT,
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.DEPOSIT_CONSENT,
             PwaApplicationType.OPTIONS_VARIATION,

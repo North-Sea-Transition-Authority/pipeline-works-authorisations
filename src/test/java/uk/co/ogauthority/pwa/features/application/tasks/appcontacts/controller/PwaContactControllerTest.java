@@ -77,7 +77,9 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.DEPOSIT_CONSENT,
             PwaApplicationType.HUOO_VARIATION,
-            PwaApplicationType.OPTIONS_VARIATION)
+            PwaApplicationType.OPTIONS_VARIATION,
+            PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+        )
         .setAllowedPermissions(PwaApplicationPermission.MANAGE_CONTACTS, PwaApplicationPermission.EDIT)
         .setAllowedStatuses(ApplicationState.IN_PROGRESS);
 
@@ -89,7 +91,9 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.DEPOSIT_CONSENT,
             PwaApplicationType.HUOO_VARIATION,
-            PwaApplicationType.OPTIONS_VARIATION)
+            PwaApplicationType.OPTIONS_VARIATION,
+            PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+        )
         .setAllowedPermissions(PwaApplicationPermission.MANAGE_CONTACTS)
         .setAllowedStatuses(ApplicationState.IN_PROGRESS);
 

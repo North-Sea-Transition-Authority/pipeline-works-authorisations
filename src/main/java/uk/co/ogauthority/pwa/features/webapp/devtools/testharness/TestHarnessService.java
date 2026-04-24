@@ -85,6 +85,7 @@ public class TestHarnessService {
       case HUOO_VARIATION:
       case CAT_1_VARIATION:
       case CAT_2_VARIATION:
+      case PIPELINE_RECORD_MANAGEMENT:
       case DEPOSIT_CONSENT:
       case OPTIONS_VARIATION:
       case DECOMMISSIONING:

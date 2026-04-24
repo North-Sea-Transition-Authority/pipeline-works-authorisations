@@ -107,134 +107,124 @@ class ApplicationTaskServiceTest {
   }
 
   private Set<ApplicationTask> getAllExpectedApplicationTasksForApp(PwaApplicationType appType) {
-    switch (appType) {
-      case INITIAL:
-      case CAT_1_VARIATION:
-        return EnumSet.of(
-            ApplicationTask.FIELD_INFORMATION,
-            ApplicationTask.CARBON_STORAGE_INFORMATION,
-            ApplicationTask.APPLICATION_USERS,
-            ApplicationTask.PROJECT_INFORMATION,
-            ApplicationTask.FAST_TRACK,
-            ApplicationTask.PROJECT_EXTENSION,
-            ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING,
-            ApplicationTask.CROSSING_AGREEMENTS,
-            ApplicationTask.LOCATION_DETAILS,
-            ApplicationTask.HUOO,
-            ApplicationTask.TECHNICAL_DRAWINGS,
-            ApplicationTask.PIPELINES,
-            ApplicationTask.PIPELINES_HUOO,
-            ApplicationTask.CAMPAIGN_WORKS,
-            ApplicationTask.PERMANENT_DEPOSITS,
-            ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS,
-            ApplicationTask.GENERAL_TECH_DETAILS,
-            ApplicationTask.FLUID_COMPOSITION,
-            ApplicationTask.PIPELINE_OTHER_PROPERTIES,
-            ApplicationTask.DESIGN_OP_CONDITIONS,
-            ApplicationTask.PARTNER_LETTERS
-        );
-      case DEPOSIT_CONSENT:
-        return EnumSet.of(
-            ApplicationTask.FIELD_INFORMATION,
-            ApplicationTask.CARBON_STORAGE_INFORMATION,
-            ApplicationTask.APPLICATION_USERS,
-            ApplicationTask.PROJECT_INFORMATION,
-            ApplicationTask.FAST_TRACK,
-            ApplicationTask.PROJECT_EXTENSION,
-            ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING,
-            ApplicationTask.CROSSING_AGREEMENTS,
-            ApplicationTask.LOCATION_DETAILS,
-            ApplicationTask.PERMANENT_DEPOSITS,
-            ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS
-        );
-      case DECOMMISSIONING:
-        return EnumSet.of(
-            ApplicationTask.FIELD_INFORMATION,
-            ApplicationTask.CARBON_STORAGE_INFORMATION,
-            ApplicationTask.APPLICATION_USERS,
-            ApplicationTask.PROJECT_INFORMATION,
-            ApplicationTask.FAST_TRACK,
-            ApplicationTask.PROJECT_EXTENSION,
-            ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING,
-            ApplicationTask.CROSSING_AGREEMENTS,
-            ApplicationTask.LOCATION_DETAILS,
-            ApplicationTask.HUOO,
-            ApplicationTask.TECHNICAL_DRAWINGS,
-            ApplicationTask.PIPELINES,
-            ApplicationTask.PIPELINES_HUOO,
-            ApplicationTask.CAMPAIGN_WORKS,
-            ApplicationTask.PERMANENT_DEPOSITS,
-            ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS,
-            ApplicationTask.PARTNER_LETTERS
-        );
-      case OPTIONS_VARIATION:
-        return EnumSet.of(
-            // pre-options approval tasks
-            ApplicationTask.FIELD_INFORMATION,
-            ApplicationTask.CARBON_STORAGE_INFORMATION,
-            ApplicationTask.APPLICATION_USERS,
-            ApplicationTask.PROJECT_INFORMATION,
-            ApplicationTask.FAST_TRACK,
-            ApplicationTask.PROJECT_EXTENSION,
-            ApplicationTask.OPTIONS_TEMPLATE,
-            ApplicationTask.CONFIRM_OPTIONS,
-            ApplicationTask.SUPPLEMENTARY_DOCUMENTS,
-            // post approved option confirmation tasks
-            ApplicationTask.HUOO,
-            ApplicationTask.TECHNICAL_DRAWINGS,
-            ApplicationTask.PIPELINES,
-            ApplicationTask.PIPELINES_HUOO,
-            ApplicationTask.PERMANENT_DEPOSITS,
-            ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS
+    return switch (appType) {
+      case INITIAL, CAT_1_VARIATION -> EnumSet.of(
+          ApplicationTask.FIELD_INFORMATION,
+          ApplicationTask.CARBON_STORAGE_INFORMATION,
+          ApplicationTask.APPLICATION_USERS,
+          ApplicationTask.PROJECT_INFORMATION,
+          ApplicationTask.FAST_TRACK,
+          ApplicationTask.PROJECT_EXTENSION,
+          ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING,
+          ApplicationTask.CROSSING_AGREEMENTS,
+          ApplicationTask.LOCATION_DETAILS,
+          ApplicationTask.HUOO,
+          ApplicationTask.TECHNICAL_DRAWINGS,
+          ApplicationTask.PIPELINES,
+          ApplicationTask.PIPELINES_HUOO,
+          ApplicationTask.CAMPAIGN_WORKS,
+          ApplicationTask.PERMANENT_DEPOSITS,
+          ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS,
+          ApplicationTask.GENERAL_TECH_DETAILS,
+          ApplicationTask.FLUID_COMPOSITION,
+          ApplicationTask.PIPELINE_OTHER_PROPERTIES,
+          ApplicationTask.DESIGN_OP_CONDITIONS,
+          ApplicationTask.PARTNER_LETTERS
+      );
+      case DEPOSIT_CONSENT -> EnumSet.of(
+          ApplicationTask.FIELD_INFORMATION,
+          ApplicationTask.CARBON_STORAGE_INFORMATION,
+          ApplicationTask.APPLICATION_USERS,
+          ApplicationTask.PROJECT_INFORMATION,
+          ApplicationTask.FAST_TRACK,
+          ApplicationTask.PROJECT_EXTENSION,
+          ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING,
+          ApplicationTask.CROSSING_AGREEMENTS,
+          ApplicationTask.LOCATION_DETAILS,
+          ApplicationTask.PERMANENT_DEPOSITS,
+          ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS
+      );
+      case DECOMMISSIONING -> EnumSet.of(
+          ApplicationTask.FIELD_INFORMATION,
+          ApplicationTask.CARBON_STORAGE_INFORMATION,
+          ApplicationTask.APPLICATION_USERS,
+          ApplicationTask.PROJECT_INFORMATION,
+          ApplicationTask.FAST_TRACK,
+          ApplicationTask.PROJECT_EXTENSION,
+          ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING,
+          ApplicationTask.CROSSING_AGREEMENTS,
+          ApplicationTask.LOCATION_DETAILS,
+          ApplicationTask.HUOO,
+          ApplicationTask.TECHNICAL_DRAWINGS,
+          ApplicationTask.PIPELINES,
+          ApplicationTask.PIPELINES_HUOO,
+          ApplicationTask.CAMPAIGN_WORKS,
+          ApplicationTask.PERMANENT_DEPOSITS,
+          ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS,
+          ApplicationTask.PARTNER_LETTERS
+      );
+      case OPTIONS_VARIATION -> EnumSet.of(
+          // pre-options approval tasks
+          ApplicationTask.FIELD_INFORMATION,
+          ApplicationTask.CARBON_STORAGE_INFORMATION,
+          ApplicationTask.APPLICATION_USERS,
+          ApplicationTask.PROJECT_INFORMATION,
+          ApplicationTask.FAST_TRACK,
+          ApplicationTask.PROJECT_EXTENSION,
+          ApplicationTask.OPTIONS_TEMPLATE,
+          ApplicationTask.CONFIRM_OPTIONS,
+          ApplicationTask.SUPPLEMENTARY_DOCUMENTS,
+          // post approved option confirmation tasks
+          ApplicationTask.HUOO,
+          ApplicationTask.TECHNICAL_DRAWINGS,
+          ApplicationTask.PIPELINES,
+          ApplicationTask.PIPELINES_HUOO,
+          ApplicationTask.PERMANENT_DEPOSITS,
+          ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS
 
-        );
-      case CAT_2_VARIATION:
-        return EnumSet.of(
-            ApplicationTask.FIELD_INFORMATION,
-            ApplicationTask.CARBON_STORAGE_INFORMATION,
-            ApplicationTask.APPLICATION_USERS,
-            ApplicationTask.PROJECT_INFORMATION,
-            ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING,
-            ApplicationTask.FAST_TRACK,
-            ApplicationTask.PROJECT_EXTENSION,
-            ApplicationTask.CROSSING_AGREEMENTS,
-            ApplicationTask.LOCATION_DETAILS,
-            ApplicationTask.HUOO,
-            ApplicationTask.PIPELINES,
-            ApplicationTask.PIPELINES_HUOO,
-            ApplicationTask.CAMPAIGN_WORKS,
-            ApplicationTask.TECHNICAL_DRAWINGS,
-            ApplicationTask.PERMANENT_DEPOSITS,
-            ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS,
-            ApplicationTask.PARTNER_LETTERS
-        );
-      case HUOO_VARIATION:
-        return EnumSet.of(
-            ApplicationTask.FIELD_INFORMATION,
-            ApplicationTask.CARBON_STORAGE_INFORMATION,
-            ApplicationTask.APPLICATION_USERS,
-            ApplicationTask.PROJECT_INFORMATION,
-            ApplicationTask.FAST_TRACK,
-            ApplicationTask.PROJECT_EXTENSION,
-            ApplicationTask.HUOO,
-            ApplicationTask.PIPELINES_HUOO
-        );
-      default:
-        return Set.of();
-    }
+      );
+      case CAT_2_VARIATION, PIPELINE_RECORD_MANAGEMENT -> EnumSet.of(
+          ApplicationTask.FIELD_INFORMATION,
+          ApplicationTask.CARBON_STORAGE_INFORMATION,
+          ApplicationTask.APPLICATION_USERS,
+          ApplicationTask.PROJECT_INFORMATION,
+          ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING,
+          ApplicationTask.FAST_TRACK,
+          ApplicationTask.PROJECT_EXTENSION,
+          ApplicationTask.CROSSING_AGREEMENTS,
+          ApplicationTask.LOCATION_DETAILS,
+          ApplicationTask.HUOO,
+          ApplicationTask.PIPELINES,
+          ApplicationTask.PIPELINES_HUOO,
+          ApplicationTask.CAMPAIGN_WORKS,
+          ApplicationTask.TECHNICAL_DRAWINGS,
+          ApplicationTask.PERMANENT_DEPOSITS,
+          ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS,
+          ApplicationTask.PARTNER_LETTERS
+      );
+      case HUOO_VARIATION -> EnumSet.of(
+          ApplicationTask.FIELD_INFORMATION,
+          ApplicationTask.CARBON_STORAGE_INFORMATION,
+          ApplicationTask.APPLICATION_USERS,
+          ApplicationTask.PROJECT_INFORMATION,
+          ApplicationTask.FAST_TRACK,
+          ApplicationTask.PROJECT_EXTENSION,
+          ApplicationTask.HUOO,
+          ApplicationTask.PIPELINES_HUOO
+      );
+    };
   }
 
   @Test
   void copyApplicationTaskDataToApplicationDetail_serviceInteractions() {
-
     var newDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
-        PwaApplicationType.INITIAL
-        , pwaApplicationDetail.getMasterPwaApplicationId()
-        , pwaApplicationDetail.getId() + 1);
+        PwaApplicationType.INITIAL,
+        pwaApplicationDetail.getMasterPwaApplicationId(),
+        pwaApplicationDetail.getId() + 1
+    );
 
     applicationTaskService.copyApplicationTaskDataToApplicationDetail(DEFAULT_APP_TASK, pwaApplicationDetail, newDetail);
 
     verify(applicationFormSectionService, times(1)).copySectionInformation(pwaApplicationDetail, newDetail);
-
   }
 }

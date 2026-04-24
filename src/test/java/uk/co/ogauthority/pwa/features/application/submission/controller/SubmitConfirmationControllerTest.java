@@ -70,7 +70,9 @@ class SubmitConfirmationControllerTest extends PwaApplicationContextAbstractCont
         PwaApplicationType.DECOMMISSIONING,
         PwaApplicationType.DEPOSIT_CONSENT,
         PwaApplicationType.OPTIONS_VARIATION,
-        PwaApplicationType.HUOO_VARIATION)
+        PwaApplicationType.HUOO_VARIATION,
+        PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+    )
     .setAllowedPermissions(PwaApplicationPermission.EDIT)
     .setAllowedStatuses(EnumSet.allOf(PwaApplicationStatus.class).toArray(PwaApplicationStatus[]::new));
 
@@ -85,7 +87,8 @@ class SubmitConfirmationControllerTest extends PwaApplicationContextAbstractCont
         PwaApplicationType.DECOMMISSIONING,
         PwaApplicationType.DEPOSIT_CONSENT,
         PwaApplicationType.OPTIONS_VARIATION,
-        PwaApplicationType.HUOO_VARIATION)
+        PwaApplicationType.HUOO_VARIATION,
+        PwaApplicationType.PIPELINE_RECORD_MANAGEMENT)
         .setAllowedPermissions(PwaApplicationPermission.SUBMIT)
         .setAllowedStatuses(EnumSet.allOf(PwaApplicationStatus.class).toArray(PwaApplicationStatus[]::new));
 

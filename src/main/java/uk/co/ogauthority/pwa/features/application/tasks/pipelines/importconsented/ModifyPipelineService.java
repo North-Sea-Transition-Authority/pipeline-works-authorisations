@@ -72,7 +72,8 @@ public class ModifyPipelineService {
 
     var pipelineStatuses = PipelineStatus.toOrderedListWithoutHistorical();
     var validAppTypesForTransferredPipelineStatus = Set.of(
-        PwaApplicationType.CAT_1_VARIATION, PwaApplicationType.CAT_2_VARIATION, PwaApplicationType.DECOMMISSIONING);
+        PwaApplicationType.CAT_1_VARIATION, PwaApplicationType.CAT_2_VARIATION,
+        PwaApplicationType.PIPELINE_RECORD_MANAGEMENT, PwaApplicationType.DECOMMISSIONING);
     if (!validAppTypesForTransferredPipelineStatus.contains(pwaApplicationType)) {
       return pipelineStatuses.stream()
           .filter(pipelineStatus -> !pipelineStatus.equals(PipelineStatus.TRANSFERRED))

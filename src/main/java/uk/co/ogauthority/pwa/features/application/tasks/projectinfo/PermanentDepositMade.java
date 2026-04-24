@@ -1,12 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import static java.util.stream.Collectors.toList;
-import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType.CAT_1_VARIATION;
-import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType.CAT_2_VARIATION;
-import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType.DECOMMISSIONING;
-import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType.DEPOSIT_CONSENT;
-import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType.HUOO_VARIATION;
-import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType.INITIAL;
 import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType.OPTIONS_VARIATION;
 
 import java.util.Arrays;
@@ -15,14 +9,35 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 
 public enum PermanentDepositMade {
 
-  THIS_APP("Yes, as part of this application", true,
-      List.of(INITIAL, CAT_1_VARIATION, CAT_2_VARIATION, HUOO_VARIATION, DEPOSIT_CONSENT, DECOMMISSIONING)),
-  LATER_APP("Yes, as part of a later application", false,
-      List.of(INITIAL, CAT_1_VARIATION, CAT_2_VARIATION, HUOO_VARIATION, DEPOSIT_CONSENT, DECOMMISSIONING)),
-  YES("Yes", true,
-      List.of(OPTIONS_VARIATION)),
-  NONE("No", false,
-      List.of(INITIAL, CAT_1_VARIATION, CAT_2_VARIATION, HUOO_VARIATION, DEPOSIT_CONSENT, OPTIONS_VARIATION, DECOMMISSIONING));
+  THIS_APP("Yes, as part of this application", true, List.of(
+      PwaApplicationType.INITIAL,
+      PwaApplicationType.CAT_1_VARIATION,
+      PwaApplicationType.CAT_2_VARIATION,
+      PwaApplicationType.PIPELINE_RECORD_MANAGEMENT,
+      PwaApplicationType.HUOO_VARIATION,
+      PwaApplicationType.DEPOSIT_CONSENT,
+      PwaApplicationType.DECOMMISSIONING
+  )),
+  LATER_APP("Yes, as part of a later application", false, List.of(
+      PwaApplicationType.INITIAL,
+      PwaApplicationType.CAT_1_VARIATION,
+      PwaApplicationType.CAT_2_VARIATION,
+      PwaApplicationType.PIPELINE_RECORD_MANAGEMENT,
+      PwaApplicationType.HUOO_VARIATION,
+      PwaApplicationType.DEPOSIT_CONSENT,
+      PwaApplicationType.DECOMMISSIONING
+  )),
+  YES("Yes", true, List.of(OPTIONS_VARIATION)),
+  NONE("No", false, List.of(
+      PwaApplicationType.INITIAL,
+      PwaApplicationType.CAT_1_VARIATION,
+      PwaApplicationType.CAT_2_VARIATION,
+      PwaApplicationType.PIPELINE_RECORD_MANAGEMENT,
+      PwaApplicationType.HUOO_VARIATION,
+      PwaApplicationType.DEPOSIT_CONSENT,
+      PwaApplicationType.OPTIONS_VARIATION,
+      PwaApplicationType.DECOMMISSIONING
+  ));
 
   private final String displayText;
 
@@ -52,7 +67,8 @@ public enum PermanentDepositMade {
 
   public static List<PermanentDepositMade> asList(PwaApplicationType pwaApplicationType) {
     return Arrays.stream(PermanentDepositMade.values())
-        .filter(permanentDepositRadioOption -> permanentDepositRadioOption.supportedApplicationTypes.contains(pwaApplicationType))
+        .filter(permanentDepositRadioOption ->
+            permanentDepositRadioOption.supportedApplicationTypes.contains(pwaApplicationType))
         .collect(toList());
   }
 

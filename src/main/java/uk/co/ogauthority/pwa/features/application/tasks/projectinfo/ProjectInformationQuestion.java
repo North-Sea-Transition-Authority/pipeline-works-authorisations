@@ -10,7 +10,8 @@ public enum ProjectInformationQuestion {
   PROJECT_NAME((applicationType) -> false),
   PROJECT_OVERVIEW((applicationType) -> false),
   METHOD_OF_PIPELINE_DEPLOYMENT((applicationType) ->
-      Set.of(PwaApplicationType.OPTIONS_VARIATION, PwaApplicationType.CAT_2_VARIATION).contains(applicationType)),
+      Set.of(PwaApplicationType.OPTIONS_VARIATION, PwaApplicationType.CAT_2_VARIATION,
+          PwaApplicationType.PIPELINE_RECORD_MANAGEMENT).contains(applicationType)),
   PROPOSED_START_DATE((applicationType) -> false),
   MOBILISATION_DATE((applicationType) -> false),
   EARLIEST_COMPLETION_DATE((applicationType) -> false),

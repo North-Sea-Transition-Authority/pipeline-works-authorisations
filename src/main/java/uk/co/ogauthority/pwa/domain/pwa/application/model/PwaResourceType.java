@@ -16,7 +16,8 @@ public enum PwaResourceType implements Displayable {
           PwaApplicationType.HUOO_VARIATION,
           PwaApplicationType.DEPOSIT_CONSENT,
           PwaApplicationType.OPTIONS_VARIATION,
-          PwaApplicationType.DECOMMISSIONING
+          PwaApplicationType.DECOMMISSIONING,
+          PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
       )
   ),
   HYDROGEN(

@@ -25,6 +25,7 @@ public class ControllerUtils {
   private static final Set<PwaApplicationType> VALID_START_VARIATION_APP_TYPES = EnumSet.of(
       PwaApplicationType.CAT_1_VARIATION,
       PwaApplicationType.CAT_2_VARIATION,
+      PwaApplicationType.PIPELINE_RECORD_MANAGEMENT,
       PwaApplicationType.HUOO_VARIATION,
       PwaApplicationType.DEPOSIT_CONSENT,
       PwaApplicationType.OPTIONS_VARIATION,

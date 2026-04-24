@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.features.application.tasklist.controllers.DepositCo
 import uk.co.ogauthority.pwa.features.application.tasklist.controllers.HuooVariationTaskListController;
 import uk.co.ogauthority.pwa.features.application.tasklist.controllers.InitialTaskListController;
 import uk.co.ogauthority.pwa.features.application.tasklist.controllers.OptionsVariationTaskListController;
+import uk.co.ogauthority.pwa.features.application.tasklist.controllers.PipelineRecordManagementTaskListController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 @Service
@@ -25,30 +26,24 @@ public class PwaApplicationRedirectService {
 
   public ModelAndView getStartApplicationRedirect(PwaResourceType pwaResourceType) {
     return ReverseRouter.redirect(on(StartPwaApplicationController.class)
-        .renderStartApplication(null, pwaResourceType));
+        .renderStartApplication(pwaResourceType, null));
   }
 
   /**
    * Return a redirect to the right start page for the passed-in application type.
    */
   public ModelAndView getStartApplicationRedirect(PwaApplicationType applicationType, PwaResourceType resourceType) {
-
-    switch (applicationType) {
-      case INITIAL:
-        return ReverseRouter.redirect(on(StartInitialPwaController.class)
-            .renderStartPage(null, resourceType));
-      case CAT_1_VARIATION:
-      case HUOO_VARIATION:
-      case CAT_2_VARIATION:
-      case DEPOSIT_CONSENT:
-      case OPTIONS_VARIATION:
-      case DECOMMISSIONING:
-        return ReverseRouter.redirect(on(StartVariationController.class)
-            .renderVariationTypeStartPage(null, applicationType, resourceType));
-      default:
-        return ReverseRouter.redirect(on(StartPwaApplicationController.class)
-            .renderStartApplication(null, resourceType));
-    }
+    return switch (applicationType) {
+      case INITIAL -> ReverseRouter.redirect(on(StartInitialPwaController.class)
+          .renderStartPage(null, resourceType));
+      case CAT_1_VARIATION, HUOO_VARIATION,
+           CAT_2_VARIATION,
+           PIPELINE_RECORD_MANAGEMENT,
+           DEPOSIT_CONSENT,
+           OPTIONS_VARIATION,
+           DECOMMISSIONING -> ReverseRouter.redirect(on(StartVariationController.class)
+          .renderVariationTypeStartPage(null, applicationType, resourceType));
+    };
   }
 
   /**
@@ -63,6 +58,8 @@ public class PwaApplicationRedirectService {
         return ReverseRouter.redirect(on(Category1TaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case CAT_2_VARIATION:
         return ReverseRouter.redirect(on(Category2TaskListController.class).viewTaskList(pwaApplication.getId(), null));
+      case PIPELINE_RECORD_MANAGEMENT:
+        return ReverseRouter.redirect(on(PipelineRecordManagementTaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case DECOMMISSIONING:
         return ReverseRouter.redirect(on(DecommissioningTaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case DEPOSIT_CONSENT:
@@ -96,6 +93,8 @@ public class PwaApplicationRedirectService {
         return ReverseRouter.route(on(Category1TaskListController.class).viewTaskList(pwaApplicationId, null));
       case CAT_2_VARIATION:
         return ReverseRouter.route(on(Category2TaskListController.class).viewTaskList(pwaApplicationId, null));
+      case PIPELINE_RECORD_MANAGEMENT:
+        return ReverseRouter.route(on(PipelineRecordManagementTaskListController.class).viewTaskList(pwaApplicationId, null));
       case DECOMMISSIONING:
         return ReverseRouter.route(on(DecommissioningTaskListController.class).viewTaskList(pwaApplicationId, null));
       case DEPOSIT_CONSENT:

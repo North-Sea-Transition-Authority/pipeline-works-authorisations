@@ -57,6 +57,7 @@ class StartVariationControllerTest extends ResolverAbstractControllerTest {
     var expectOkAppTypes = EnumSet.of(
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
+        PwaApplicationType.PIPELINE_RECORD_MANAGEMENT,
         PwaApplicationType.HUOO_VARIATION,
         PwaApplicationType.DEPOSIT_CONSENT,
         PwaApplicationType.OPTIONS_VARIATION,
@@ -119,6 +120,7 @@ class StartVariationControllerTest extends ResolverAbstractControllerTest {
     var expectOkAppTypes = EnumSet.of(
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
+        PwaApplicationType.PIPELINE_RECORD_MANAGEMENT,
         PwaApplicationType.HUOO_VARIATION,
         PwaApplicationType.DEPOSIT_CONSENT,
         PwaApplicationType.OPTIONS_VARIATION,

@@ -282,13 +282,13 @@ class PadEnvironmentalDecommissioningServiceTest {
     PwaApplicationType.stream()
         .filter(applicationType -> applicationType != PwaApplicationType.CAT_2_VARIATION
             && applicationType != PwaApplicationType.DEPOSIT_CONSENT
-            && applicationType != PwaApplicationType.DECOMMISSIONING)
+            && applicationType != PwaApplicationType.DECOMMISSIONING
+            && applicationType != PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+        )
         .forEach(applicationType -> {
-
           app.setApplicationType(applicationType);
           assertThat(padEnvironmentalDecommissioningService.getAvailableQuestions(detail))
               .containsExactlyElementsOf(EnumSet.allOf(EnvDecomQuestion.class));
-
         });
 
   }

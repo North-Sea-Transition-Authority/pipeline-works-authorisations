@@ -49,6 +49,9 @@ public class StartVariationController {
       case CAT_2_VARIATION:
         modelAndView = new ModelAndView("pwaApplication/startPages/category2");
         break;
+      case PIPELINE_RECORD_MANAGEMENT:
+        modelAndView = new ModelAndView("pwaApplication/startPages/pipelineRecordManagement");
+        break;
       case HUOO_VARIATION:
         modelAndView = new ModelAndView("pwaApplication/startPages/huooVariation");
         break;
@@ -89,6 +92,7 @@ public class StartVariationController {
       case CAT_1_VARIATION:
       case HUOO_VARIATION:
       case CAT_2_VARIATION:
+      case PIPELINE_RECORD_MANAGEMENT:
       case DEPOSIT_CONSENT:
       case OPTIONS_VARIATION:
       case DECOMMISSIONING:

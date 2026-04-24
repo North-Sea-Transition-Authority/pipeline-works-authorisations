@@ -56,7 +56,9 @@ class ModifyPipelineControllerTest extends PwaApplicationContextAbstractControll
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.OPTIONS_VARIATION,
-            PwaApplicationType.DECOMMISSIONING)
+            PwaApplicationType.DECOMMISSIONING,
+            PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+        )
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
 

@@ -80,7 +80,8 @@ class ProjectInformationControllerTest extends PwaApplicationContextAbstractCont
       PwaApplicationType.CAT_2_VARIATION,
       PwaApplicationType.OPTIONS_VARIATION,
       PwaApplicationType.DECOMMISSIONING,
-      PwaApplicationType.HUOO_VARIATION
+      PwaApplicationType.HUOO_VARIATION,
+      PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
   );
 
   private WebUserAccount webUserAccount;

@@ -153,7 +153,8 @@ class PickExistingPwaControllerTest extends ResolverAbstractControllerTest {
         PwaApplicationType.HUOO_VARIATION,
         PwaApplicationType.DEPOSIT_CONSENT,
         PwaApplicationType.OPTIONS_VARIATION,
-        PwaApplicationType.DECOMMISSIONING
+        PwaApplicationType.DECOMMISSIONING,
+        PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
     );
 
     for (PwaApplicationType appType : PwaApplicationType.values()) {
@@ -193,7 +194,8 @@ class PickExistingPwaControllerTest extends ResolverAbstractControllerTest {
         PwaApplicationType.HUOO_VARIATION,
         PwaApplicationType.DEPOSIT_CONSENT,
         PwaApplicationType.OPTIONS_VARIATION,
-        PwaApplicationType.DECOMMISSIONING
+        PwaApplicationType.DECOMMISSIONING,
+        PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
     );
     for (PwaApplicationType appType : PwaApplicationType.values()) {
       ResultMatcher expectedStatus = expectOkAppTypes.contains(appType)

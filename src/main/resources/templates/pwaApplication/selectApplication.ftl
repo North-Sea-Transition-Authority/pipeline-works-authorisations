@@ -35,6 +35,15 @@
                   <li>partially or fully removing an existing pipeline within the PWA Regime from the seabed or taking it out of use prior to agreement of Cessation of Production approval</li>
                   <li>bringing a pipeline into the PWA Regime that already exists on the seabed</li>
                 </ul>
+              <#elseif appTypeName == "PIPELINE_RECORD_MANAGEMENT">
+                <p class="govuk-body">A Pipeline Records Management variation is used when you need to update the existing PWA for the following reasons:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                  <li>To correct pipeline records with administrative errors</li>
+                  <li>To update pipeline records in line with the as-built status following the completion of a work scope</li>
+                  <li>To revert pipeline records back following a failure to complete works</li>
+                  <li>To upload pipeline Table A data into the PWA Portal</li>
+                  <li>Bringing previously unnumbered pipelines into the PWA regime outside of any associated work scope</li>
+                </ul>
               <#elseif appTypeName == "HUOO_VARIATION">
                 <p class="govuk-body">For any changes to the current holder, user, operator or owner information only.</p>
               <#elseif appTypeName == "OPTIONS_VARIATION">

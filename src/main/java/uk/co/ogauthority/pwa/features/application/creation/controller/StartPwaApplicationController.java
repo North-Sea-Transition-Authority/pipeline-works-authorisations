@@ -5,8 +5,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import jakarta.validation.Valid;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.config.Profile;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
@@ -31,17 +30,19 @@ import uk.co.ogauthority.pwa.util.enumutils.EnumUtils;
 public class StartPwaApplicationController {
 
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
-
   private final String contactEmail;
   private final ControllerHelperService controllerHelperService;
+  private final boolean pipelineRecordManagementEnabled;
 
-  @Autowired
-  public StartPwaApplicationController(Environment environment,
-                                       PwaApplicationRedirectService pwaApplicationRedirectService,
-                                       ControllerHelperService controllerHelperService) {
+  StartPwaApplicationController(
+      Environment environment,
+      PwaApplicationRedirectService pwaApplicationRedirectService,
+      ControllerHelperService controllerHelperService
+  ) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.contactEmail = environment.getProperty("app.support.email");
     this.controllerHelperService = controllerHelperService;
+    this.pipelineRecordManagementEnabled = environment.matchesProfiles(Profile.ENABLE_PRUAT_ENHANCEMENTS);
   }
 
   /**
@@ -49,15 +50,18 @@ public class StartPwaApplicationController {
    * @return screen to select application type
    */
   @GetMapping
-  public ModelAndView renderStartApplication(@ModelAttribute("form") StartPwaApplicationForm form,
-                                             @PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
+  public ModelAndView renderStartApplication(
+      @PathVariable @ResourceTypeUrl PwaResourceType resourceType,
+      @ModelAttribute("form") StartPwaApplicationForm form
+  ) {
     return getStartAppModelAndView(resourceType);
   }
 
   private ModelAndView getStartAppModelAndView(PwaResourceType pwaResourceType) {
     var applicationTypes = pwaResourceType.getPermittedApplicationTypes().stream()
+        .filter(type -> pipelineRecordManagementEnabled || type != PwaApplicationType.PIPELINE_RECORD_MANAGEMENT)
         .sorted(Comparator.comparing(PwaApplicationType::getDisplayOrder))
-        .collect(Collectors.toList());
+        .toList();
 
     var initialGuideText = "All new projects irrespective of pipeline lengths. ";
 

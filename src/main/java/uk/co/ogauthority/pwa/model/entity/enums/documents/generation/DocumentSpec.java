@@ -61,6 +61,7 @@ public enum DocumentSpec implements Displayable {
       List.of(
           PwaApplicationType.CAT_1_VARIATION,
           PwaApplicationType.CAT_2_VARIATION,
+          PwaApplicationType.PIPELINE_RECORD_MANAGEMENT,
           PwaApplicationType.OPTIONS_VARIATION,
           PwaApplicationType.DECOMMISSIONING
       )

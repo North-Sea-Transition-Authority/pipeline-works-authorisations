@@ -90,7 +90,18 @@ public enum PwaApplicationType implements Displayable {
       MedianLineImplication.TRUE,
       ConsentIssueEmail.VARIATION,
       70,
-      ParallelApplicationsWarning.SHOW_WARNING);
+      ParallelApplicationsWarning.SHOW_WARNING),
+
+  PIPELINE_RECORD_MANAGEMENT(
+      "Pipeline record management",
+      "pipeline-record-management",
+      Period.ofWeeks(6),
+      Period.ofWeeks(8),
+      MedianLineImplication.TRUE,
+      ConsentIssueEmail.VARIATION,
+      80,
+      ParallelApplicationsWarning.SHOW_WARNING),
+  ;
 
   private final String displayName;
   private final String urlPathString;

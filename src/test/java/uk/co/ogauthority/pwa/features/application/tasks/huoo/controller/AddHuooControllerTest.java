@@ -93,7 +93,9 @@ class AddHuooControllerTest extends PwaApplicationContextAbstractControllerTest 
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.OPTIONS_VARIATION,
-            PwaApplicationType.HUOO_VARIATION)
+            PwaApplicationType.HUOO_VARIATION,
+            PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+        )
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
 

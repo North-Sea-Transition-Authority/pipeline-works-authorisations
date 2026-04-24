@@ -47,12 +47,10 @@ class ApplicationTypeUtilsTest {
         .filter(type -> type.getMedianLineImplication().equals(MedianLineImplication.TRUE))
         .forEach(type -> {
           switch (type) {
-            case INITIAL:
-            case CAT_1_VARIATION:
-            case DECOMMISSIONING:
+            case INITIAL, CAT_1_VARIATION, DECOMMISSIONING:
               assertThat(ApplicationTypeUtils.getFormattedMedianLineDuration(type)).isEqualTo("more than 6 months");
               break;
-            case CAT_2_VARIATION:
+            case CAT_2_VARIATION, PIPELINE_RECORD_MANAGEMENT:
               assertThat(ApplicationTypeUtils.getFormattedMedianLineDuration(type)).isEqualTo("more than 8 weeks");
               break;
             default:

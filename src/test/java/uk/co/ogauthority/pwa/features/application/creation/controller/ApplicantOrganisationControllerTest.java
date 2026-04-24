@@ -58,7 +58,8 @@ class ApplicantOrganisationControllerTest extends AbstractControllerTest {
       PwaApplicationType.HUOO_VARIATION,
       PwaApplicationType.DEPOSIT_CONSENT,
       PwaApplicationType.OPTIONS_VARIATION,
-      PwaApplicationType.DECOMMISSIONING
+      PwaApplicationType.DECOMMISSIONING,
+      PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
   );
   private static final int MASTER_PWA_ID = 1;
 
