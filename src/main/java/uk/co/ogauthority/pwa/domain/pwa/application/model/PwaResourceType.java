@@ -25,7 +25,8 @@ public enum PwaResourceType implements Displayable {
       20,
       List.of(
           PwaApplicationType.INITIAL,
-          PwaApplicationType.CAT_1_VARIATION
+          PwaApplicationType.CAT_1_VARIATION,
+          PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
       )
   ),
   CCUS(
