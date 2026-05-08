@@ -159,8 +159,9 @@ class TeamQueryServiceTest {
 
   @Test
   void userHasAtLeastOneStaticRole_invalidRole() {
+    var roles = Set.of(Role.APPLICATION_CREATOR);
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> teamQueryService.userHasAtLeastOneStaticRole(1L, TeamType.REGULATOR, Set.of(Role.APPLICATION_CREATOR)));
+        .isThrownBy(() -> teamQueryService.userHasAtLeastOneStaticRole(1L, TeamType.REGULATOR, roles));
   }
 
   @Test
@@ -196,8 +197,9 @@ class TeamQueryServiceTest {
 
   @Test
   void userHasScopedRole_invalidRole() {
+    var teamScopeRef = TeamScopeReference.from("1", "ORGGRP");
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> teamQueryService.userHasScopedRole(1L, TeamType.ORGANISATION, TeamScopeReference.from("1", "ORGGRP"), Role.ORGANISATION_MANAGER));
+        .isThrownBy(() -> teamQueryService.userHasScopedRole(1L, TeamType.ORGANISATION, teamScopeRef, Role.ORGANISATION_MANAGER));
   }
 
   @Test
@@ -233,8 +235,9 @@ class TeamQueryServiceTest {
 
   @Test
   void userHasAtLeastOneScopedRole_invalidRole() {
+    var teamScopeRef = TeamScopeReference.from("1", "ORGGRP");
     assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> teamQueryService.userHasScopedRole(1L, TeamType.ORGANISATION, TeamScopeReference.from("1", "ORGGRP"), Role.CONSENT_VIEWER));
+        .isThrownBy(() -> teamQueryService.userHasScopedRole(1L, TeamType.ORGANISATION, teamScopeRef, Role.CONSENT_VIEWER));
   }
 
   @Test
@@ -667,6 +670,56 @@ class TeamQueryServiceTest {
     assertThat(result).isEqualTo(expectedViews);
   }
 
+
+  @Test
+  void isUserOnlyPartOfStaticTeam_whenTrue()  {
+    long wuaId = 10L;
+    var teamType = TeamType.SECONDARY_REGULATOR;
+
+    var team = new Team(UUID.randomUUID());
+    team.setTeamType(teamType);
+
+    var teamRole1 = new TeamRole();
+    teamRole1.setRole(Role.TEAM_ADMINISTRATOR);
+    teamRole1.setTeam(team);
+    teamRole1.setWuaId(wuaId);
+
+    var teamRole2 = new TeamRole();
+    teamRole2.setRole(Role.CONSENT_VIEWER);
+    teamRole2.setTeam(team);
+    teamRole2.setWuaId(wuaId);
+
+    when(teamRoleRepository.findAllByWuaId(wuaId)).thenReturn(List.of(teamRole1, teamRole2));
+
+    var result = teamQueryService.isUserOnlyPartOfStaticTeam(wuaId, teamType);
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void isUserOnlyPartOfStaticTeam_whenFalse()  {
+    long wuaId = 10L;
+    var teamType = TeamType.SECONDARY_REGULATOR;
+
+    var team1 = new Team(UUID.randomUUID());
+    team1.setTeamType(teamType);
+    var team2 = new Team(UUID.randomUUID());
+    team2.setTeamType(TeamType.CONSULTEE);
+
+    var teamRole1 = new TeamRole();
+    teamRole1.setRole(Role.CONSENT_VIEWER);
+    teamRole1.setTeam(team1);
+    teamRole1.setWuaId(wuaId);
+
+    var teamRole2 = new TeamRole();
+    teamRole2.setRole(Role.CONSULTEE_GROUP_MANAGER);
+    teamRole2.setTeam(team2);
+    teamRole2.setWuaId(wuaId);
+
+    when(teamRoleRepository.findAllByWuaId(wuaId)).thenReturn(List.of(teamRole1, teamRole2));
+
+    var result = teamQueryService.isUserOnlyPartOfStaticTeam(wuaId, teamType);
+    assertThat(result).isFalse();
+  }
 
   private void setupStaticTeamAndRoles(Long wuaId, TeamType teamType, List<Role> roles) {
     var team = new Team(UUID.randomUUID());

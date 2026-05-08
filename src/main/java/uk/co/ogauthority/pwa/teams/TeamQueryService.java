@@ -232,6 +232,17 @@ public class TeamQueryService {
     return teamMemberQueryService.getUserTeamRolesViewsFrom(teamRoles);
   }
 
+  public boolean isUserOnlyPartOfStaticTeam(long wuaId, TeamType teamType) {
+    var userTeams = teamRoleRepository.findAllByWuaId(wuaId).stream()
+        .map(TeamRole::getTeam)
+        .collect(Collectors.toSet());
+
+    var isInTeam = userTeams.stream()
+        .anyMatch(team -> teamType.equals(team.getTeamType()));
+
+    return isInTeam && userTeams.size() == 1;
+  }
+
   private List<TeamRole> getTeamRolesByTeamTypeAndScopeIdsIn(TeamType teamType, Collection<String> scopeIds) {
     return teamRoleRepository.findAllByTeam_TeamType(teamType).stream()
         .filter(team -> team.getTeam().getScopeId() != null)

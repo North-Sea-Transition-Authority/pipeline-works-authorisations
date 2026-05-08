@@ -72,8 +72,7 @@ class CaseManagementControllerTest extends PwaAppProcessingContextAbstractContro
         .setAllowedProcessingPermissions(
             PwaAppProcessingPermission.CASE_MANAGEMENT_OGA,
             PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY,
-            PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE,
-            PwaAppProcessingPermission.CASE_MANAGEMENT_SECONDARY_REGULATOR);
+            PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE);
 
     var app = new PwaApplication();
     var user = new WebUserAccount();

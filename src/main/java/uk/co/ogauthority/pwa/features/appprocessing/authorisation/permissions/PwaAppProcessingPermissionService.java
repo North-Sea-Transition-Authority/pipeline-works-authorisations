@@ -72,7 +72,6 @@ public class PwaAppProcessingPermissionService {
           case VIEW_PAYMENT_DETAILS_IF_EXISTS -> appInvolvement.isUserInAppContactTeam() || appInvolvement.isUserInHolderTeam();
           case APPROVE_OPTIONS_VIEW -> appInvolvement.isUserInAppContactTeam() && applicationTypeisOptionsVariation;
           case CASE_MANAGEMENT_OGA -> usersUserTypes.contains(UserType.OGA);
-          case CASE_MANAGEMENT_SECONDARY_REGULATOR ->  usersUserTypes.contains(UserType.SECONDARY_REGULATOR);
           case ASSIGN_RESPONDER -> appInvolvement.hasAnyOfTheseConsulteeRoles(Role.RECIPIENT, Role.RESPONDER);
           case CONSULTATION_RESPONDER -> appInvolvement.hasAnyOfTheseConsulteeRoles(Role.RESPONDER)
               && appInvolvement.getConsultationInvolvement()
@@ -121,8 +120,7 @@ public class PwaAppProcessingPermissionService {
     // any user with a case management permission can view the app summary
     if (appPermissions.contains(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA)
         || appPermissions.contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
-        || appPermissions.contains(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE)
-        || appPermissions.contains(PwaAppProcessingPermission.CASE_MANAGEMENT_SECONDARY_REGULATOR)) {
+        || appPermissions.contains(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE)) {
       appPermissions.add(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
     }
 

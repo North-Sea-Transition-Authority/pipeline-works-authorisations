@@ -32,8 +32,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @PwaAppProcessingPermissionCheck(permissions = {
     PwaAppProcessingPermission.CASE_MANAGEMENT_OGA,
     PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY,
-    PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE,
-    PwaAppProcessingPermission.CASE_MANAGEMENT_SECONDARY_REGULATOR
+    PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE
 })
 public class CaseManagementController {
 

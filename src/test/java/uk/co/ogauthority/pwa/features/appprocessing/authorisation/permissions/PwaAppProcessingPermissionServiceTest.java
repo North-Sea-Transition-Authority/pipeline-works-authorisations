@@ -582,18 +582,6 @@ class PwaAppProcessingPermissionServiceTest {
   }
 
   @Test
-  void getAppPermissions_hasCaseManagementSecondaryRegulatorPermission_andViewApplicationSummary() {
-    when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.SECONDARY_REGULATOR));
-    var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
-    when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
-
-    var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
-    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.CASE_MANAGEMENT_SECONDARY_REGULATOR);
-    AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
-
-  }
-
-  @Test
   void getAppPermissions_hasCaseManagementConsulteePermission_andViewApplicationSummary() {
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
