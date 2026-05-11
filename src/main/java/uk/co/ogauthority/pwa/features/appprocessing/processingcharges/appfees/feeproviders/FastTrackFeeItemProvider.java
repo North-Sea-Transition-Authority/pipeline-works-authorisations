@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.ApplicationFeeItemProvider;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.internal.FeePeriodDetail;
@@ -29,7 +30,9 @@ class FastTrackFeeItemProvider implements ApplicationFeeItemProvider {
 
   @Override
   public boolean canProvideFeeItems(PwaApplicationDetail pwaApplicationDetail) {
-    return pwaApplicationDetail.getSubmittedAsFastTrackFlag();
+    return pwaApplicationDetail.getSubmittedAsFastTrackFlag()
+        // there is no fast track surcharge for a "Pipeline record management" application type
+        && !PwaApplicationType.PIPELINE_RECORD_MANAGEMENT.equals(pwaApplicationDetail.getPwaApplicationType());
   }
 
   @Override

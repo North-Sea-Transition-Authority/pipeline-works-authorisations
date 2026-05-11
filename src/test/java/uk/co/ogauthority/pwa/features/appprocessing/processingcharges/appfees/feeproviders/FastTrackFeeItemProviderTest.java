@@ -86,6 +86,13 @@ class FastTrackFeeItemProviderTest {
   }
 
   @Test
+  void canProvideFeeItems_whenPipelineRecordManagement_fastTrackNotApplied() {
+    var prmAppDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.PIPELINE_RECORD_MANAGEMENT);
+    prmAppDetail.setSubmittedAsFastTrackFlag(true);
+    assertThat(feeItemProvider.canProvideFeeItems(prmAppDetail)).isFalse();
+  }
+
+  @Test
   void provideFees() {
     var feeItems = feeItemProvider.provideFees(feePeriodDetail, pwaApplicationDetail);
     assertThat(feeItems).hasOnlyOneElementSatisfying(
