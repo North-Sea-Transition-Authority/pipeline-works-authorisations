@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
@@ -62,9 +63,11 @@ class ConsultationRequestControllerTest extends PwaAppProcessingContextAbstractC
   @BeforeEach
   void setUp() {
 
-    consultationRequestController = new ConsultationRequestController(consultationRequestService, null, new AppProcessingBreadcrumbService());
+    consultationRequestController = new ConsultationRequestController(consultationRequestService, null,
+        new AppProcessingBreadcrumbService());
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService,
+        pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.EDIT_CONSULTATIONS);
 
@@ -77,10 +80,12 @@ class ConsultationRequestControllerTest extends PwaAppProcessingContextAbstractC
     when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
-    var permissionsDto = new ProcessingPermissionsDto(PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(
-        pwaApplicationDetail.getPwaApplication()), EnumSet.allOf(PwaAppProcessingPermission.class));
+    var permissionsDto = new ProcessingPermissionsDto(
+        PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(
+            pwaApplicationDetail.getPwaApplication()), EnumSet.allOf(PwaAppProcessingPermission.class));
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(
+        permissionsDto);
 
   }
 
@@ -99,13 +104,17 @@ class ConsultationRequestControllerTest extends PwaAppProcessingContextAbstractC
     when(consultationRequestService.getAllConsulteeGroups()).thenReturn(
         List.of(consulteeGroupDetail1, consulteeGroupDetail2, consulteeGroupDetail3, consulteeGroupDetail4));
 
-    var modelAndView = Objects.requireNonNull(mockMvc.perform(get(ReverseRouter.route(on(ConsultationRequestController.class).renderRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, new ConsultationRequestForm())))
-        .with(user(user))
-        .with(csrf()))
+    var modelAndView = Objects.requireNonNull(mockMvc.perform(get(ReverseRouter.route(
+            on(ConsultationRequestController.class).renderRequestConsultation(
+                pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null,
+                new ConsultationRequestForm())))
+            .with(user(user))
+            .with(csrf()))
         .andReturn()
         .getModelAndView());
 
-    var expectedOrderedConsulteeGroups = List.of(consulteeGroupDetail4, consulteeGroupDetail1, consulteeGroupDetail2,  consulteeGroupDetail3);
+    var expectedOrderedConsulteeGroups = List.of(consulteeGroupDetail4, consulteeGroupDetail1, consulteeGroupDetail2,
+        consulteeGroupDetail3);
     assertThat(modelAndView.getModel().get("consulteeGroups")).isEqualTo(expectedOrderedConsulteeGroups);
 
   }
@@ -141,9 +150,11 @@ class ConsultationRequestControllerTest extends PwaAppProcessingContextAbstractC
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
-    mockMvc.perform(get(ReverseRouter.route(on(ConsultationRequestController.class).renderRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(user(user))
-        .with(csrf()))
+    mockMvc.perform(get(ReverseRouter.route(on(ConsultationRequestController.class).renderRequestConsultation(
+            pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null,
+            null)))
+            .with(user(user))
+            .with(csrf()))
         .andExpect(status().isForbidden());
 
   }
@@ -151,12 +162,14 @@ class ConsultationRequestControllerTest extends PwaAppProcessingContextAbstractC
   @Test
   void postRequestConsultation_appStatusSmokeTest() {
 
-    when(consultationRequestService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new ConsultationRequestForm(), "form"));
+    when(consultationRequestService.validate(any(), any(), any())).thenReturn(
+        new BeanPropertyBindingResult(new ConsultationRequestForm(), "form"));
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConsultationRequestController.class)
-                .postRequestConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)));
+                .postRequestConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null,
+                    null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
@@ -165,12 +178,14 @@ class ConsultationRequestControllerTest extends PwaAppProcessingContextAbstractC
   @Test
   void postRequestConsultation_processingPermissionSmokeTest() {
 
-    when(consultationRequestService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new ConsultationRequestForm(), "form"));
+    when(consultationRequestService.validate(any(), any(), any())).thenReturn(
+        new BeanPropertyBindingResult(new ConsultationRequestForm(), "form"));
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConsultationRequestController.class)
-                .postRequestConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)));
+                .postRequestConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null,
+                    null)));
 
     endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -179,17 +194,20 @@ class ConsultationRequestControllerTest extends PwaAppProcessingContextAbstractC
   @Test
   void postRequestConsultation() throws Exception {
 
-    when(consultationRequestService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new ConsultationRequestForm(), "form"));
+    when(consultationRequestService.validate(any(), any(), any())).thenReturn(
+        new BeanPropertyBindingResult(new ConsultationRequestForm(), "form"));
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class)
-        .postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-        .with(user(user))
-        .param("consulteeGroupSelection", "")
-        .param("daysToRespond", "28")
-        .with(csrf()))
+            .postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(),
+                pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
+            .with(user(user))
+            .param("consulteeGroupSelection", "")
+            .param("daysToRespond", "28")
+            .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(consultationRequestService, times(1)).saveEntitiesAndStartWorkflow(any(), eq(pwaApplicationDetail), eq(user));
+    verify(consultationRequestService, times(1)).saveEntitiesAndStartWorkflow(any(), eq(pwaApplicationDetail),
+        eq(user));
 
   }
 
@@ -201,11 +219,12 @@ class ConsultationRequestControllerTest extends PwaAppProcessingContextAbstractC
     when(consultationRequestService.validate(any(), any(), any())).thenReturn(failedBindingResult);
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class)
-        .postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-        .with(user(user))
-        .param("consulteeGroupSelection", "")
-        .param("daysToRespond", "28")
-        .with(csrf()))
+            .postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(),
+                pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
+            .with(user(user))
+            .param("consulteeGroupSelection", "")
+            .param("daysToRespond", "28")
+            .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("consultation/consultationRequest"));
 
@@ -218,11 +237,48 @@ class ConsultationRequestControllerTest extends PwaAppProcessingContextAbstractC
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
-    mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class).postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-        .with(user(user))
-        .with(csrf()))
+    mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class).postRequestConsultation(
+            pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null,
+            null, null, null)))
+            .with(user(user))
+            .with(csrf()))
         .andExpect(status().isForbidden());
 
   }
 
+  @Test
+  void requestConsultation_pipelineRecordManagementType_throwsAccessDenied_get() throws Exception {
+
+    pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.PIPELINE_RECORD_MANAGEMENT);
+
+    mockMvc.perform(get(ReverseRouter.route(on(ConsultationRequestController.class)
+            .renderRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(),
+                PwaApplicationType.PIPELINE_RECORD_MANAGEMENT, null, null, null)))
+            .with(user(user))
+            .with(csrf()))
+        .andExpect(status().isForbidden())
+        .andExpect(result -> assertThat(result.getResolvedException())
+            .isInstanceOf(AccessDeniedException.class)
+            .hasMessage(
+                "Consultation tasks are not permitted for Pipeline Record Management applications."));
+
+  }
+
+  @Test
+  void requestConsultation_pipelineRecordManagementType_throwsAccessDenied_post() throws Exception {
+
+    pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.PIPELINE_RECORD_MANAGEMENT);
+
+    mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class)
+            .postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(),
+                PwaApplicationType.PIPELINE_RECORD_MANAGEMENT, null, null, null, null, null)))
+            .with(user(user))
+            .with(csrf()))
+        .andExpect(status().isForbidden())
+        .andExpect(result -> assertThat(result.getResolvedException())
+            .isInstanceOf(AccessDeniedException.class)
+            .hasMessage(
+                "Consultation tasks are not permitted for Pipeline Record Management applications."));
+
+  }
 }

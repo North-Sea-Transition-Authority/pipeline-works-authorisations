@@ -58,7 +58,7 @@ class ConsultationServiceTest {
   @Test
   void canShowInTaskList_viewAllConsultations() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS), null, null,
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS), null, null,
         Set.of());
 
     boolean canShow = consultationService.canShowInTaskList(processingContext);
@@ -68,9 +68,21 @@ class ConsultationServiceTest {
   }
 
   @Test
+  void canShowInTaskList_pipelineRecordManagement_returnsFalse() {
+    var pipelineDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.PIPELINE_RECORD_MANAGEMENT);
+
+    var processingContext = new PwaAppProcessingContext(pipelineDetail, null,
+        Set.of(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS), null, null, Set.of());
+
+    boolean canShow = consultationService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+  }
+
+  @Test
   void canShowInTaskList_industry() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null,
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null,
         Set.of());
 
     boolean canShow = consultationService.canShowInTaskList(processingContext);
@@ -82,7 +94,7 @@ class ConsultationServiceTest {
   @Test
   void canShowInTaskList_showAllTasksPermission() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null,
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null,
         Set.of());
 
     boolean canShow = consultationService.canShowInTaskList(processingContext);
@@ -94,7 +106,7 @@ class ConsultationServiceTest {
   @Test
   void canShowInTaskList_noPermissions() {
 
-    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null, Set.of());
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(), null, null, Set.of());
 
     boolean canShow = consultationService.canShowInTaskList(processingContext);
 

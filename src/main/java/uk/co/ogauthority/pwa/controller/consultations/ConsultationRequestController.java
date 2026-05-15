@@ -17,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingPermissionCheck;
@@ -59,7 +60,6 @@ public class ConsultationRequestController {
                                          PwaAppProcessingContext processingContext,
                                          AuthenticatedUserAccount authenticatedUserAccount,
                                          @ModelAttribute("form") ConsultationRequestForm form) {
-
     return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
         processingContext,
         PwaAppProcessingTask.CONSULTATIONS,
@@ -76,7 +76,6 @@ public class ConsultationRequestController {
                                               @ModelAttribute("form") ConsultationRequestForm form,
                                               BindingResult bindingResult,
                                               RedirectAttributes redirectAttributes) {
-
     return CaseManagementUtils.withAtLeastOneSatisfactoryVersion(
         processingContext,
         PwaAppProcessingTask.CONSULTATIONS,
@@ -117,6 +116,13 @@ public class ConsultationRequestController {
 
     return modelAndView;
 
+  }
+
+  @ModelAttribute
+  public void validateApplicationType(PwaAppProcessingContext processingContext) {
+    if (PwaApplicationType.PIPELINE_RECORD_MANAGEMENT.equals(processingContext.getApplicationType())) {
+      throw new AccessDeniedException("Consultation tasks are not permitted for Pipeline Record Management applications.");
+    }
   }
 
 }
