@@ -61,7 +61,6 @@ public enum DocumentSpec implements Displayable {
       List.of(
           PwaApplicationType.CAT_1_VARIATION,
           PwaApplicationType.CAT_2_VARIATION,
-          PwaApplicationType.PIPELINE_RECORD_MANAGEMENT,
           PwaApplicationType.OPTIONS_VARIATION,
           PwaApplicationType.DECOMMISSIONING
       )
@@ -200,6 +199,39 @@ public enum DocumentSpec implements Displayable {
       "HUOO consent document - CCUS",
       List.of(
           PwaApplicationType.HUOO_VARIATION
+      )
+  ),
+
+  PIPELINE_RECORD_MANAGEMENT_PETROLEUM_CONSENT_DOCUMENT(
+      Map.of(
+          DocumentSection.VARIATION_INTRO, 10,
+          DocumentSection.DIGITAL_SIGNATURE, 20
+      ),
+      "Pipeline record management consent document - Petroleum",
+      List.of(
+          PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+      )
+  ),
+
+  PIPELINE_RECORD_MANAGEMENT_HYDROGEN_CONSENT_DOCUMENT(
+      Map.of(
+          DocumentSection.VARIATION_INTRO, 10,
+          DocumentSection.DIGITAL_SIGNATURE, 20
+      ),
+      "Pipeline record management consent document - Hydrogen",
+      List.of(
+          PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+      )
+  ),
+
+  PIPELINE_RECORD_MANAGEMENT_CCUS_CONSENT_DOCUMENT(
+      Map.of(
+          DocumentSection.VARIATION_INTRO, 10,
+          DocumentSection.DIGITAL_SIGNATURE, 20
+      ),
+      "Pipeline record management consent document - Carbon Dioxide",
+      List.of(
+          PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
       )
   );
 
