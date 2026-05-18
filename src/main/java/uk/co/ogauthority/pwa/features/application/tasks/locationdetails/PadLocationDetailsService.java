@@ -401,9 +401,4 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     padFileManagementService.copyUploadedFiles(fromDetail, toDetail, FileDocumentType.LOCATION_DETAILS);
   }
 
-  @Override
-  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION);
-  }
-
 }

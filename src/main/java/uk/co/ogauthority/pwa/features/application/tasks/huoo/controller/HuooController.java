@@ -75,7 +75,10 @@ public class HuooController {
         .addObject("huooOrgs", padHuooSummaryView.getHuooOrganisationUnitRoleViews())
         .addObject("treatyAgreements", padHuooSummaryView.getTreatyAgreementViews())
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
-        .addObject("showHolderGuidance", padHuooSummaryView.canShowHolderGuidance());
+        .addObject("showHolderGuidance", padHuooSummaryView.canShowHolderGuidance())
+        .addObject("huooReferenceOnly",
+            pwaApplicationDetail.getPwaApplicationType() == PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+        );
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Holders, users, operators, and owners");

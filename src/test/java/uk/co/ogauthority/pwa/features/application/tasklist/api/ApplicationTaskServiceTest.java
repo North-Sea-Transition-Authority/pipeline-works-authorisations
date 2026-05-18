@@ -183,7 +183,7 @@ class ApplicationTaskServiceTest {
           ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS
 
       );
-      case CAT_2_VARIATION, PIPELINE_RECORD_MANAGEMENT -> EnumSet.of(
+      case CAT_2_VARIATION -> EnumSet.of(
           ApplicationTask.FIELD_INFORMATION,
           ApplicationTask.CARBON_STORAGE_INFORMATION,
           ApplicationTask.APPLICATION_USERS,
@@ -211,6 +211,21 @@ class ApplicationTaskServiceTest {
           ApplicationTask.PROJECT_EXTENSION,
           ApplicationTask.HUOO,
           ApplicationTask.PIPELINES_HUOO
+      );
+      case PIPELINE_RECORD_MANAGEMENT -> EnumSet.of(
+          ApplicationTask.FIELD_INFORMATION,
+          ApplicationTask.CARBON_STORAGE_INFORMATION,
+          ApplicationTask.APPLICATION_USERS,
+          ApplicationTask.PROJECT_INFORMATION,
+          ApplicationTask.FAST_TRACK,
+          ApplicationTask.PROJECT_EXTENSION,
+          ApplicationTask.HUOO,
+          ApplicationTask.PIPELINES,
+          ApplicationTask.PIPELINES_HUOO,
+          ApplicationTask.CAMPAIGN_WORKS,
+          ApplicationTask.TECHNICAL_DRAWINGS,
+          ApplicationTask.PERMANENT_DEPOSITS,
+          ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS
       );
     };
   }

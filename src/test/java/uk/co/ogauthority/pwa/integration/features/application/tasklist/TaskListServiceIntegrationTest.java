@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.integration.features.application.tasklist;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import jakarta.persistence.EntityManager;
@@ -11,8 +10,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -529,5 +532,42 @@ class TaskListServiceIntegrationTest extends AbstractIntegrationTest {
 
     });
 
+  }
+
+  @ParameterizedTest
+  @MethodSource("pipelineRecordManagementTaskListExpectations")
+  void getApplicationTasks_pipelineRecordManagement_resourceSpecificTasksShown(
+      PwaResourceType resourceType,
+      Set<ApplicationTask> expectedTasks
+  ) {
+    pwaApplication.setApplicationType(PwaApplicationType.PIPELINE_RECORD_MANAGEMENT);
+    pwaApplication.setResourceType(resourceType);
+
+    var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
+
+    assertThat(taskNamesList).containsOnly(
+        expectedTasks.stream()
+            .map(ApplicationTask::getDisplayName)
+            .toArray(String[]::new)
+    );
+  }
+
+  private static Stream<Arguments> pipelineRecordManagementTaskListExpectations() {
+    var commonTasks = Set.of(
+        ApplicationTask.FIELD_INFORMATION,
+        ApplicationTask.CARBON_STORAGE_INFORMATION,
+        ApplicationTask.APPLICATION_USERS,
+        ApplicationTask.PROJECT_INFORMATION,
+        ApplicationTask.HUOO,
+        ApplicationTask.TECHNICAL_DRAWINGS,
+        ApplicationTask.PIPELINES,
+        ApplicationTask.PIPELINES_HUOO
+    );
+
+    return Stream.of(
+        Arguments.of(PwaResourceType.PETROLEUM, commonTasks),
+        Arguments.of(PwaResourceType.HYDROGEN, commonTasks),
+        Arguments.of(PwaResourceType.CCUS, commonTasks)
+    );
   }
 }

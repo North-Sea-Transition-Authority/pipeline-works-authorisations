@@ -105,8 +105,7 @@ public class CarbonStorageAreaCrossingControllerTest extends PwaApplicationConte
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.DEPOSIT_CONSENT,
-            PwaApplicationType.DECOMMISSIONING,
-            PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+            PwaApplicationType.DECOMMISSIONING
         )
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);

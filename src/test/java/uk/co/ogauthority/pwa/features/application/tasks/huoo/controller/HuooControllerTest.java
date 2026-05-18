@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -14,6 +15,8 @@ import java.util.EnumSet;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -150,6 +153,33 @@ class HuooControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   }
 
+  @ParameterizedTest
+  @EnumSource(
+    value = PwaApplicationType.class,
+    names = "DEPOSIT_CONSENT",
+    mode = EnumSource.Mode.EXCLUDE
+  )
+  void renderHuooSummary(PwaApplicationType pwaApplicationType) throws Exception {
+    when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
+
+    pwaApplicationDetail.getPwaApplication().setApplicationType(pwaApplicationType);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(HuooController.class).renderHuooSummary(
+              PwaApplicationType.PIPELINE_RECORD_MANAGEMENT,
+              pwaApplicationDetail.getMasterPwaApplicationId(),
+              null,
+              null)))
+                .with(user(user))
+                .with(csrf()))
+    .andExpect(status().isOk())
+    .andExpect(model().attribute(
+        "huooReferenceOnly",
+        pwaApplicationType == PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+    ));
+  }
+
+
   @Test
   void postHuooSummary_Invalid() throws Exception {
 
@@ -186,6 +216,5 @@ class HuooControllerTest extends PwaApplicationContextAbstractControllerTest {
         .andExpect(status().is3xxRedirection());
 
   }
-
 
 }

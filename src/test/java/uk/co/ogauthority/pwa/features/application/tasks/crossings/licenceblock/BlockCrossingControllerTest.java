@@ -107,8 +107,7 @@ class BlockCrossingControllerTest extends PwaApplicationContextAbstractControlle
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.DEPOSIT_CONSENT,
-            PwaApplicationType.DECOMMISSIONING,
-            PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+            PwaApplicationType.DECOMMISSIONING
         )
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
@@ -127,6 +126,7 @@ class BlockCrossingControllerTest extends PwaApplicationContextAbstractControlle
 
     when(blockCrossingService.getCrossedBlockView(any(), any())).thenReturn(
         new BlockCrossingView(BLOCK_CROSSING_ID, "ref", "ref", List.of(), true));
+
   }
 
   @Test

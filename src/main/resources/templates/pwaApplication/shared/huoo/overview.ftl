@@ -15,6 +15,12 @@
 
   <h1 class="govuk-heading-xl">Holders, users, operators, and owners (HUOO)</h1>
 
+  <#if huooReferenceOnly>
+    <@fdsWarning.warning>
+      HUOOs should not be added or removed from the application. They are available for reference only to support associating pipelines with HUOOs
+    </@fdsWarning.warning>
+  </#if>
+
   <#if showHolderGuidance>
     <@fdsInsetText.insetText>
       You can only have a single holder on a PWA.

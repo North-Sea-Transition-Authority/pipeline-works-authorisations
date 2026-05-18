@@ -538,37 +538,6 @@ class PadLocationDetailsServiceTest {
     );
   }
 
-  @Test
-  void canShowInTaskList_allowed() {
-
-    var detail = new PwaApplicationDetail();
-    var app = new PwaApplication();
-    detail.setPwaApplication(app);
-
-    PwaApplicationType.stream()
-        .filter(type -> !type.equals(PwaApplicationType.OPTIONS_VARIATION))
-        .forEach(applicationType -> {
-
-          app.setApplicationType(applicationType);
-
-          assertThat(padLocationDetailsService.canShowInTaskList(detail)).isTrue();
-
-        });
-
-  }
-
-  @Test
-  void canShowInTaskList_notAllowed() {
-
-    var detail = new PwaApplicationDetail();
-    var app = new PwaApplication();
-    app.setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
-    detail.setPwaApplication(app);
-
-    assertThat(padLocationDetailsService.canShowInTaskList(detail)).isFalse();
-
-  }
-
   private LocationDetailsForm buildForm() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.NO);

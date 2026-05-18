@@ -107,8 +107,7 @@ class LocationDetailsControllerTest extends PwaApplicationContextAbstractControl
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.DECOMMISSIONING,
-            PwaApplicationType.DEPOSIT_CONSENT,
-            PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+            PwaApplicationType.DEPOSIT_CONSENT
         )
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
