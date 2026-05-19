@@ -205,7 +205,9 @@ public enum DocumentSpec implements Displayable {
   PIPELINE_RECORD_MANAGEMENT_PETROLEUM_CONSENT_DOCUMENT(
       Map.of(
           DocumentSection.VARIATION_INTRO, 10,
-          DocumentSection.DIGITAL_SIGNATURE, 20
+          DocumentSection.DIGITAL_SIGNATURE, 20,
+          DocumentSection.HUOO, 30,
+          DocumentSection.TABLE_A, 40
       ),
       "Pipeline record management consent document - Petroleum",
       List.of(
@@ -216,7 +218,9 @@ public enum DocumentSpec implements Displayable {
   PIPELINE_RECORD_MANAGEMENT_HYDROGEN_CONSENT_DOCUMENT(
       Map.of(
           DocumentSection.VARIATION_INTRO, 10,
-          DocumentSection.DIGITAL_SIGNATURE, 20
+          DocumentSection.DIGITAL_SIGNATURE, 20,
+          DocumentSection.HUOO, 30,
+          DocumentSection.TABLE_A, 40
       ),
       "Pipeline record management consent document - Hydrogen",
       List.of(
@@ -227,7 +231,9 @@ public enum DocumentSpec implements Displayable {
   PIPELINE_RECORD_MANAGEMENT_CCUS_CONSENT_DOCUMENT(
       Map.of(
           DocumentSection.VARIATION_INTRO, 10,
-          DocumentSection.DIGITAL_SIGNATURE, 20
+          DocumentSection.DIGITAL_SIGNATURE, 20,
+          DocumentSection.HUOO, 30,
+          DocumentSection.TABLE_A, 40
       ),
       "Pipeline record management consent document - Carbon Dioxide",
       List.of(
