@@ -1,11 +1,15 @@
 package uk.co.ogauthority.pwa.features.application.creation.controller;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.Comparator;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -33,6 +37,15 @@ class StartPwaApplicationControllerTest extends ResolverAbstractControllerTest {
     mockMvc.perform(get(ReverseRouter.route(on(StartPwaApplicationController.class).renderStartApplication(pwaResourceType, null)))
             .with(user(USER)))
         .andExpect(model().attribute("applicationTypes", expectedApplicationTypes));
+  }
+
+  @Test
+  void startApplication_pipelineRecordManagement_returnsForbidden() throws Exception {
+    mockMvc.perform(post(ReverseRouter.route(on(StartPwaApplicationController.class).startApplication(null, null, PwaResourceType.PETROLEUM)))
+            .with(user(USER))
+            .with(csrf())
+            .param("applicationType", PwaApplicationType.PIPELINE_RECORD_MANAGEMENT.name()))
+        .andExpect(status().isForbidden());
   }
 
 }

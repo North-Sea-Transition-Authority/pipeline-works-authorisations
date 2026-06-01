@@ -39,3 +39,7 @@ CVE-2026-42587
 # org.springframework.security:spring-security-saml2-service-provider
 CVE-2026-5598
 CVE-2026-41417
+
+#org.apache.tomcat.embed:tomcat-embed-core
+CVE-2026-43515
+CVE-2026-43514

@@ -31,12 +31,14 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
+import uk.co.ogauthority.pwa.config.Profile;
 import uk.co.ogauthority.pwa.controller.ResolverAbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.WithDefaultPageControllerAdvice;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -145,16 +147,18 @@ class PickExistingPwaControllerTest extends ResolverAbstractControllerTest {
         eq(TeamType.ORGANISATION), anySet());
   }
 
+  //todo add PRM back in later - https://fivium.atlassian.net/browse/PRUAT-10
   @Test
   void renderPickPwaToStartApplication_onlySupportedTypesGetOkStatus() throws Exception {
+    var mockEnvironment = mock(Environment.class);
+    when(mockEnvironment.matchesProfiles(Profile.ENABLE_PRUAT_ENHANCEMENTS)).thenReturn(false);
     var expectOkAppTypes = EnumSet.of(
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
         PwaApplicationType.HUOO_VARIATION,
         PwaApplicationType.DEPOSIT_CONSENT,
         PwaApplicationType.OPTIONS_VARIATION,
-        PwaApplicationType.DECOMMISSIONING,
-        PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+        PwaApplicationType.DECOMMISSIONING
     );
 
     for (PwaApplicationType appType : PwaApplicationType.values()) {
@@ -186,16 +190,18 @@ class PickExistingPwaControllerTest extends ResolverAbstractControllerTest {
 
   }
 
+  //todo add PRM back in later - https://fivium.atlassian.net/browse/PRUAT-10
   @Test
   void pickPwaAndStartApplication_urlAppTypeCheck() throws Exception {
+    var mockEnvironment = mock(Environment.class);
+    when(mockEnvironment.matchesProfiles(Profile.ENABLE_PRUAT_ENHANCEMENTS)).thenReturn(false);
     var expectOkAppTypes = EnumSet.of(
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
         PwaApplicationType.HUOO_VARIATION,
         PwaApplicationType.DEPOSIT_CONSENT,
         PwaApplicationType.OPTIONS_VARIATION,
-        PwaApplicationType.DECOMMISSIONING,
-        PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+        PwaApplicationType.DECOMMISSIONING
     );
     for (PwaApplicationType appType : PwaApplicationType.values()) {
       ResultMatcher expectedStatus = expectOkAppTypes.contains(appType)
@@ -291,7 +297,8 @@ class PickExistingPwaControllerTest extends ResolverAbstractControllerTest {
 
   @Test
   void pickPwaAndStartApplication_timerMetricStarted_timeRecordedAndLogged() {
-
+    var mockEnvironment = mock(Environment.class);
+    when(mockEnvironment.matchesProfiles(Profile.ENABLE_PRUAT_ENHANCEMENTS)).thenReturn(false);
     var controller = new PickExistingPwaController(
         pwaApplicationRedirectService,
         pickedPwaRetrievalService,
@@ -301,7 +308,8 @@ class PickExistingPwaControllerTest extends ResolverAbstractControllerTest {
         pickPwaFormValidator,
         metricsProvider,
         applicantOrganisationService,
-        mock(SystemAreaAccessService.class));
+        mock(SystemAreaAccessService.class),
+        mockEnvironment);
 
     var form = new PickPwaForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -312,6 +320,25 @@ class PickExistingPwaControllerTest extends ResolverAbstractControllerTest {
   }
 
 
+  @Test
+  void renderPickPwaToStartApplicationpipelineRecordManagement_returnsForbidden() throws Exception {
+    mockMvc.perform(
+            get(ReverseRouter.route(on(PickExistingPwaController.class)
+                .renderPickPwaToStartApplication(PwaApplicationType.PIPELINE_RECORD_MANAGEMENT, PwaResourceType.PETROLEUM, null, null)))
+                .with(user(permittedUser))
+                .with(csrf()))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void pickPwaAndStartApplication_pipelineRecordManagement_returnsForbidden() throws Exception {
+    mockMvc.perform(
+            post(ReverseRouter.route(on(PickExistingPwaController.class)
+                .pickPwaAndStartApplication(PwaApplicationType.PIPELINE_RECORD_MANAGEMENT, PwaResourceType.PETROLEUM, null, null, null)))
+                .with(user(permittedUser))
+                .with(csrf()))
+        .andExpect(status().isForbidden());
+  }
 
 
 }

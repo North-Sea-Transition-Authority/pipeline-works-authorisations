@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.application.creation.controller;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.HasAnyRole;
+import uk.co.ogauthority.pwa.config.Profile;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
@@ -28,9 +30,13 @@ import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
 public class StartVariationController {
 
   private final SystemAreaAccessService systemAreaAccessService;
+  private final boolean pipelineRecordManagementEnabled;
 
-  public StartVariationController(SystemAreaAccessService systemAreaAccessService) {
+
+  public StartVariationController(SystemAreaAccessService systemAreaAccessService,
+                                  Environment environment) {
     this.systemAreaAccessService = systemAreaAccessService;
+    this.pipelineRecordManagementEnabled = environment.matchesProfiles(Profile.ENABLE_PRUAT_ENHANCEMENTS);
   }
 
   @GetMapping
@@ -41,6 +47,7 @@ public class StartVariationController {
 
     systemAreaAccessService.canStartApplicationOrThrow(user);
     checkApplicationResourceType(applicationType, resourceType);
+    checkPipelineRecordManagementEnabled(applicationType);
 
     switch (applicationType) {
       case CAT_1_VARIATION:
@@ -87,6 +94,7 @@ public class StartVariationController {
                                      @PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
     systemAreaAccessService.canStartApplicationOrThrow(user);
     checkApplicationResourceType(applicationType, resourceType);
+    checkPipelineRecordManagementEnabled(applicationType);
 
     switch (applicationType) {
       case CAT_1_VARIATION:
@@ -107,6 +115,13 @@ public class StartVariationController {
     if (!resourceType.getPermittedApplicationTypes().contains(applicationType)) {
       throw new AccessDeniedException(String.format("Application type %s not supported for resource type %s",
           applicationType, resourceType));
+    }
+  }
+
+  private void checkPipelineRecordManagementEnabled(PwaApplicationType applicationType) {
+    if (!pipelineRecordManagementEnabled && applicationType == PwaApplicationType.PIPELINE_RECORD_MANAGEMENT) {
+      throw new AccessDeniedException(
+          "Pipeline record management applications are not currently available.");
     }
   }
 }

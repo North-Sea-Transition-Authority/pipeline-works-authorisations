@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.config.Profile;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.start.StartPwaApplicationForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
@@ -81,10 +82,20 @@ public class StartPwaApplicationController {
   public ModelAndView startApplication(@Valid @ModelAttribute("form") StartPwaApplicationForm form,
                                        BindingResult bindingResult,
                                        @PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
+    return controllerHelperService.checkErrorsAndRedirect(
+        bindingResult,
+        getStartAppModelAndView(resourceType),
+        () -> {
+          var applicationType = EnumUtils.getEnumValue(PwaApplicationType.class, form.getApplicationType());
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getStartAppModelAndView(resourceType), () ->
-        pwaApplicationRedirectService.getStartApplicationRedirect(
-            EnumUtils.getEnumValue(PwaApplicationType.class, form.getApplicationType()), resourceType));
+          if (!pipelineRecordManagementEnabled
+              && applicationType == PwaApplicationType.PIPELINE_RECORD_MANAGEMENT) {
+            throw new AccessDeniedException(
+                "Pipeline record management applications are not currently available.");
+          }
+
+          return pwaApplicationRedirectService.getStartApplicationRedirect(applicationType, resourceType);
+        }
+    );
   }
-
 }

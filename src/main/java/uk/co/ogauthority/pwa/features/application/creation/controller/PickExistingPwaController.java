@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,8 +24,10 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.HasAnyRole;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
+import uk.co.ogauthority.pwa.config.Profile;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicantOrganisationService;
 import uk.co.ogauthority.pwa.features.application.creation.PickPwaForm;
 import uk.co.ogauthority.pwa.features.application.creation.PickPwaFormValidator;
@@ -61,6 +64,7 @@ public class PickExistingPwaController {
   private final MetricsProvider metricsProvider;
   private final ApplicantOrganisationService applicantOrganisationService;
   private final SystemAreaAccessService systemAreaAccessService;
+  private final boolean pipelineRecordManagementEnabled;
 
   @Autowired
   public PickExistingPwaController(
@@ -71,7 +75,9 @@ public class PickExistingPwaController {
       PwaApplicationCreationService pwaApplicationCreationService,
       PickPwaFormValidator pickPwaFormValidator,
       MetricsProvider metricsProvider,
-      ApplicantOrganisationService applicantOrganisationService, SystemAreaAccessService systemAreaAccessService) {
+      ApplicantOrganisationService applicantOrganisationService,
+      SystemAreaAccessService systemAreaAccessService,
+      Environment environment) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pickedPwaRetrievalService = pickPwaService;
     this.controllerHelperService = controllerHelperService;
@@ -81,6 +87,7 @@ public class PickExistingPwaController {
     this.metricsProvider = metricsProvider;
     this.applicantOrganisationService = applicantOrganisationService;
     this.systemAreaAccessService = systemAreaAccessService;
+    this.pipelineRecordManagementEnabled = environment.matchesProfiles(Profile.ENABLE_PRUAT_ENHANCEMENTS);
   }
 
   @GetMapping
@@ -90,6 +97,7 @@ public class PickExistingPwaController {
                                                       AuthenticatedUserAccount user) {
     systemAreaAccessService.canStartApplicationOrThrow(user);
     ControllerUtils.startVariationControllerCheckAppType(applicationType);
+    checkPipelineRecordManagementEnabled(applicationType);
     return getPickPwaModelAndView(user, applicationType, resourceType);
   }
 
@@ -129,6 +137,7 @@ public class PickExistingPwaController {
     var stopwatch = Stopwatch.createStarted();
     systemAreaAccessService.canStartApplicationOrThrow(user);
     ControllerUtils.startVariationControllerCheckAppType(applicationType);
+    checkPipelineRecordManagementEnabled(applicationType);
 
     pickPwaFormValidator.validate(form, bindingResult, applicationType);
     var modelAndView = controllerHelperService.checkErrorsAndRedirect(bindingResult,
@@ -169,6 +178,13 @@ public class PickExistingPwaController {
 
     return modelAndView;
 
+  }
+
+  private void checkPipelineRecordManagementEnabled(PwaApplicationType applicationType) {
+    if (!pipelineRecordManagementEnabled && applicationType == PwaApplicationType.PIPELINE_RECORD_MANAGEMENT) {
+      throw new AccessDeniedException(
+          "Pipeline record management applications are not currently available.");
+    }
   }
 
 }
