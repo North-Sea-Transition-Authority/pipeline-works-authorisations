@@ -12,22 +12,27 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.AbstractIntegrationTest;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
+import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.asbuilt.ConsentAsBuiltWriterService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PipelineHuooWriter;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PipelineWriter;
@@ -40,26 +45,29 @@ import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.Pipeli
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
 class ConsentWriterServiceTest extends AbstractIntegrationTest {
 
-  @MockBean
+  @MockitoBean
   private AreaWriter areaWriter;
 
-  @MockBean
+  @MockitoBean
   private HuooWriter huooWriter;
 
-  @MockBean
+  @MockitoBean
   private InitialPwaMasterDetailWriter initialPwaMasterDetailWriter;
 
-  @MockBean
+  @MockitoBean
   private PipelineWriter pipelineWriter;
 
-  @MockBean
+  @MockitoBean
   private PipelineHuooWriter pipelineHuooWriter;
 
-  @MockBean
+  @MockitoBean
   private TaskListService taskListService;
 
-  @MockBean
+  @MockitoBean
   private HolderChangeEmailService holderChangeEmailService;
+
+  @MockitoBean
+  private ConsentAsBuiltWriterService consentAsBuiltWriterService;
 
   @Autowired
   private ConsentWriterService consentWriterService;
@@ -78,7 +86,7 @@ class ConsentWriterServiceTest extends AbstractIntegrationTest {
   }
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
 
     consentWriterDto = new ConsentWriterDto();
     consentWriterDto.setConsentRolesAdded(List.of(new PwaConsentOrganisationRole()));
@@ -89,15 +97,20 @@ class ConsentWriterServiceTest extends AbstractIntegrationTest {
     configureDefaultMockWriterBehaviour(initialPwaMasterDetailWriter);
     configureDefaultMockWriterBehaviour(pipelineWriter);
     configureDefaultMockWriterBehaviour(pipelineHuooWriter);
+    configureDefaultMockWriterBehaviour(consentAsBuiltWriterService);
 
     applicationTasks = ApplicationTask.stream().collect(Collectors.toList());
     when(taskListService.getShownApplicationTasksForDetail(any()))
         .thenReturn(applicationTasks);
 
+    PwaApplication dummyApplication = new PwaApplication();
+
     detail = new PwaApplicationDetail();
+    detail.setPwaApplication(dummyApplication);
+
     consent = new PwaConsent();
     consent.setConsentType(PwaConsentType.INITIAL_PWA);
-
+    consent.setSourcePwaApplication(dummyApplication);
   }
 
   @Test
@@ -221,4 +234,20 @@ class ConsentWriterServiceTest extends AbstractIntegrationTest {
 
   }
 
+  @Test
+  void updateConsentedData_applicationTypeIsPipelineRecordManagement_noAsBuiltWrite() {
+    detail.getPwaApplication().setApplicationType(PwaApplicationType.PIPELINE_RECORD_MANAGEMENT);
+    consentWriterService.updateConsentedData(detail, consent);
+
+    verify(consentAsBuiltWriterService, never()).write(any(), any(), any());
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = PwaApplicationType.class, names = {"PIPELINE_RECORD_MANAGEMENT"}, mode = EnumSource.Mode.EXCLUDE)
+  void updateConsentedData_applicationTypeIsNotPipelineRecordManagement_asBuiltWrite(PwaApplicationType applicationType) {
+    detail.getPwaApplication().setApplicationType(applicationType);
+    consentWriterService.updateConsentedData(detail, consent);
+
+    verify(consentAsBuiltWriterService).write(detail, consent, consentWriterDto);
+  }
 }

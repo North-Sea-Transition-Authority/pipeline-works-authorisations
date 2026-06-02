@@ -69,12 +69,11 @@ class PwaViewTabServiceTest {
   private final String PIPELINE_REF_ID3 = "PL003";
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
 
     pwaContext = PwaContextTestUtil.createPwaContext();
 
   }
-
 
   @Test
   void getTabContentModelMap_pipelinesTab_modelMapContainsPipelineViews_orderedByPipelineNumber() {
@@ -113,7 +112,6 @@ class PwaViewTabServiceTest {
         new PwaPipelineView(unOrderedPipelineOverviews.get(2), null, null, null, null),
         new PwaPipelineView(unOrderedPipelineOverviews.get(0), null, null, null, null),
         new PwaPipelineView(unOrderedPipelineOverviews.get(1), null, null, null, null));
-
   }
 
   @Test

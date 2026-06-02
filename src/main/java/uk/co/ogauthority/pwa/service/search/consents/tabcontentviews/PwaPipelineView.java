@@ -111,6 +111,7 @@ public class PwaPipelineView {
     PwaPipelineView that = (PwaPipelineView) o;
     return Objects.equals(pipelineNumber, that.pipelineNumber)
         && status == that.status
+        && asBuiltNotificationStatus == that.asBuiltNotificationStatus
         && Objects.equals(fromLocation, that.fromLocation)
         && Objects.equals(fromCoordinates, that.fromCoordinates)
         && Objects.equals(toLocation, that.toLocation)
@@ -124,8 +125,9 @@ public class PwaPipelineView {
 
   @Override
   public int hashCode() {
-    return Objects.hash(pipelineNumber, status, fromLocation, fromCoordinates, toLocation, toCoordinates, length,
-        transferredFromPwaRef, transferredFromPwaUrl, transferredToPwaRef, transferredToPwaUrl);
+    return Objects.hash(
+        pipelineNumber, status, asBuiltNotificationStatus, fromLocation, fromCoordinates, toLocation, toCoordinates,
+        length, transferredFromPwaRef, transferredFromPwaUrl, transferredToPwaRef, transferredToPwaUrl);
   }
 
 }

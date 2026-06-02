@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
@@ -18,10 +19,16 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication_;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationWorkareaView;
+import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationWorkareaView_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView_;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent_;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit_;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
@@ -72,7 +79,9 @@ public class AsBuiltNotificationDtoRepositoryImpl implements AsBuiltNotification
     addPredicateToFilterGroupsWithCompleteStatus(predicates, root);
     addPredicateToFilterGroupsWithCompleteStatus(countPredicates, countQueryRoot);
 
-    //needs to apply same predicates to both result query and count query
+    addPredicateToExcludePipelineRecordManagement(predicates, cq, root);
+    addPredicateToExcludePipelineRecordManagement(countPredicates, countResultsQuery, countQueryRoot);
+
     cq.where(predicates.toArray(new Predicate[]{}));
     countResultsQuery.where(countPredicates.toArray(new Predicate[]{}));
 
@@ -143,4 +152,28 @@ public class AsBuiltNotificationDtoRepositoryImpl implements AsBuiltNotification
     return query;
   }
 
+  private void addPredicateToExcludePipelineRecordManagement(
+      List<Predicate> predicates,
+      CriteriaQuery<?> query,
+      Root<AsBuiltNotificationWorkareaView> root) {
+
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+
+    Subquery<Integer> prmConsentSubquery = query.subquery(Integer.class);
+    Root<PwaConsent> consentRoot = prmConsentSubquery.from(PwaConsent.class);
+    Join<PwaConsent, PwaApplication> applicationJoin =
+        consentRoot.join(PwaConsent_.SOURCE_PWA_APPLICATION);
+
+    prmConsentSubquery.select(consentRoot.get(PwaConsent_.ID));
+    prmConsentSubquery.where(
+        cb.equal(
+            applicationJoin.get(PwaApplication_.APPLICATION_TYPE),
+            PwaApplicationType.PIPELINE_RECORD_MANAGEMENT
+        )
+    );
+
+    predicates.add(
+        cb.not(root.get(AsBuiltNotificationWorkareaView_.CONSENT_ID).in(prmConsentSubquery))
+    );
+  }
 }

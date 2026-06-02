@@ -65,7 +65,8 @@ public class ConsentAsBuiltWriterService implements ConsentWriter {
 
   @Override
   public boolean writerIsApplicable(Collection<ApplicationTask> applicationTaskSet, PwaConsent pwaConsent) {
-    return true;
+    return !PwaApplicationType.PIPELINE_RECORD_MANAGEMENT.equals(
+        pwaConsent.getSourcePwaApplication().getApplicationType());
   }
 
   @Override
