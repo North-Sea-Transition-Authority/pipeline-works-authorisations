@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,6 +54,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationC
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamType;
+import uk.co.ogauthority.pwa.teams.UserTeamRolesView;
 import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -292,4 +294,28 @@ class ConsultationRequestServiceTest {
         consulteeGroup, pwaApplicationDetail.getPwaApplication(), ConsultationRequestStatus.RESPONDED);
   }
 
+  @Test
+  void getActiveConsultationsForUser_returnsActiveConsultations_whenRolesExist() {
+    long wuaId = 1L;
+
+    var roleView1 = mock(UserTeamRolesView.class);
+    when(roleView1.teamScopeId()).thenReturn("1");
+
+    var roleView2 = mock(UserTeamRolesView.class);
+    when(roleView2.teamScopeId()).thenReturn("2");
+
+    when(teamQueryService.getTeamRolesViewsByUserAndTeamType(wuaId, TeamType.CONSULTEE))
+        .thenReturn(List.of(roleView1, roleView2));
+
+    var expectedRequest = new ConsultationRequest();
+
+    when(consultationRequestRepository.findAllByStatusNotInAndConsulteeGroup_IdIn(
+        Set.of(ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN),
+        List.of(1, 2)))
+        .thenReturn(List.of(expectedRequest));
+
+    var result = underTest.getActiveConsultationsForUser(wuaId);
+
+    assertThat(result).containsExactly(expectedRequest);
+  }
 }

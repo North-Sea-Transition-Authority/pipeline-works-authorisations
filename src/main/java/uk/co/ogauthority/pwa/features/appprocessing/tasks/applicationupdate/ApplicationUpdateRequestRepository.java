@@ -18,5 +18,8 @@ public interface ApplicationUpdateRequestRepository extends CrudRepository<Appli
 
   List<ApplicationUpdateRequest> findAllByPwaApplicationDetailIn(List<PwaApplicationDetail> pwaApplicationDetails);
 
+  List<ApplicationUpdateRequest> findAllByPwaApplicationDetail_PwaApplication_IdInAndStatus(
+      List<Integer> applicationIds,
+      ApplicationUpdateRequestStatus status);
 
 }

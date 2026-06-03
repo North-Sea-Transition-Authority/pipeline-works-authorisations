@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -33,6 +34,9 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccountStatus;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccountTestUtil;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetailTestUtil;
@@ -61,6 +65,9 @@ class AsBuiltGroupDeadlineServiceTest {
 
   @Mock
   private PwaHolderService pwaHolderService;
+
+  @Mock
+  private UserAccountService userAccountService;
 
   @Mock
   private AsBuiltNotificationEmailService asBuiltNotificationEmailService;
@@ -198,6 +205,55 @@ class AsBuiltGroupDeadlineServiceTest {
         asBuiltGroup.getReference());
     verify(asBuiltNotificationEmailService, never()).sendUpcomingDeadlineEmail(person.getEmailAddress(), person.getFullName(),
         asBuiltGroup.getReference());
+  }
+
+  @Test
+  void getActiveAsBuiltNotificationsForUser_returnsEmpty_whenUserNotInHolderTeam() {
+    var webUserAccount = WebUserAccountTestUtil.createWebUserAccountMatchingPerson(
+        person.getId().asInt(),
+        person,
+        WebUserAccountStatus.ACTIVE
+    );
+
+
+    when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn(
+        webUserAccount,
+        Set.of(Role.AS_BUILT_NOTIFICATION_SUBMITTER)))
+        .thenReturn(Collections.emptyList());
+
+    var result = asBuiltGroupDeadlineService.getActiveAsBuiltNotificationsForUser(webUserAccount);
+
+    assertThat(result).isEmpty();
+
+    verify(asBuiltNotificationGroupDetailRepository, never())
+        .findAllByEndedByPersonIdIsNullAndAsBuiltNotificationGroupIn(any());
+  }
+
+  @Test
+  void getActiveAsBuiltNotificationsForUser_returnsDetails_whenSuccessful() {
+    var webUserAccount = WebUserAccountTestUtil.createWebUserAccountMatchingPerson(
+        person.getId().asInt(),
+        person,
+        WebUserAccountStatus.ACTIVE
+    );
+    var expectedDetail = new AsBuiltNotificationGroupDetail();
+
+    when(userAccountService.getWebUserAccount(person.getId().asInt())).thenReturn(webUserAccount);
+
+    when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn(
+        webUserAccount,
+        Set.of(Role.AS_BUILT_NOTIFICATION_SUBMITTER)))
+        .thenReturn(List.of(portalOrganisationGroup));
+
+    when(pwaHolderService.getPwaHolderOrgGroups(asBuiltGroup.getPwaConsent().getMasterPwa()))
+        .thenReturn(Set.of(portalOrganisationGroup));
+
+    when(asBuiltNotificationGroupDetailRepository.findAllByEndedByPersonIdIsNullAndAsBuiltNotificationGroupIn(List.of(asBuiltGroup)))
+        .thenReturn(List.of(expectedDetail));
+
+    var result = asBuiltGroupDeadlineService.getActiveAsBuiltNotificationsForUser(webUserAccount);
+
+    assertThat(result).containsExactly(expectedDetail);
   }
 
 }

@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges;
 
-import static java.util.stream.Collectors.toList;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.PwaAppChargeRequestStatus.WAIVED;
 import static uk.co.ogauthority.pwa.features.pwapay.PaymentRequestStatus.PAYMENT_COMPLETE;
@@ -10,8 +9,8 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +46,9 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 
 /**
  * Creates and reports on charges demanded for applications.
@@ -72,6 +74,8 @@ public class ApplicationChargeRequestService {
   private final PadInitialReviewService padInitialReviewService;
   private final ApplicationChargeRequestMetadataService applicationChargeRequestMetadataService;
   private final AssignCaseOfficerService assignCaseOfficerService;
+  private final PwaHolderTeamService pwaHolderTeamService;
+  private final PwaHolderService pwaHolderService;
 
   @Autowired
   public ApplicationChargeRequestService(AppChargeEmailService appChargeEmailService,
@@ -86,7 +90,8 @@ public class ApplicationChargeRequestService {
                                          @Qualifier("utcClock") Clock clock,
                                          PadInitialReviewService padInitialReviewService,
                                          ApplicationChargeRequestMetadataService applicationChargeRequestMetadataService,
-                                         AssignCaseOfficerService assignCaseOfficerService) {
+                                         AssignCaseOfficerService assignCaseOfficerService,
+                                         PwaHolderTeamService pwaHolderTeamService, PwaHolderService pwaHolderService) {
     this.appChargeEmailService = appChargeEmailService;
     this.pwaAppChargeRequestRepository = pwaAppChargeRequestRepository;
     this.pwaAppChargeRequestDetailRepository = pwaAppChargeRequestDetailRepository;
@@ -100,6 +105,8 @@ public class ApplicationChargeRequestService {
     this.padInitialReviewService = padInitialReviewService;
     this.applicationChargeRequestMetadataService = applicationChargeRequestMetadataService;
     this.assignCaseOfficerService = assignCaseOfficerService;
+    this.pwaHolderTeamService = pwaHolderTeamService;
+    this.pwaHolderService = pwaHolderService;
   }
 
   @Transactional
@@ -119,7 +126,7 @@ public class ApplicationChargeRequestService {
             applicationChargeItem.getDescription(),
             applicationChargeItem.getPennyAmount()
         ))
-        .collect(toList());
+        .toList();
     pwaAppChargeRequestItemRepository.saveAll(chargeItems);
 
     if (applicationChargeRequestSpecification.getPwaAppChargeRequestStatus() != WAIVED) {
@@ -214,7 +221,7 @@ public class ApplicationChargeRequestService {
         pwaAppChargeRequestDetail.getPwaAppChargeRequest())
         .stream()
         .map(ApplicationChargeItem::from)
-        .collect(Collectors.toUnmodifiableList());
+        .toList();
 
     var successfullyPaidPaymentAttempt = getSuccessfullyPaidPaymentAttempt(
         pwaAppChargeRequestDetail.getPwaAppChargeRequest()
@@ -240,7 +247,7 @@ public class ApplicationChargeRequestService {
     return pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndTipFlagIsTrue(pwaApplication)
         .stream()
         .map(this::convertRequestDetailToReport)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   private Optional<PwaAppChargePaymentAttempt> getSuccessfullyPaidPaymentAttempt(PwaAppChargeRequest pwaAppChargeRequest) {
@@ -609,6 +616,30 @@ public class ApplicationChargeRequestService {
     );
   }
 
+  public List<PwaAppChargeRequest> getOpenChargeRequestsForApplicant(WebUserAccount webUserAccount) {
+    var orgGroups = pwaHolderTeamService
+        .getPortalOrganisationGroupsWhereUserHasRoleIn(
+            webUserAccount,
+            Set.of(Role.FINANCE_ADMIN));
 
+    if (orgGroups.isEmpty()) {
+      return List.of();
+    }
+
+    var masterPwaIds = pwaHolderService.getMasterPwaIdsForOrgGroups(orgGroups);
+
+    if (masterPwaIds.isEmpty()) {
+      return List.of();
+    }
+
+    return pwaAppChargeRequestDetailRepository
+        .findAllByPwaAppChargeRequest_PwaApplication_IdInAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
+            masterPwaIds,
+            PwaAppChargeRequestStatus.OPEN
+        )
+        .stream()
+        .map(PwaAppChargeRequestDetail::getPwaAppChargeRequest)
+        .toList();
+  }
 }
 

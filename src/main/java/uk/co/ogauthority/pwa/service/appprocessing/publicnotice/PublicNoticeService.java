@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.AppProcessingService;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
 import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
 import uk.co.ogauthority.pwa.features.filemanagement.AppFileUploadRestController;
 import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
@@ -58,6 +60,7 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDate;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaAppAssignmentView;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.model.view.publicnotice.AllPublicNoticesView;
 import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeEvent;
@@ -69,6 +72,7 @@ import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRep
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeRequestRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.search.PwaAppAssignmentViewRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PublicNoticePublicationState;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
@@ -91,6 +95,7 @@ public class PublicNoticeService implements AppProcessingService {
   private final PublicNoticeDatesRepository publicNoticeDatesRepository;
   private final PersonService personService;
   private final AppFileManagementService appFileManagementService;
+  private final PwaAppAssignmentViewRepository pwaAppAssignmentViewRepository;
 
   private final CamundaWorkflowService camundaWorkflowService;
   private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
@@ -111,7 +116,9 @@ public class PublicNoticeService implements AppProcessingService {
       PublicNoticeDocumentRepository publicNoticeDocumentRepository,
       PublicNoticeDocumentLinkRepository publicNoticeDocumentLinkRepository,
       PublicNoticeDatesRepository publicNoticeDatesRepository,
-      PersonService personService, CamundaWorkflowService camundaWorkflowService,
+      PersonService personService,
+      PwaAppAssignmentViewRepository pwaAppAssignmentViewRepository,
+      CamundaWorkflowService camundaWorkflowService,
       AppFileManagementService appFileManagementService,
       FileManagementService fileManagementService
   ) {
@@ -124,6 +131,7 @@ public class PublicNoticeService implements AppProcessingService {
     this.publicNoticeDocumentLinkRepository = publicNoticeDocumentLinkRepository;
     this.publicNoticeDatesRepository = publicNoticeDatesRepository;
     this.personService = personService;
+    this.pwaAppAssignmentViewRepository = pwaAppAssignmentViewRepository;
     this.camundaWorkflowService = camundaWorkflowService;
     this.appFileManagementService = appFileManagementService;
     this.fileManagementService = fileManagementService;
@@ -689,4 +697,21 @@ public class PublicNoticeService implements AppProcessingService {
         .anyMatch(notice -> !ENDED_STATUSES.contains(notice.getStatus()));
   }
 
+  public List<PublicNoticeDate> getActiveNoticesForCaseOfficer(PersonId caseOfficerPersonId) {
+    var assignmentViews = pwaAppAssignmentViewRepository
+        .findAllByAssignmentAndAssigneePersonId(WorkflowAssignment.CASE_OFFICER, caseOfficerPersonId.asInt());
+
+    if (assignmentViews.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    var assignedAppIds = assignmentViews.stream()
+        .map(PwaAppAssignmentView::getPwaApplicationId)
+        .toList();
+
+    return publicNoticeDatesRepository.findAllByPublicNotice_PwaApplication_IdInAndPublicNotice_StatusAndEndedByPersonIdIsNull(
+        assignedAppIds,
+        PublicNoticeStatus.PUBLISHED
+    );
+  }
 }

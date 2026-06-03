@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.repository.asbuilt;
 
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
@@ -17,4 +18,7 @@ public interface AsBuiltNotificationGroupDetailRepository extends CrudRepository
                                                                                               asBuiltNotificationGroups,
                                                                                           LocalDate deadlineDate);
 
+  List<AsBuiltNotificationGroupDetail> findAllByEndedByPersonIdIsNullAndAsBuiltNotificationGroupIn(
+      Collection<AsBuiltNotificationGroup> groups
+  );
 }

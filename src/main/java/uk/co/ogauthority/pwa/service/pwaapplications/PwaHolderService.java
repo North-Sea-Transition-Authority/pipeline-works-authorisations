@@ -1,9 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications;
 
-import static java.util.stream.Collectors.toList;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class PwaHolderService {
 
     var holderOuIds = pwaHolderOrgUnitRepository.findAllByPwaId(masterPwa.getId()).stream()
         .map(PwaHolderOrgUnit::getOuId)
-        .collect(Collectors.toList());
+        .toList();
 
     return portalOrganisationsAccessor.getOrganisationUnitsByIdIn(holderOuIds).stream()
         .collect(Collectors.toUnmodifiableSet());
@@ -59,18 +60,36 @@ public class PwaHolderService {
     var holderOrgGrpIds = allHolderOrgUnitsForMasterPwas.stream()
         .map(PwaHolderOrgUnit::getOrgGrpId)
         .distinct()
-        .collect(toList());
-    var orgGroups = portalOrganisationsAccessor.getOrganisationGroupsWhereIdIn(holderOrgGrpIds)
+        .toList();
+    var orgGroupMap = portalOrganisationsAccessor.getOrganisationGroupsWhereIdIn(holderOrgGrpIds)
         .stream()
-        .collect(Collectors.toUnmodifiableSet());
+        .collect(Collectors.toMap(
+            PortalOrganisationGroup::getOrgGrpId,
+            orgGroup -> orgGroup,
+            (existing, replacement) -> existing
+        ));
 
+    //The table (vw_pwa_holder_org_units) view has a pwa_id column which comes from pwa_details and there pwa_id is the master id
     Multimap<PortalOrganisationGroup, Integer> holderOrgGroupToMasterPwaIdListMap = ArrayListMultimap.create();
-    allHolderOrgUnitsForMasterPwas.forEach(pwaHolderOrgUnit -> holderOrgGroupToMasterPwaIdListMap.put(
-        orgGroups.stream()
-            .filter(orgGroup -> orgGroup.getOrgGrpId().equals(pwaHolderOrgUnit.getOrgGrpId()))
-            .findFirst().get(),
-        pwaHolderOrgUnit.getPwaId()));
+    allHolderOrgUnitsForMasterPwas.forEach(pwaHolderOrgUnit -> {
+      var orgGroup = orgGroupMap.get(pwaHolderOrgUnit.getOrgGrpId());
+      if (orgGroup != null) {
+        holderOrgGroupToMasterPwaIdListMap.put(orgGroup, pwaHolderOrgUnit.getPwaId());
+      }
+    }
+    );
     return holderOrgGroupToMasterPwaIdListMap;
   }
 
+  public List<Integer> getMasterPwaIdsForOrgGroups(Collection<PortalOrganisationGroup> orgGroups) {
+    var orgGrpIds = orgGroups.stream()
+        .map(PortalOrganisationGroup::getOrgGrpId)
+        .toList();
+
+    return pwaHolderOrgUnitRepository.findAllByOrgGrpIdIn(orgGrpIds)
+        .stream()
+        .map(PwaHolderOrgUnit::getPwaId)
+        .distinct()
+        .toList();
+  }
 }

@@ -228,6 +228,24 @@ public class ConsultationRequestService {
     return consultationsStatusViewFactory.getApplicationStatusView(pwaApplication);
   }
 
+  public List<ConsultationRequest> getActiveConsultationsForUser(long wuaId) {
+    var consulteeGroupRoles = teamQueryService.getTeamRolesViewsByUserAndTeamType(wuaId, TeamType.CONSULTEE);
+
+    if (consulteeGroupRoles == null || consulteeGroupRoles.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    var groupIds = consulteeGroupRoles.stream()
+        .map(view -> Integer.valueOf(view.teamScopeId()))
+        .toList();
+
+    if (groupIds.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    return consultationRequestRepository.findAllByStatusNotInAndConsulteeGroup_IdIn(ENDED_STATUSES, groupIds);
+  }
+
   static Set<ConsultationRequestStatus> getEndedStatuses() {
     return ENDED_STATUSES;
   }

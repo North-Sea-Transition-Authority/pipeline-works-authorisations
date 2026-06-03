@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.OptionsApprovalStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
@@ -274,9 +276,27 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
   @Transactional
   public void endUpdateRequestIfExists(PwaApplicationDetail pwaApplicationDetail) {
 
-    getOpenUpdateRequest(pwaApplicationDetail).ifPresent((openUpdateRequest) -> {
+    getOpenUpdateRequest(pwaApplicationDetail).ifPresent(openUpdateRequest -> {
       openUpdateRequest.setStatus(ApplicationUpdateRequestStatus.ENDED);
       applicationUpdateRequestRepository.save(openUpdateRequest);
     });
+  }
+
+  public List<ApplicationUpdateRequest> getOpenUpdateRequestsForPreparer(Person person) {
+    var applicantAppIds = pwaContactService
+        .getPwaContactRolesForPerson(person, Set.of(PwaContactRole.PREPARER))
+        .stream()
+        .map(PwaApplicationContactRoleDto::getPwaApplicationId)
+        .toList();
+
+    if (applicantAppIds.isEmpty()) {
+      return List.of();
+    }
+
+    return applicationUpdateRequestRepository
+        .findAllByPwaApplicationDetail_PwaApplication_IdInAndStatus(
+            applicantAppIds,
+            ApplicationUpdateRequestStatus.OPEN
+        );
   }
 }

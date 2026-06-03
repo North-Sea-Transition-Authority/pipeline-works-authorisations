@@ -5,7 +5,9 @@ import com.google.common.collect.Multimap;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetail;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltDeadlineReminderType;
@@ -27,7 +30,7 @@ import uk.co.ogauthority.pwa.teams.Role;
  * Perform database interactions for as--built notification group deadline changes.
  */
 @Component
-class AsBuiltGroupDeadlineService {
+public class AsBuiltGroupDeadlineService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AsBuiltGroupDeadlineService.class);
 
@@ -180,4 +183,41 @@ class AsBuiltGroupDeadlineService {
         .collect(Collectors.toList());
   }
 
+  public List<AsBuiltNotificationGroupDetail> getActiveAsBuiltNotificationsForUser(WebUserAccount webUserAccount) {
+    var userOrgGroups = pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn(
+        webUserAccount,
+        Set.of(Role.AS_BUILT_NOTIFICATION_SUBMITTER)
+    );
+
+    if (userOrgGroups == null || userOrgGroups.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    var activeGroups = asBuiltNotificationGroupStatusService.getAllNonCompleteAsBuiltNotificationGroups();
+
+    if (activeGroups == null || activeGroups.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    var masterPwaIds = activeGroups.stream()
+        .map(group -> group.getPwaConsent().getMasterPwa().getId())
+        .collect(Collectors.toSet());
+
+    var holderOrgGroupsByMasterPwaId = pwaHolderService.getHolderOrgGroupsForMasterPwaIds(masterPwaIds);
+
+    var userAccessibleMasterPwaIds = holderOrgGroupsByMasterPwaId.entries().stream()
+        .filter(entry -> userOrgGroups.contains(entry.getKey()))
+        .map(Map.Entry::getValue)
+        .collect(Collectors.toSet());
+
+    var userGroups = activeGroups.stream()
+        .filter(group -> userAccessibleMasterPwaIds.contains(group.getPwaConsent().getMasterPwa().getId()))
+        .toList();
+
+    if (userGroups.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    return asBuiltNotificationGroupDetailRepository.findAllByEndedByPersonIdIsNullAndAsBuiltNotificationGroupIn(userGroups);
+  }
 }

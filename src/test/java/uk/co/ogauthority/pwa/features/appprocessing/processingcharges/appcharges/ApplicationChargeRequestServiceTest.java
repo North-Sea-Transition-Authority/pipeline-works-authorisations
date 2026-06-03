@@ -18,6 +18,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,7 @@ import uk.co.ogauthority.pwa.features.pwapay.PwaPaymentRequestTestUtil;
 import uk.co.ogauthority.pwa.features.pwapay.PwaPaymentService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
@@ -62,6 +64,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -106,6 +111,12 @@ class ApplicationChargeRequestServiceTest {
   @Mock
   private AssignCaseOfficerService assignCaseOfficerService;
 
+  @Mock
+  private PwaHolderTeamService pwaHolderTeamService;
+
+  @Mock
+  private PwaHolderService pwaHolderService;
+
   @Captor
   private ArgumentCaptor<PwaAppChargeRequestDetail> requestDetailArgumentCaptor;
 
@@ -139,7 +150,7 @@ class ApplicationChargeRequestServiceTest {
   );
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
 
     pwaManagerPerson = PersonTestUtil.createPersonFrom(new PersonId(10));
     pwaManagerWua = new WebUserAccount(10, pwaManagerPerson);
@@ -176,7 +187,9 @@ class ApplicationChargeRequestServiceTest {
         clock,
         padInitialReviewService,
         applicationChargeRequestMetadataService,
-        assignCaseOfficerService);
+        assignCaseOfficerService,
+        pwaHolderTeamService,
+        pwaHolderService);
 
     when(pwaAppChargeRequestRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
     when(pwaAppChargeRequestDetailRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -276,7 +289,6 @@ class ApplicationChargeRequestServiceTest {
 
     applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
 
-    ArgumentCaptor<PwaAppChargeRequest> chargeRequestCaptor = ArgumentCaptor.forClass(PwaAppChargeRequest.class);
     ArgumentCaptor<PwaAppChargeRequestDetail> chargeRequestDetailCaptor = ArgumentCaptor.forClass(
         PwaAppChargeRequestDetail.class);
 
@@ -847,5 +859,60 @@ class ApplicationChargeRequestServiceTest {
 
     verify(pwaPaymentService, times(1)).cancelPayment(attempt.getPwaPaymentRequest());
   }
+  @Test
+  void getOpenChargeRequestsForApplicant_whenNoOrgGroups_returnsEmpty() {
+    when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn(
+        pwaManagerWua, Set.of(Role.FINANCE_ADMIN)))
+        .thenReturn(List.of());
 
+    var result = applicationChargeRequestService
+        .getOpenChargeRequestsForApplicant(pwaManagerWua);
+
+    assertThat(result).isEmpty();
+    verifyNoInteractions(pwaHolderService);
+    verifyNoInteractions(pwaAppChargeRequestDetailRepository);
+  }
+
+  @Test
+  void getOpenChargeRequestsForApplicant_whenOrgGroups_butNoMatchingMasterPwas_returnsEmpty() {
+    var orgGroup = new PortalOrganisationGroup();
+
+    when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn(
+        pwaManagerWua, Set.of(Role.FINANCE_ADMIN)))
+        .thenReturn(List.of(orgGroup));
+
+    when(pwaHolderService.getMasterPwaIdsForOrgGroups(List.of(orgGroup)))
+        .thenReturn(List.of());
+
+    var result = applicationChargeRequestService
+        .getOpenChargeRequestsForApplicant(pwaManagerWua);
+
+    assertThat(result).isEmpty();
+    verify(pwaAppChargeRequestDetailRepository, never())
+        .findAllByPwaAppChargeRequest_PwaApplication_IdInAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
+            any(), any());
+  }
+
+  @Test
+  void getOpenChargeRequestsForApplicant_whenOrgGroups_withOpenChargeRequests_returnsRequests() {
+    var orgGroup = new PortalOrganisationGroup();
+
+    when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn(
+        pwaManagerWua, Set.of(Role.FINANCE_ADMIN)))
+        .thenReturn(List.of(orgGroup));
+
+    when(pwaHolderService.getMasterPwaIdsForOrgGroups(List.of(orgGroup)))
+        .thenReturn(List.of(pwaApplication.getId()));
+
+    when(pwaAppChargeRequestDetailRepository
+        .findAllByPwaAppChargeRequest_PwaApplication_IdInAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
+            List.of(pwaApplication.getId()),
+            PwaAppChargeRequestStatus.OPEN))
+        .thenReturn(List.of(chargeRequestDetail));
+
+    var result = applicationChargeRequestService
+        .getOpenChargeRequestsForApplicant(pwaManagerWua);
+
+    assertThat(result).containsExactly(chargeRequest);
+  }
 }

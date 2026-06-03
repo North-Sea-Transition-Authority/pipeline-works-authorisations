@@ -55,6 +55,7 @@ import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.OptionsApprovalStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -135,7 +136,7 @@ class ApplicationUpdateRequestServiceTest {
   private ApplicationUpdateRequest defaultUpdateRequest;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     responderPerson = new Person(RESPONDER_PERSON_ID.asInt(), "test", "person", "email", TELEPHONE);
     requesterPerson = new Person(REQUESTER_PERSON_ID.asInt(), "test1", "person1", "email1", TELEPHONE);
     user = new WebUserAccount(99, responderPerson);
@@ -532,4 +533,70 @@ class ApplicationUpdateRequestServiceTest {
     verify(applicationUpdateRequestRepository, never()).save(any());
   }
 
+  @Test
+  void getOpenUpdateRequestsForPreparer_whenNoPreparerRoles_returnsEmpty() {
+    when(pwaContactService.getPwaContactRolesForPerson(
+        responderPerson,
+        Set.of(PwaContactRole.PREPARER)))
+        .thenReturn(Set.of());
+
+    var result = applicationUpdateRequestService
+        .getOpenUpdateRequestsForPreparer(responderPerson);
+
+    assertThat(result).isEmpty();
+    verify(applicationUpdateRequestRepository, never())
+        .findAllByPwaApplicationDetail_PwaApplication_IdInAndStatus(
+            any(), any());
+  }
+
+  @Test
+  void getOpenUpdateRequestsForPreparer_whenPreparerRoles_butNoOpenUpdateRequests_returnsEmpty() {
+    var contactRoleDto = new PwaApplicationContactRoleDto(
+        responderPerson.getId().asInt(),
+        pwaApplicationDetail.getPwaApplication().getId(),
+        PwaContactRole.PREPARER
+    );
+
+    when(pwaContactService.getPwaContactRolesForPerson(
+        responderPerson,
+        Set.of(PwaContactRole.PREPARER)))
+        .thenReturn(Set.of(contactRoleDto));
+
+    when(applicationUpdateRequestRepository
+        .findAllByPwaApplicationDetail_PwaApplication_IdInAndStatus(
+            List.of(pwaApplicationDetail.getPwaApplication().getId()),
+            ApplicationUpdateRequestStatus.OPEN))
+        .thenReturn(List.of());
+
+    var result = applicationUpdateRequestService
+        .getOpenUpdateRequestsForPreparer(responderPerson);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void getOpenUpdateRequestsForPreparer_whenPreparerRoles_withOpenUpdateRequests_returnsRequests() {
+    var contactRoleDto = new PwaApplicationContactRoleDto(
+        responderPerson.getId().asInt(),
+        pwaApplicationDetail.getPwaApplication().getId(),
+        PwaContactRole.PREPARER
+    );
+
+    when(pwaContactService.getPwaContactRolesForPerson(
+        responderPerson,
+        Set.of(PwaContactRole.PREPARER)))
+        .thenReturn(Set.of(contactRoleDto));
+
+    var updateRequest = new ApplicationUpdateRequest();
+    when(applicationUpdateRequestRepository
+        .findAllByPwaApplicationDetail_PwaApplication_IdInAndStatus(
+            List.of(pwaApplicationDetail.getPwaApplication().getId()),
+            ApplicationUpdateRequestStatus.OPEN))
+        .thenReturn(List.of(updateRequest));
+
+    var result = applicationUpdateRequestService
+        .getOpenUpdateRequestsForPreparer(responderPerson);
+
+    assertThat(result).containsExactly(updateRequest);
+  }
 }

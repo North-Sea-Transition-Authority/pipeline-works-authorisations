@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -44,6 +46,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
 import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
 import uk.co.ogauthority.pwa.features.filemanagement.AppFileUploadRestController;
 import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
@@ -55,6 +58,7 @@ import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
@@ -63,8 +67,10 @@ import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.TemplateTextType;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
+import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDate;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaAppAssignmentView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -73,6 +79,7 @@ import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRep
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeRequestRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.search.PwaAppAssignmentViewRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
@@ -117,6 +124,10 @@ class PublicNoticeServiceTest {
   private FileManagementService fileManagementService;
 
   @Mock
+  private PwaAppAssignmentViewRepository pwaAppAssignmentViewRepository;
+
+
+  @Mock
   private Clock clock;
 
   @Mock
@@ -159,6 +170,7 @@ class PublicNoticeServiceTest {
         publicNoticeDocumentLinkRepository,
         publicNoticeDatesRepository,
         personService,
+        pwaAppAssignmentViewRepository,
         camundaWorkflowService,
         appFileManagementService,
         fileManagementService
@@ -1308,4 +1320,43 @@ class PublicNoticeServiceTest {
     verify(fileManagementService).getFileUploadComponentAttributesBuilder(existingFileForms, DOCUMENT_TYPE);
   }
 
+  @Test
+  void getActiveNoticesForCaseOfficer_returnsEmpty_whenNoAssignmentsFound() {
+    var personId = new PersonId(1);
+
+    when(pwaAppAssignmentViewRepository.findAllByAssignmentAndAssigneePersonId(
+        WorkflowAssignment.CASE_OFFICER, personId.asInt()))
+        .thenReturn(Collections.emptyList());
+
+    var result = publicNoticeService.getActiveNoticesForCaseOfficer(personId);
+
+    assertThat(result).isEmpty();
+    verify(publicNoticeDatesRepository, never())
+        .findAllByPublicNotice_PwaApplication_IdInAndPublicNotice_StatusAndEndedByPersonIdIsNull(any(), any());
+  }
+
+  @Test
+  void getActiveNoticesForCaseOfficer_returnsNotices_whenAssignmentsExist() {
+    var personId = new PersonId(1);
+
+    var assignmentView1 = mock(PwaAppAssignmentView.class);
+    when(assignmentView1.getPwaApplicationId()).thenReturn(1);
+
+    var assignmentView2 = mock(PwaAppAssignmentView.class);
+    when(assignmentView2.getPwaApplicationId()).thenReturn(2);
+
+    when(pwaAppAssignmentViewRepository.findAllByAssignmentAndAssigneePersonId(
+        WorkflowAssignment.CASE_OFFICER, personId.asInt()))
+        .thenReturn(List.of(assignmentView1, assignmentView2));
+
+    var expectedNoticeDate = new PublicNoticeDate();
+
+    when(publicNoticeDatesRepository.findAllByPublicNotice_PwaApplication_IdInAndPublicNotice_StatusAndEndedByPersonIdIsNull(
+        List.of(1, 2), PublicNoticeStatus.PUBLISHED))
+        .thenReturn(List.of(expectedNoticeDate));
+
+    var result = publicNoticeService.getActiveNoticesForCaseOfficer(personId);
+
+    assertThat(result).containsExactly(expectedNoticeDate);
+  }
 }

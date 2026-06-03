@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDate;
 
@@ -21,5 +22,10 @@ public interface PublicNoticeDatesRepository extends CrudRepository<PublicNotice
 
   List<PublicNoticeDate> getAllByPublicNoticeInAndPublicationEndTimestampBeforeAndEndedByPersonIdIsNull(List<PublicNotice> publicNotices,
                                                                                                         Instant publicationEndTimestamp);
+
+  List<PublicNoticeDate> findAllByPublicNotice_PwaApplication_IdInAndPublicNotice_StatusAndEndedByPersonIdIsNull(
+      List<Integer> applicationIds,
+      PublicNoticeStatus status
+  );
 
 }

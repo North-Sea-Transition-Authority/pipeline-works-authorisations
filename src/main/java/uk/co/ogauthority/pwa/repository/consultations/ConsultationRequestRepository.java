@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.repository.consultations;
 
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -27,4 +26,8 @@ public interface ConsultationRequestRepository extends CrudRepository<Consultati
 
   List<ConsultationRequest> findByPwaApplicationAndStatus(PwaApplication pwaApplication, ConsultationRequestStatus status);
 
+  List<ConsultationRequest> findAllByStatusNotInAndConsulteeGroup_IdIn(
+      Collection<ConsultationRequestStatus> statuses,
+      Collection<Integer> groupIds
+  );
 }

@@ -13,4 +13,6 @@ public interface PwaAppAssignmentViewRepository extends CrudRepository<PwaAppAss
   List<PwaAppAssignmentView> findAllByAssignmentAndPwaApplicationIdIn(WorkflowAssignment assignment,
                                                                       List<Integer> pwaApplicationIds);
 
+  List<PwaAppAssignmentView> findAllByAssignmentAndAssigneePersonId(WorkflowAssignment assignment, Integer assigneePersonId);
+
 }

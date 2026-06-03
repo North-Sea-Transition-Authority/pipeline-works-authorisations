@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.internal;
 
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
@@ -23,4 +24,8 @@ public interface PwaAppChargeRequestDetailRepository extends CrudRepository<PwaA
 
   List<PwaAppChargeRequestDetail> findByPwaAppChargeRequest_PwaApplicationAndTipFlagIsTrue(PwaApplication pwaApplication);
 
+  List<PwaAppChargeRequestDetail> findAllByPwaAppChargeRequest_PwaApplication_IdInAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
+      Collection<Integer> applicationIds,
+      PwaAppChargeRequestStatus pwaAppChargeRequestStatus
+  );
 }
