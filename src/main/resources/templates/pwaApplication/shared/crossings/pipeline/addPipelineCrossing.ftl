@@ -10,6 +10,9 @@
           <@fdsRadio.radioYes path="form.pipelineFullyOwnedByOrganisation"/>
           <@fdsRadio.radioNo path="form.pipelineFullyOwnedByOrganisation">
             <@fdsSearchSelector.searchSelectorRest path="form.pipelineOwners" labelText="Who are the owners of the pipeline being crossed?" restUrl=springUrl(orgsRestUrl) multiSelect=true preselectedItems=preselectedOwners nestingPath="form.pipelineFullyOwnedByOrganisation"/>
+            <@fdsDetails.summaryDetails summaryTitle="The pipeline owner is not in the list">
+              <p>If you are unable to find the pipeline owner you are looking for then you can <@requestCompanyLink/>.</p>
+            </@fdsDetails.summaryDetails>
           </@fdsRadio.radioNo>
         </@fdsRadio.radioGroup>
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="${screenActionType.submitButtonText} pipeline crossing" secondaryLinkText="Back to pipeline crossings" linkSecondaryActionUrl=springUrl(backUrl)/>

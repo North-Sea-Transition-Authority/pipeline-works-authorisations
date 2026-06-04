@@ -21,6 +21,9 @@
             <@fdsRadio.radioItem path="form.crossingOwner" itemMap={crossedOwner : crossedOwner.getDisplayName()} isFirstItem=firstItem>
               <#if crossedOwner == "PORTAL_ORGANISATION">
                 <@fdsSearchSelector.searchSelectorEnhanced path="form.ownersOuIdList" options=orgUnits labelText="Select owner" nestingPath="form.crossingOwner" />
+                <@fdsDetails.summaryDetails summaryTitle="The carbon storgage area owner is not in the list">
+                  <p>If you are unable to find the carbon storage owner you are looking for then you can <@requestCompanyLink/>.</p>
+                </@fdsDetails.summaryDetails>
               </#if>
             </@fdsRadio.radioItem>
             <#assign firstItem=false/>

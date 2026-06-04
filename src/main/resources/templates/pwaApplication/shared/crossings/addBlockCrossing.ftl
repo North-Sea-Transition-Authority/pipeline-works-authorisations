@@ -21,6 +21,9 @@
                 <@fdsRadio.radioItem path="form.crossingOwner" itemMap={crossedBlock : crossedBlock.getDisplayName()} isFirstItem=firstItem>
                     <#if crossedBlock == "PORTAL_ORGANISATION">
                         <@fdsSearchSelector.searchSelectorEnhanced path="form.blockOwnersOuIdList" options=orgUnits labelText="Select block owner" nestingPath="form.crossingOwner" />
+                        <@fdsDetails.summaryDetails summaryTitle="The block owner is not in the list">
+                          <p>If you are unable to find the block owner you are looking for then you can <@requestCompanyLink/>.</p>
+                        </@fdsDetails.summaryDetails>
                     </#if>
                 </@fdsRadio.radioItem>
                 <#assign firstItem=false/>

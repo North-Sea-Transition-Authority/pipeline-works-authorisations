@@ -3,6 +3,10 @@
 
 <#include '../../../layout.ftl'>
 
+<#assign detailsText>
+  If you are unable to find the legal entity you are looking for then you can <@requestCompanyLink/>
+</#assign>
+
 <@defaultPage htmlTitle="${screenActionType.actionText} a holder, user, operator, or owner" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
@@ -16,8 +20,9 @@
                 <@fdsRadio.radioItem path="form.huooType" itemMap={name:displayText} isFirstItem=false>
                     <#if name == "PORTAL_ORG">
                         <@fdsSearchSelector.searchSelectorEnhanced path="form.organisationUnitId" options=portalOrgs labelText="Select the legal entity" nestingPath="form.huooType"/>
-                        <@fdsDetails.details detailsTitle="I can’t find a legal entity"
-                            detailsText="If you are unable to find the legal entity you are looking for then provide the NSTA with the holder company name, address, postcode and companies house registration number to add to the PWA service: ${ogaServiceDeskEmail}"/>
+                          <@fdsDetails.details detailsTitle="I can’t find a legal entity"
+                            detailsText=detailsText
+                          />
                         <@fdsCheckbox.checkboxes path="form.huooRoles" checkboxes=huooRoles fieldsetHeadingText="Which roles will the legal entity have?" nestingPath="form.huooType"/>
                     </#if>
                 </@fdsRadio.radioItem>

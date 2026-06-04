@@ -21,6 +21,8 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
+import uk.co.fivium.energyportal.starter.accounts.EnergyPortalAccountsControllerAdvice;
+import uk.co.fivium.energyportal.starter.configuration.EnergyPortalAccountsConfigurationProperties;
 import uk.co.ogauthority.pwa.auth.HasAnyRoleInterceptor;
 import uk.co.ogauthority.pwa.auth.HasTeamRoleService;
 import uk.co.ogauthority.pwa.auth.saml.SamlResponseParser;
@@ -53,6 +55,7 @@ import uk.co.ogauthority.pwa.teams.management.access.TeamManagementHandlerInterc
     AnalyticsProperties.class,
     AnalyticsConfig.class,
     SamlProperties.class,
+    EnergyPortalAccountsConfigurationProperties.class,
 })
 @Import({
     AbstractControllerTest.AbstractControllerTestConfiguration.class,
@@ -61,7 +64,8 @@ import uk.co.ogauthority.pwa.teams.management.access.TeamManagementHandlerInterc
     RequestLogFilter.class,
     PostAuthenticationRequestMdcFilter.class,
     TeamManagementHandlerInterceptor.class,
-    HasAnyRoleInterceptor.class
+    HasAnyRoleInterceptor.class,
+    EnergyPortalAccountsControllerAdvice.class,
 })
 public abstract class AbstractControllerTest {
 

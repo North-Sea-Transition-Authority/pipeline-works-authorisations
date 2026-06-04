@@ -15,8 +15,7 @@ import org.springframework.stereotype.Service;
 import uk.co.fivium.energyportal.serviceproviders.epmq.ScopeType;
 import uk.co.fivium.energyportal.serviceproviders.epmq.messages.ServiceProviderTeamDto;
 import uk.co.fivium.energyportal.starter.accounts.EnergyPortalServiceAccessService;
-import uk.co.fivium.energyportal.starter.serviceproviders.EnergyPortalServiceProviderTeamService;
-import uk.co.fivium.energyportal.starter.serviceproviders.EnergyPortalServiceProviderUserRolesService;
+import uk.co.fivium.energyportal.starter.serviceproviders.EnergyPortalAccountsMessagePublishingService;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.user.UserApi;
 import uk.co.fivium.energyportalapi.generated.client.UserProjectionRoot;
@@ -50,8 +49,7 @@ public class TeamManagementService {
   private final PwaContactRepository pwaContactRepository;
   private final UserAccountService userAccountService;
   private final EnergyPortalServiceAccessService energyPortalServiceAccessService;
-  private final EnergyPortalServiceProviderTeamService energyPortalServiceProviderTeamService;
-  private final EnergyPortalServiceProviderUserRolesService energyPortalServiceProviderUserRolesService;
+  private final EnergyPortalAccountsMessagePublishingService energyPortalAccountsMessagePublishingService;
   private final ConsulteeGroupIdToEpasScopeTypeAndIdConfigurationProperties consulteeConfigurationProperties;
 
   public TeamManagementService(
@@ -63,8 +61,7 @@ public class TeamManagementService {
       PwaContactRepository pwaContactRepository,
       UserAccountService userAccountService,
       EnergyPortalServiceAccessService energyPortalServiceAccessService,
-      EnergyPortalServiceProviderTeamService energyPortalServiceProviderTeamService,
-      EnergyPortalServiceProviderUserRolesService energyPortalServiceProviderUserRolesService,
+      EnergyPortalAccountsMessagePublishingService energyPortalAccountsMessagePublishingService,
       ConsulteeGroupIdToEpasScopeTypeAndIdConfigurationProperties configProperties
   ) {
     this.teamRepository = teamRepository;
@@ -75,8 +72,7 @@ public class TeamManagementService {
     this.pwaContactRepository = pwaContactRepository;
     this.userAccountService = userAccountService;
     this.energyPortalServiceAccessService = energyPortalServiceAccessService;
-    this.energyPortalServiceProviderTeamService = energyPortalServiceProviderTeamService;
-    this.energyPortalServiceProviderUserRolesService = energyPortalServiceProviderUserRolesService;
+    this.energyPortalAccountsMessagePublishingService = energyPortalAccountsMessagePublishingService;
     consulteeConfigurationProperties = configProperties;
   }
 
@@ -121,7 +117,7 @@ public class TeamManagementService {
         scopeType,
         team.getTeamType().name()
     );
-    energyPortalServiceProviderTeamService.publishTeam(serviceProviderTeam);
+    energyPortalAccountsMessagePublishingService.publishTeam(serviceProviderTeam);
 
     return team;
   }
@@ -271,7 +267,7 @@ public class TeamManagementService {
       throw new TeamManagementException("At least 1 team manager must exist in team %s".formatted(team.getId()));
     }
 
-    energyPortalServiceProviderUserRolesService.publishUsersRolesForTeam(
+    energyPortalAccountsMessagePublishingService.publishUsersRolesForTeam(
         wuaId,
         team.getId().toString(),
         team.getTeamType().name(),
@@ -291,7 +287,7 @@ public class TeamManagementService {
     }
     teamRoleRepository.deleteByWuaIdAndTeam(wuaId, team);
 
-    energyPortalServiceProviderUserRolesService.publishRemoveUserFromTeam(
+    energyPortalAccountsMessagePublishingService.publishRemoveUserFromTeam(
         wuaId,
         team.getId().toString()
     );
