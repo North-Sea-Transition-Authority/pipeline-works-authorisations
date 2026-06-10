@@ -45,3 +45,8 @@ CVE-2026-41417
 #org.apache.tomcat.embed:tomcat-embed-core
 CVE-2026-43515
 CVE-2026-43514
+
+# uk.co.fivium:file-upload-spring-boot-starter (needs v3.0.0, breaking change)
+CVE-2026-47244
+CVE-2026-44249
+CVE-2026-45416
