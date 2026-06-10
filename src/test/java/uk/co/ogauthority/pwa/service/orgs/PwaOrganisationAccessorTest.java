@@ -47,7 +47,7 @@ class PwaOrganisationAccessorTest {
   @InjectMocks
   private PwaOrganisationAccessor pwaOrganisationAccessor;
 
-  private AuthenticatedUserAccount industryUser, ogaUser;
+  private AuthenticatedUserAccount industryUser, ogaUser, secondaryRegulatorUser;
 
   private PortalOrganisationGroup organisationGroup1;
 
@@ -56,9 +56,11 @@ class PwaOrganisationAccessorTest {
 
     industryUser = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createPersonFrom(new PersonId(1))), Set.of());
     ogaUser = new AuthenticatedUserAccount(new WebUserAccount(2, PersonTestUtil.createPersonFrom(new PersonId(2))), Set.of());
+    secondaryRegulatorUser = new AuthenticatedUserAccount(new WebUserAccount(3, PersonTestUtil.createPersonFrom(new PersonId(3))), Set.of());
 
     when(userTypeService.getPriorityUserTypeOrThrow(industryUser)).thenReturn(UserType.INDUSTRY);
     when(userTypeService.getPriorityUserTypeOrThrow(ogaUser)).thenReturn(UserType.OGA);
+    when(userTypeService.getPriorityUserTypeOrThrow(secondaryRegulatorUser)).thenReturn(UserType.SECONDARY_REGULATOR);
 
     organisationGroup1 = PortalOrganisationTestUtils.generateOrganisationGroup(1,"ONE", "O");
     organisationGroup1 = PortalOrganisationTestUtils.generateOrganisationGroup(2,"TWO", "T");
@@ -130,6 +132,12 @@ class PwaOrganisationAccessorTest {
 
     verify(portalOrganisationsAccessor).getAllActiveOrganisationUnitsSearch();
 
+  }
+
+  @Test
+  void getOrgUnits_whenSecondaryRegulatorUser_thenAllOrgUnits() {
+    pwaOrganisationAccessor.getOrgUnitsUserCanAccess(secondaryRegulatorUser);
+    verify(portalOrganisationsAccessor).getAllActiveOrganisationUnitsSearch();
   }
 
 }

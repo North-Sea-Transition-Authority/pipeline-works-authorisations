@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
@@ -21,21 +22,24 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.auth.RoleGroup;
 import uk.co.ogauthority.pwa.controller.ResolverAbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.WithDefaultPageControllerAdvice;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.controller.PipelineRestController;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.orgs.PwaOrganisationAccessor;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchContextCreator;
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchService;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 
 @WebMvcTest(ConsentSearchController.class)
 @ContextConfiguration(classes = ConsentSearchController.class)
@@ -50,14 +54,17 @@ class ConsentSearchControllerTest extends ResolverAbstractControllerTest {
       new WebUserAccount(2, new Person()),
       EnumSet.of(PwaUserPrivilege.PWA_ACCESS));
 
-  @MockBean
+  @MockitoBean
   private ConsentSearchService consentSearchService;
 
-  @MockBean
+  @MockitoBean
   private ConsentSearchContextCreator consentSearchContextCreator;
 
-  @MockBean
+  @MockitoBean
   private PwaOrganisationAccessor pwaOrganisationAccessor;
+
+  @MockitoBean
+  private PipelineDetailService pipelineDetailService;
 
   @BeforeEach
   void setUp() {
@@ -101,16 +108,23 @@ class ConsentSearchControllerTest extends ResolverAbstractControllerTest {
 
   @Test
   void renderSearch_searched_filterByOrgUnit() throws Exception {
+    Map<String, String> preSelectedPipelines = Map.of("10", "PL100");
+    when(pipelineDetailService.getPreSelectedPipelines("10")).thenReturn(preSelectedPipelines);
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null, null)))
         .with(user(permittedUser))
         .queryParam("search", "true")
-        .queryParam("holderOrgUnitId", "22"))
-        .andExpect(status().isOk());
+        .queryParam("holderOrgUnitId", "22")
+        .queryParam("pipelineNumberSelectorField", "10"))
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("pipelineUrl", SearchSelectorService.route(on(PipelineRestController.class)
+            .searchPipelines(null))))
+        .andExpect(model().attribute("preSelectedPipelines", preSelectedPipelines));
 
     var params = new ConsentSearchParams();
     params.setSearch(true);
     params.setHolderOrgUnitId(22);
+    params.setPipelineNumberSelectorField("10");
 
     // search done when param present
     verify(consentSearchContextCreator, times(1)).createContext(permittedUser);
@@ -137,7 +151,6 @@ class ConsentSearchControllerTest extends ResolverAbstractControllerTest {
 
   @Test
   void postSearch_whenPermitted_filtersPassedInRedirect_eventLogged() throws Exception {
-
     String viewName = Objects.requireNonNull(
         mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null, null, Optional.empty())))
             .with(user(permittedUser))

@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaconsents;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -299,6 +300,38 @@ class PipelineDetailServiceTest {
 
     verify(pipelineDetailRepository, times(0)).save(any());
 
+  }
+
+  @Test
+  void getPreSelectedPipelines_whenInvalidInteger() {
+    assertThat(pipelineDetailService.getPreSelectedPipelines(null)).isEmpty();
+
+    assertThat(pipelineDetailService.getPreSelectedPipelines("test")).isEmpty();
+  }
+
+  @Test
+  void getPreSelectedPipelines() {
+    var pipelineId = "10";
+
+    var pipeline = PipelineDetailTestUtil.createPipelineDetail(20, new PipelineId(10), Instant.now());
+    pipeline.setPipelineNumber("PL123");
+
+    when(pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(Integer.valueOf(pipelineId)))
+        .thenReturn(Optional.of(pipeline));
+
+    assertThat(pipelineDetailService.getPreSelectedPipelines(pipelineId))
+        .containsExactly(
+            entry("10", pipeline.getPipelineNumber())
+        );
+  }
+
+  @Test
+  void getPreSelectedPipeline_whenNotFound() {
+    var pipelineId = "99";
+    when(pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(Integer.valueOf(pipelineId)))
+        .thenReturn(Optional.empty());
+
+    assertThat(pipelineDetailService.getPreSelectedPipelines(pipelineId)).isEmpty();
   }
 
 }

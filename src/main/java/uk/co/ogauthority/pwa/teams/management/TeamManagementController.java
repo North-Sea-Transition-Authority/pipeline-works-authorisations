@@ -39,6 +39,8 @@ import uk.co.ogauthority.pwa.util.StreamUtil;
 @RequestMapping("/team-management")
 public class TeamManagementController {
 
+  private static final String CANCEL_URL = "cancelUrl";
+
   private final TeamManagementService teamManagementService;
   private final TeamQueryService teamQueryService;
   private final MemberRolesFormValidator memberRolesFormValidator;
@@ -65,10 +67,12 @@ public class TeamManagementController {
     var teamTypes = new HashSet<>(teamManagementService.getTeamTypesUserIsMemberOf(user.getWuaId()));
 
     // regulator with priv can manage org teams
-    addScopedTeamIfUserCanManage(teamTypes, TeamType.ORGANISATION, user, Role.ORGANISATION_MANAGER);
+    addTeamIfUserCanManage(teamTypes, TeamType.ORGANISATION, user, Role.ORGANISATION_MANAGER);
 
     // regulator with priv can manage consultee group teams
-    addScopedTeamIfUserCanManage(teamTypes, TeamType.CONSULTEE, user, Role.CONSULTEE_GROUP_MANAGER);
+    addTeamIfUserCanManage(teamTypes, TeamType.CONSULTEE, user, Role.CONSULTEE_GROUP_MANAGER);
+
+    addTeamIfUserCanManage(teamTypes, TeamType.SECONDARY_REGULATOR, user, Role.SECONDARY_REGULATOR_MANAGER);
 
     if (teamTypes.isEmpty()) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No manageable teams for wuaId %d".formatted((long) user.getWuaId()));
@@ -92,11 +96,11 @@ public class TeamManagementController {
         .addObject("teamTypeViews", teamTypeViews);
   }
 
-  private void addScopedTeamIfUserCanManage(HashSet<TeamType> teamTypes,
-                                            TeamType teamType,
-                                            AuthenticatedUserAccount user,
-                                            Role scopedTeamManagerRole) {
-    if (teamQueryService.userHasStaticRole((long) user.getWuaId(), TeamType.REGULATOR, scopedTeamManagerRole)) {
+  private void addTeamIfUserCanManage(HashSet<TeamType> teamTypes,
+                                      TeamType teamType,
+                                      AuthenticatedUserAccount user,
+                                      Role teamManagerRole) {
+    if (teamQueryService.userHasStaticRole((long) user.getWuaId(), TeamType.REGULATOR, teamManagerRole)) {
       teamTypes.add(teamType);
     }
   }
@@ -151,7 +155,7 @@ public class TeamManagementController {
 
     } else {
       // if it's a static team, redirect to the single instance
-      var team = teamManagementService.getStaticTeamOfTypeUserIsMemberOf(teamType, (long) user.getWuaId())
+      var team = teamManagementService.getStaticTeamOfTypeUserCanView(teamType, (long) user.getWuaId())
           .orElseThrow(() -> new ResponseStatusException(
               HttpStatus.FORBIDDEN,
               "No manageable team of type %s for wuaId %d".formatted(teamType, (long) user.getWuaId())));
@@ -185,7 +189,7 @@ public class TeamManagementController {
     var team = getTeamOrThrow(teamId);
     return new ModelAndView("teamManagement/addMember")
         .addObject(
-            "cancelUrl",
+            CANCEL_URL,
             ReverseRouter.route(on(TeamManagementController.class).renderTeamMemberList(team.getId(), null))
         )
         .addObject("registerUrl", energyPortalConfiguration.registrationUrl());
@@ -199,7 +203,7 @@ public class TeamManagementController {
     if (!addMemberFormValidator.isValid(form, teamId, bindingResult)) {
       return new ModelAndView("teamManagement/addMember")
           .addObject(
-              "cancelUrl",
+              CANCEL_URL,
               ReverseRouter.route(on(TeamManagementController.class).renderTeamMemberList(teamId, null))
           )
           .addObject("registerUrl", energyPortalConfiguration.registrationUrl());
@@ -264,7 +268,7 @@ public class TeamManagementController {
         .addObject("teamName", team.getName())
         .addObject("canRemoveTeamMember", canRemoveTeamMember)
         .addObject(
-            "cancelUrl",
+            CANCEL_URL,
             ReverseRouter.route(on(TeamManagementController.class).renderTeamMemberList(team.getId(), null))
         );
   }
@@ -292,7 +296,7 @@ public class TeamManagementController {
         .addObject("teamMemberView", teamMemberView)
         .addObject("userHasAllowedEmail", userHasAllowedEmail)
         .addObject(
-            "cancelUrl",
+            CANCEL_URL,
             ReverseRouter.route(on(TeamManagementController.class).renderTeamMemberList(team.getId(), null))
         );
   }

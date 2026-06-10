@@ -7,6 +7,7 @@ public enum Role {
   // Regulator
   ORGANISATION_MANAGER("Organisation team manager", "Manage organisation access to PWAs"),
   CONSULTEE_GROUP_MANAGER("Consultee group manager", "Manage consultee group access to PWAs"),
+  SECONDARY_REGULATOR_MANAGER("Secondary Regulator team manager", "Manage secondary regulator access to PWAs"),
   PWA_MANAGER("PWA manager", "Accept applications and allocate case officers"),
   CASE_OFFICER("Case officer", "Process applications and run consultations"),
   CONSENT_VIEWER("PWA consent viewer", "Search for and view consented PWA data"),

@@ -2,9 +2,14 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.controll
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -12,14 +17,16 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.externalapi.PipelineDtoRepository;
+import uk.co.ogauthority.pwa.externalapi.PipelineDtoTestUtil;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
@@ -33,11 +40,14 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @WebMvcTest(controllers = PipelineRestController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
 class PipelineRestControllerTest extends PwaApplicationContextAbstractControllerTest {
 
-  @MockBean
+  @MockitoBean
   private SearchSelectorService searchSelectorService;
 
-  @MockBean
+  @MockitoBean
   private PwaApplicationContextService pwaApplicationContextService;
+
+  @MockitoBean
+  private PipelineDtoRepository pipelineDtoRepository;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -75,6 +85,44 @@ class PipelineRestControllerTest extends PwaApplicationContextAbstractController
                 .searchBundleNames(applicationDetail.getMasterPwaApplicationId(), null, "term")));
 
     endpointTester.performAppPermissionCheck(status().isOk(), status().isOk());
+  }
+
+  @Test
+  void searchPipelines() throws Exception {
+    var searchTerm = "PL10";
+    var pipelineDto = PipelineDtoTestUtil.builder()
+        .withId(100)
+        .withNumber("PL10")
+        .build();
+
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(any(), any())).thenReturn(true);
+    when(pipelineDtoRepository.searchPipelines(null, searchTerm, null))
+        .thenReturn(List.of(pipelineDto));
+
+    mockMvc.perform(get(ReverseRouter.route(on(PipelineRestController.class)
+            .searchPipelines(searchTerm)))
+            .with(user(user)))
+        .andExpect(status().isOk())
+        .andExpect(content().json("""
+          {"results":[{"id": "100", "text":"PL10"}]}
+         """))
+        .andReturn();
+  }
+
+  @Test
+  void searchPipelines_whenInvalidTerm_returnEmptyList() throws Exception {
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(any(), any())).thenReturn(true);
+
+    mockMvc.perform(get(ReverseRouter.route(on(PipelineRestController.class)
+            .searchPipelines("a")))
+            .with(user(user)))
+        .andExpect(status().isOk())
+        .andExpect(content().json("""
+          {"results":[]}
+         """))
+        .andReturn();
+
+    verify(pipelineDtoRepository, never()).searchPipelines(any(), any(), any());
   }
 
 }

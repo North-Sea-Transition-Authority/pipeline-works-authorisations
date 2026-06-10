@@ -20,18 +20,19 @@ import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchContext;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
 
 @Service
-public class PipelineReferencePredicateProvider implements ConsentSearchPredicateProvider {
+public class PipelinePredicateProvider implements ConsentSearchPredicateProvider {
 
   private final EntityManager entityManager;
 
   @Autowired
-  public PipelineReferencePredicateProvider(EntityManager entityManager) {
+  public PipelinePredicateProvider(EntityManager entityManager) {
     this.entityManager = entityManager;
   }
 
   @Override
   public boolean shouldApplyToSearch(ConsentSearchParams searchParams, ConsentSearchContext searchContext) {
-    return !StringUtils.isBlank(searchParams.getPipelineReference());
+    return !StringUtils.isBlank(searchParams.getPipelineReference())
+        || !StringUtils.isBlank(searchParams.getPipelineNumberSelectorField());
   }
 
   @Override
@@ -49,11 +50,22 @@ public class PipelineReferencePredicateProvider implements ConsentSearchPredicat
     Join<Pipeline, MasterPwa> pipelineToMasterPwaJoin = pipelineDetailToPipelineJoin.join(Pipeline_.MASTER_PWA);
     masterPwaSubQuery.select(pipelineToMasterPwaJoin.get(MasterPwa_.ID));
 
-    masterPwaSubQuery.where(cb.and(
-        cb.like(cb.lower(pipelineDetailRoot.get(PipelineDetail_.PIPELINE_NUMBER)),
-            "%" + searchParams.getPipelineReference().toLowerCase() + "%")),
-        cb.isTrue(pipelineDetailRoot.get(PipelineDetail_.TIP_FLAG))
-    );
+    masterPwaSubQuery.where(cb.isTrue(pipelineDetailRoot.get(PipelineDetail_.TIP_FLAG)));
+
+    if (!StringUtils.isBlank(searchParams.getPipelineReference())) {
+      masterPwaSubQuery.where(cb.and(
+              cb.like(cb.lower(pipelineDetailRoot.get(PipelineDetail_.PIPELINE_NUMBER)),
+                  "%" + searchParams.getPipelineReference().toLowerCase() + "%"))
+      );
+    }
+
+    if (!StringUtils.isBlank(searchParams.getPipelineNumberSelectorField())) {
+      masterPwaSubQuery.where(cb.and(
+          cb.equal(
+              pipelineDetailToPipelineJoin.get(Pipeline_.ID),
+              Integer.parseInt(searchParams.getPipelineNumberSelectorField())
+          )));
+    }
 
     return cb.and(cb.in(queryRoot.get(ConsentSearchItem_.PWA_ID)).value(masterPwaSubQuery));
   }

@@ -262,7 +262,7 @@ class TeamManagementHandlerInterceptorTest {
     when(teamManagementService.getTeam(team.getId()))
         .thenReturn(Optional.of(team));
 
-    when(teamManagementService.isMemberOfTeam(team, (long) invokingUser.getWuaId()))
+    when(teamManagementService.isMemberOfTeam(team, invokingUser.getWuaId()))
         .thenReturn(true);
 
     assertThat(teamManagementHandlerInterceptor.preHandle(request, response, handlerMethod)).isTrue();
@@ -282,7 +282,7 @@ class TeamManagementHandlerInterceptorTest {
     when(teamManagementService.getTeam(team.getId()))
         .thenReturn(Optional.of(team));
 
-    when(teamManagementService.isMemberOfTeam(team, (long) invokingUser.getWuaId()))
+    when(teamManagementService.isMemberOfTeam(team, invokingUser.getWuaId()))
         .thenReturn(false);
 
     assertThatExceptionOfType(ResponseStatusException.class)
@@ -306,10 +306,10 @@ class TeamManagementHandlerInterceptorTest {
     when(teamManagementService.getTeam(organisationTeam.getId()))
         .thenReturn(Optional.of(organisationTeam));
 
-    when(teamManagementService.isMemberOfTeam(organisationTeam, (long) invokingUser.getWuaId()))
+    when(teamManagementService.isMemberOfTeam(organisationTeam, invokingUser.getWuaId()))
         .thenReturn(false);
 
-    when(teamManagementService.userCanManageAnyOrganisationTeam((long) invokingUser.getWuaId()))
+    when(teamManagementService.userCanManageAnyOrganisationTeam(invokingUser.getWuaId()))
         .thenReturn(false);
 
     assertThatExceptionOfType(ResponseStatusException.class)
@@ -333,10 +333,61 @@ class TeamManagementHandlerInterceptorTest {
     when(teamManagementService.getTeam(organisationTeam.getId()))
         .thenReturn(Optional.of(organisationTeam));
 
-    when(teamManagementService.isMemberOfTeam(organisationTeam, (long) invokingUser.getWuaId()))
+    when(teamManagementService.isMemberOfTeam(organisationTeam, invokingUser.getWuaId()))
         .thenReturn(false);
 
-    when(teamManagementService.userCanManageAnyOrganisationTeam((long) invokingUser.getWuaId()))
+    when(teamManagementService.userCanManageAnyOrganisationTeam(invokingUser.getWuaId()))
+        .thenReturn(true);
+
+    assertThat(teamManagementHandlerInterceptor.preHandle(request, response, handlerMethod)).isTrue();
+  }
+
+  @Test
+  void preHandle_invokingUserCanViewTeam_whenSecondaryRegulatorTeam_andNotMemberOfTeam_andNotManageSecondaryRegulatorTeamRole_thenForbidden() throws Exception {
+
+    var method = TestController.class.getDeclaredMethod("invokingUserCanViewTeam", UUID.class);
+    when(handlerMethod.getMethod()).thenReturn(method);
+
+    var organisationTeam = new Team(UUID.randomUUID());
+    organisationTeam.setTeamType(TeamType.SECONDARY_REGULATOR);
+
+    when(request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
+        .thenReturn(Map.of("teamId", organisationTeam.getId().toString()));
+
+    when(teamManagementService.getTeam(organisationTeam.getId()))
+        .thenReturn(Optional.of(organisationTeam));
+
+    when(teamManagementService.isMemberOfTeam(organisationTeam, invokingUser.getWuaId()))
+        .thenReturn(false);
+
+    when(teamManagementService.userCanManageSecondaryRegulatorTeam(invokingUser.getWuaId()))
+        .thenReturn(false);
+
+    assertThatExceptionOfType(ResponseStatusException.class)
+        .isThrownBy(() -> teamManagementHandlerInterceptor.preHandle(request, response, handlerMethod))
+        .extracting(ResponseStatusException::getStatusCode)
+        .isEqualTo(HttpStatus.FORBIDDEN);
+  }
+
+  @Test
+  void preHandle_invokingUserCanViewTeam_whenSecondaryRegulatorTeam_andNotMemberOfTeam_andHasManageSecondaryRegulatorTeamRole_thenOk() throws Exception {
+
+    var method = TestController.class.getDeclaredMethod("invokingUserCanViewTeam", UUID.class);
+    when(handlerMethod.getMethod()).thenReturn(method);
+
+    var organisationTeam = new Team(UUID.randomUUID());
+    organisationTeam.setTeamType(TeamType.SECONDARY_REGULATOR);
+
+    when(request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
+        .thenReturn(Map.of("teamId", organisationTeam.getId().toString()));
+
+    when(teamManagementService.getTeam(organisationTeam.getId()))
+        .thenReturn(Optional.of(organisationTeam));
+
+    when(teamManagementService.isMemberOfTeam(organisationTeam, invokingUser.getWuaId()))
+        .thenReturn(false);
+
+    when(teamManagementService.userCanManageSecondaryRegulatorTeam(invokingUser.getWuaId()))
         .thenReturn(true);
 
     assertThat(teamManagementHandlerInterceptor.preHandle(request, response, handlerMethod)).isTrue();

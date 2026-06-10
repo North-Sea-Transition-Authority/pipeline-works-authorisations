@@ -23,6 +23,9 @@
                 <@fdsSearch.searchFilterItem itemName="Pipeline reference" expanded=searchParams.pipelineReference?has_content>
                   <@fdsTextInput.textInput path="form.pipelineReference" labelText="Pipeline reference" labelClass="govuk-visually-hidden" />
                 </@fdsSearch.searchFilterItem>
+                <@fdsSearch.searchFilterItem itemName="Pipeline number" expanded=searchParams.pipelineNumberSelectorField?has_content>
+                  <@fdsSearchSelector.searchSelectorRest path="form.pipelineNumberSelectorField" restUrl=springUrl(pipelineUrl) labelText="Pipeline number" selectorMinInputLength=2  labelClass="govuk-visually-hidden" preselectedItems=preSelectedPipelines/>
+                </@fdsSearch.searchFilterItem>
             </@fdsSearch.searchFilterList>
         </@fdsSearch.searchFilter>
 

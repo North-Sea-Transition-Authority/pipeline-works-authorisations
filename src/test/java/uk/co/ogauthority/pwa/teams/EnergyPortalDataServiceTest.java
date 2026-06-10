@@ -122,6 +122,7 @@ class EnergyPortalDataServiceTest {
         createServiceRoleDto(Role.TEAM_ADMINISTRATOR, true),
         createServiceRoleDto(Role.ORGANISATION_MANAGER, false),
         createServiceRoleDto(Role.CONSULTEE_GROUP_MANAGER, false),
+        createServiceRoleDto(Role.SECONDARY_REGULATOR_MANAGER, false),
         createServiceRoleDto(Role.PWA_MANAGER, false),
         createServiceRoleDto(Role.CASE_OFFICER, false),
         createServiceRoleDto(Role.CONSENT_VIEWER, false),

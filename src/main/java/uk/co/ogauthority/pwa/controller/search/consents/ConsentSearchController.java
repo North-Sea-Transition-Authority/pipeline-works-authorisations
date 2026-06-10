@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.auth.RoleGroup;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.controller.PipelineRestController;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
 import uk.co.ogauthority.pwa.model.form.search.consents.ConsentSearchForm;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
@@ -27,8 +28,10 @@ import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.objects.FormObjectMapper;
 import uk.co.ogauthority.pwa.service.orgs.PwaOrganisationAccessor;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchContextCreator;
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchService;
+import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
@@ -40,16 +43,19 @@ public class ConsentSearchController {
   private final ConsentSearchContextCreator consentSearchContextCreator;
   private final PwaOrganisationAccessor pwaOrganisationAccessor;
   private final AnalyticsService analyticsService;
+  private final PipelineDetailService pipelineDetailService;
 
   @Autowired
   public ConsentSearchController(ConsentSearchService consentSearchService,
                                  ConsentSearchContextCreator consentSearchContextCreator,
                                  PwaOrganisationAccessor pwaOrganisationAccessor,
-                                 AnalyticsService analyticsService) {
+                                 AnalyticsService analyticsService,
+                                 PipelineDetailService pipelineDetailService) {
     this.consentSearchService = consentSearchService;
     this.consentSearchContextCreator = consentSearchContextCreator;
     this.pwaOrganisationAccessor = pwaOrganisationAccessor;
     this.analyticsService = analyticsService;
+    this.pipelineDetailService = pipelineDetailService;
   }
 
   @GetMapping
@@ -80,7 +86,11 @@ public class ConsentSearchController {
         .addObject("searched", doSearch)
         .addObject("orgUnitFilterOptions", sortedOrganisationUnits)
         .addObject("form", ConsentSearchForm.fromSearchParams(consentSearchParams))
-        .addObject("consentSearchUrlFactory", new ConsentSearchUrlFactory());
+        .addObject("consentSearchUrlFactory", new ConsentSearchUrlFactory())
+        .addObject("pipelineUrl", SearchSelectorService.route(on(PipelineRestController.class)
+            .searchPipelines(null)))
+        .addObject("preSelectedPipelines",
+            pipelineDetailService.getPreSelectedPipelines(consentSearchParams.getPipelineNumberSelectorField()));
 
   }
 

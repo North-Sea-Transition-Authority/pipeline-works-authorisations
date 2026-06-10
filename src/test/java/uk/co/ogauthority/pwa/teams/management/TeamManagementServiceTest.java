@@ -105,9 +105,9 @@ class TeamManagementServiceTest {
   private static TeamRole cgTeam1User1RoleManage;
   private static TeamRole cgTeam2User1RoleManage;
 
-  private static final Long user1WuaId = 1L;
+  private static final Long USER_1_WUA_ID = 1L;
   private static User user1;
-  private static final Long user2WuaId = 2L;
+  private static final Long USER_2_WUA_ID = 2L;
 
   private static final ConsulteeGroupIdToEpasScopeTypeAndIdConfigurationProperties configProperties
       = new ConsulteeGroupIdToEpasScopeTypeAndIdConfigurationProperties(Map.of(
@@ -147,39 +147,39 @@ class TeamManagementServiceTest {
     regTeam.setTeamType(TeamType.REGULATOR);
     regTeamUser1RoleManage = new TeamRole();
     regTeamUser1RoleManage.setTeam(regTeam);
-    regTeamUser1RoleManage.setWuaId(user1WuaId);
+    regTeamUser1RoleManage.setWuaId(USER_1_WUA_ID);
     regTeamUser1RoleManage.setRole(Role.TEAM_ADMINISTRATOR);
 
     orgTeam1 = new Team(UUID.randomUUID());
     orgTeam1.setTeamType(TeamType.ORGANISATION);
     orgTeam1User1RoleManage = new TeamRole();
     orgTeam1User1RoleManage.setTeam(orgTeam1);
-    orgTeam1User1RoleManage.setWuaId(user1WuaId);
+    orgTeam1User1RoleManage.setWuaId(USER_1_WUA_ID);
     orgTeam1User1RoleManage.setRole(Role.TEAM_ADMINISTRATOR);
 
     orgTeam2 = new Team(UUID.randomUUID());
     orgTeam2.setTeamType(TeamType.ORGANISATION);
     orgTeam2User1RoleManage = new TeamRole();
     orgTeam2User1RoleManage.setTeam(orgTeam2);
-    orgTeam2User1RoleManage.setWuaId(user1WuaId);
+    orgTeam2User1RoleManage.setWuaId(USER_1_WUA_ID);
     orgTeam2User1RoleManage.setRole(Role.TEAM_ADMINISTRATOR);
 
     cgTeam1 = new Team(UUID.randomUUID());
     cgTeam1.setTeamType(TeamType.CONSULTEE);
     cgTeam1User1RoleManage = new TeamRole();
     cgTeam1User1RoleManage.setTeam(cgTeam1);
-    cgTeam1User1RoleManage.setWuaId(user1WuaId);
+    cgTeam1User1RoleManage.setWuaId(USER_1_WUA_ID);
     cgTeam1User1RoleManage.setRole(Role.TEAM_ADMINISTRATOR);
 
     cgTeam2 = new Team(UUID.randomUUID());
     cgTeam2.setTeamType(TeamType.CONSULTEE);
     cgTeam2User1RoleManage = new TeamRole();
     cgTeam2User1RoleManage.setTeam(cgTeam2);
-    cgTeam2User1RoleManage.setWuaId(user1WuaId);
+    cgTeam2User1RoleManage.setWuaId(USER_1_WUA_ID);
     cgTeam2User1RoleManage.setRole(Role.TEAM_ADMINISTRATOR);
 
     user1 = new User();
-    user1.setWebUserAccountId(user1WuaId);
+    user1.setWebUserAccountId(USER_1_WUA_ID);
     user1.setTitle("Ms");
     user1.setForename("User");
     user1.setSurname("One");
@@ -316,60 +316,60 @@ class TeamManagementServiceTest {
   @Test
   void getTeamTypesUserIsMemberOf() {
 
-    when(teamRoleRepository.findAllByWuaId(user1WuaId))
+    when(teamRoleRepository.findAllByWuaId(USER_1_WUA_ID))
         .thenReturn(List.of(regTeamUser1RoleManage, orgTeam1User1RoleManage, orgTeam2User1RoleManage));
 
-    assertThat(teamManagementService.getTeamTypesUserIsMemberOf(user1WuaId))
+    assertThat(teamManagementService.getTeamTypesUserIsMemberOf(USER_1_WUA_ID))
         .containsExactlyInAnyOrder(TeamType.REGULATOR, TeamType.ORGANISATION);
   }
 
   @Test
   void getStaticTeamOfTypeUserCanManage() {
-    when(teamRoleRepository.findByWuaIdAndRole(user1WuaId, Role.TEAM_ADMINISTRATOR))
+    when(teamRoleRepository.findByWuaIdAndRole(USER_1_WUA_ID, Role.TEAM_ADMINISTRATOR))
         .thenReturn(List.of(regTeamUser1RoleManage, orgTeam1User1RoleManage, orgTeam2User1RoleManage));
 
-    assertThat(teamManagementService.getStaticTeamOfTypeUserCanManage(TeamType.REGULATOR, user1WuaId))
+    assertThat(teamManagementService.getStaticTeamOfTypeUserCanManage(TeamType.REGULATOR, USER_1_WUA_ID))
         .hasValue(regTeam);
   }
 
   @Test
   void getStaticTeamOfTypeUserCanManage_notStatic() {
     assertThatExceptionOfType(TeamManagementException.class)
-        .isThrownBy(() -> teamManagementService.getStaticTeamOfTypeUserCanManage(TeamType.ORGANISATION, user1WuaId));
+        .isThrownBy(() -> teamManagementService.getStaticTeamOfTypeUserCanManage(TeamType.ORGANISATION, USER_1_WUA_ID));
   }
 
   @Test
   void getScopedTeamOfTypeUserCanManage_OrgTeam() {
-    when(teamRoleRepository.findByWuaIdAndRole(user1WuaId, Role.TEAM_ADMINISTRATOR))
+    when(teamRoleRepository.findByWuaIdAndRole(USER_1_WUA_ID, Role.TEAM_ADMINISTRATOR))
         .thenReturn(List.of(regTeamUser1RoleManage, orgTeam1User1RoleManage));
 
-    when(teamQueryService.userHasStaticRole(user1WuaId, TeamType.REGULATOR, Role.ORGANISATION_MANAGER))
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.ORGANISATION_MANAGER))
         .thenReturn(false);
 
-    assertThat(teamManagementService.getScopedTeamsOfTypeUserCanManage(TeamType.ORGANISATION, user1WuaId))
+    assertThat(teamManagementService.getScopedTeamsOfTypeUserCanManage(TeamType.ORGANISATION, USER_1_WUA_ID))
         .containsExactlyInAnyOrder(orgTeam1);
   }
 
   @Test
   void getScopedTeamOfTypeUserCanManage_ConsulteeGroupTeam() {
-    when(teamRoleRepository.findByWuaIdAndRole(user1WuaId, Role.TEAM_ADMINISTRATOR))
+    when(teamRoleRepository.findByWuaIdAndRole(USER_1_WUA_ID, Role.TEAM_ADMINISTRATOR))
         .thenReturn(List.of(regTeamUser1RoleManage, cgTeam1User1RoleManage));
 
-    when(teamQueryService.userHasStaticRole(user1WuaId, TeamType.REGULATOR, Role.CONSULTEE_GROUP_MANAGER))
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.CONSULTEE_GROUP_MANAGER))
         .thenReturn(false);
 
-    assertThat(teamManagementService.getScopedTeamsOfTypeUserCanManage(TeamType.CONSULTEE, user1WuaId))
+    assertThat(teamManagementService.getScopedTeamsOfTypeUserCanManage(TeamType.CONSULTEE, USER_1_WUA_ID))
         .containsExactlyInAnyOrder(cgTeam1);
   }
 
   @Test
   void getScopedTeamOfTypeUserCanManage_regulatorWithRoleCanManageAllOrgs() {
     // User has direct manage team role in reg team and org team 1
-    when(teamRoleRepository.findByWuaIdAndRole(user1WuaId, Role.TEAM_ADMINISTRATOR))
+    when(teamRoleRepository.findByWuaIdAndRole(USER_1_WUA_ID, Role.TEAM_ADMINISTRATOR))
         .thenReturn(List.of(regTeamUser1RoleManage, orgTeam1User1RoleManage));
 
     // User has the special create/manage any org team priv
-    when(teamQueryService.userHasStaticRole(user1WuaId, TeamType.REGULATOR, Role.ORGANISATION_MANAGER))
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.ORGANISATION_MANAGER))
         .thenReturn(true);
 
     // There are 2 org teams
@@ -377,18 +377,18 @@ class TeamManagementServiceTest {
         .thenReturn(List.of(orgTeam1, orgTeam2));
 
     // Verify they can manage both org team 1 and 2
-    assertThat(teamManagementService.getScopedTeamsOfTypeUserCanManage(TeamType.ORGANISATION, user1WuaId))
+    assertThat(teamManagementService.getScopedTeamsOfTypeUserCanManage(TeamType.ORGANISATION, USER_1_WUA_ID))
         .containsExactlyInAnyOrder(orgTeam1, orgTeam2);
   }
 
   @Test
   void getScopedTeamOfTypeUserCanManage_regulatorWithRoleCanManageAllConsulteeGroups() {
     // User has direct manage team role in reg team and org team 1
-    when(teamRoleRepository.findByWuaIdAndRole(user1WuaId, Role.TEAM_ADMINISTRATOR))
+    when(teamRoleRepository.findByWuaIdAndRole(USER_1_WUA_ID, Role.TEAM_ADMINISTRATOR))
         .thenReturn(List.of(regTeamUser1RoleManage, cgTeam1User1RoleManage));
 
     // User has the special create/manage any org team priv
-    when(teamQueryService.userHasStaticRole(user1WuaId, TeamType.REGULATOR, Role.CONSULTEE_GROUP_MANAGER))
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.CONSULTEE_GROUP_MANAGER))
         .thenReturn(true);
 
     // There are 2 cg teams
@@ -396,14 +396,14 @@ class TeamManagementServiceTest {
         .thenReturn(List.of(cgTeam1, cgTeam2));
 
     // Verify they can manage both org team 1 and 2
-    assertThat(teamManagementService.getScopedTeamsOfTypeUserCanManage(TeamType.CONSULTEE, user1WuaId))
+    assertThat(teamManagementService.getScopedTeamsOfTypeUserCanManage(TeamType.CONSULTEE, USER_1_WUA_ID))
         .containsExactlyInAnyOrder(cgTeam1, cgTeam2);
   }
 
   @Test
   void getScopedTeamOfTypeUserCanManage_notScoped() {
     assertThatExceptionOfType(TeamManagementException.class)
-        .isThrownBy(() -> teamManagementService.getScopedTeamsOfTypeUserCanManage(TeamType.REGULATOR, user1WuaId));
+        .isThrownBy(() -> teamManagementService.getScopedTeamsOfTypeUserCanManage(TeamType.REGULATOR, USER_1_WUA_ID));
   }
 
   @Test
@@ -440,7 +440,7 @@ class TeamManagementServiceTest {
   @Test
   void setUserTeamRoles_existingUser() {
     var webUserAccount = stubWebUserAccount();
-    when(userAccountService.getWebUserAccount(user1WuaId.intValue())).thenReturn(webUserAccount);
+    when(userAccountService.getWebUserAccount(USER_1_WUA_ID.intValue())).thenReturn(webUserAccount);
 
     var expectedProjection = new UserProjectionRoot()
         .isAccountShared()
@@ -452,14 +452,14 @@ class TeamManagementServiceTest {
     when(teamRoleRepository.findAllByWuaId(1L)).thenReturn(List.of(new TeamRole()));
 
     long instigatingUser = 2L;
-    teamManagementService.setUserTeamRoles(user1WuaId, regTeam,
+    teamManagementService.setUserTeamRoles(USER_1_WUA_ID, regTeam,
         List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER), instigatingUser);
 
-    verify(teamRoleRepository).deleteByWuaIdAndTeam(user1WuaId, regTeam);
+    verify(teamRoleRepository).deleteByWuaIdAndTeam(USER_1_WUA_ID, regTeam);
     verify(teamRoleRepository).saveAll(teamRoleListCaptor.capture());
     verify(energyPortalServiceAccessService, never()).addUser(anyLong());
     verify(energyPortalAccountsMessagePublishingService).publishUsersRolesForTeam(
-        user1WuaId,
+        USER_1_WUA_ID,
         regTeam.getId().toString(),
         regTeam.getTeamType().name(),
         Set.of(Role.TEAM_ADMINISTRATOR.name(), Role.ORGANISATION_MANAGER.name())
@@ -468,7 +468,7 @@ class TeamManagementServiceTest {
     assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getTeam)
         .contains(regTeam, regTeam);
     assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getWuaId)
-        .contains(user1WuaId, user1WuaId);
+        .contains(USER_1_WUA_ID, USER_1_WUA_ID);
     assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getRole)
         .contains(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER);
   }
@@ -485,14 +485,14 @@ class TeamManagementServiceTest {
   void setUserTeamRoles_noTeamManagerLeft() {
     when(userApi.findUserById(eq(1L), any(), any(RequestPurpose.class), any(LogCorrelationId.class)))
         .thenReturn(Optional.of(user1));
-    when(userAccountService.getWebUserAccount(user1WuaId.intValue())).thenReturn(new WebUserAccount());
+    when(userAccountService.getWebUserAccount(USER_1_WUA_ID.intValue())).thenReturn(new WebUserAccount());
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of()); // Make doesTeamHaveTeamManager() check return false
 
     long instigatingUser = 2L;
     assertThatExceptionOfType(TeamManagementException.class)
         .isThrownBy(
-            () -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.ORGANISATION_MANAGER),
+            () -> teamManagementService.setUserTeamRoles(USER_1_WUA_ID, regTeam, List.of(Role.ORGANISATION_MANAGER),
                 instigatingUser));
     verify(energyPortalServiceAccessService, never()).addUser(anyLong());
     verify(energyPortalAccountsMessagePublishingService, never()).publishUsersRolesForTeam(
@@ -507,7 +507,7 @@ class TeamManagementServiceTest {
   void setUserTeamRoles_invalidRoles() {
     long instigatingUser = 2;
     assertThatExceptionOfType(TeamManagementException.class)
-        .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.APPLICATION_CREATOR),
+        .isThrownBy(() -> teamManagementService.setUserTeamRoles(USER_1_WUA_ID, regTeam, List.of(Role.APPLICATION_CREATOR),
             instigatingUser));
 
     verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(any(), any());
@@ -528,7 +528,7 @@ class TeamManagementServiceTest {
 
     long instigatingUser = 2L;
     assertThatExceptionOfType(TeamManagementException.class)
-        .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam,
+        .isThrownBy(() -> teamManagementService.setUserTeamRoles(USER_1_WUA_ID, regTeam,
             List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER), instigatingUser));
 
     verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(any(), any());
@@ -552,7 +552,7 @@ class TeamManagementServiceTest {
 
     long instigatingUser = 2L;
     assertThatExceptionOfType(TeamManagementException.class)
-        .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam,
+        .isThrownBy(() -> teamManagementService.setUserTeamRoles(USER_1_WUA_ID, regTeam,
             List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER), instigatingUser));
 
     verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(any(), any());
@@ -576,7 +576,7 @@ class TeamManagementServiceTest {
 
     long instigatingUser = 2L;
     assertThatExceptionOfType(TeamManagementException.class)
-        .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam,
+        .isThrownBy(() -> teamManagementService.setUserTeamRoles(USER_1_WUA_ID, regTeam,
             List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER), instigatingUser));
 
     verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(any(), any());
@@ -593,22 +593,22 @@ class TeamManagementServiceTest {
 
   @Test
   void setUserTeamRoles_newUser() {
-    when(userApi.findUserById(eq(user1WuaId), any(), eq(new RequestPurpose("Validate user account")), any(LogCorrelationId.class)))
+    when(userApi.findUserById(eq(USER_1_WUA_ID), any(), eq(new RequestPurpose("Validate user account")), any(LogCorrelationId.class)))
         .thenReturn(Optional.of(user1));
 
-    when(teamRoleRepository.findAllByWuaId(user1WuaId))
+    when(teamRoleRepository.findAllByWuaId(USER_1_WUA_ID))
         .thenReturn(List.of());
 
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage));
 
-    when(userAccountService.getWebUserAccount(Math.toIntExact(user1WuaId))).thenReturn(stubWebUserAccount());
+    when(userAccountService.getWebUserAccount(Math.toIntExact(USER_1_WUA_ID))).thenReturn(stubWebUserAccount());
 
-    teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.TEAM_ADMINISTRATOR), user1WuaId);
+    teamManagementService.setUserTeamRoles(USER_1_WUA_ID, regTeam, List.of(Role.TEAM_ADMINISTRATOR), USER_1_WUA_ID);
 
-    verify(energyPortalServiceAccessService).addUser(user1WuaId);
+    verify(energyPortalServiceAccessService).addUser(USER_1_WUA_ID);
     verify(energyPortalAccountsMessagePublishingService).publishUsersRolesForTeam(
-        user1WuaId,
+        USER_1_WUA_ID,
         regTeam.getId().toString(),
         regTeam.getTeamType().name(),
         Set.of(Role.TEAM_ADMINISTRATOR.name())
@@ -622,7 +622,7 @@ class TeamManagementServiceTest {
         .thenReturn(List.of(regTeamUser1RoleManage));
 
     // AND they do not have another role in another team
-    when(teamRoleRepository.findAllByWuaId(user2WuaId))
+    when(teamRoleRepository.findAllByWuaId(USER_2_WUA_ID))
         .thenReturn(List.of());
 
     var accessManagerRole = new TeamRole();
@@ -633,12 +633,12 @@ class TeamManagementServiceTest {
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(accessManagerRole));
 
-    teamManagementService.removeUserFromTeam(user2WuaId, regTeam);
+    teamManagementService.removeUserFromTeam(USER_2_WUA_ID, regTeam);
 
-    verify(teamRoleRepository).deleteByWuaIdAndTeam(user2WuaId, regTeam);
-    verify(energyPortalServiceAccessService).removeUser(user2WuaId);
+    verify(teamRoleRepository).deleteByWuaIdAndTeam(USER_2_WUA_ID, regTeam);
+    verify(energyPortalServiceAccessService).removeUser(USER_2_WUA_ID);
     verify(energyPortalAccountsMessagePublishingService).publishRemoveUserFromTeam(
-        user2WuaId,
+        USER_2_WUA_ID,
         regTeam.getId().toString()
     );
   }
@@ -648,14 +648,14 @@ class TeamManagementServiceTest {
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage));
     var teamRole = new TeamRole();
-    when(teamRoleRepository.findAllByWuaId(user2WuaId)).thenReturn(List.of(teamRole));
+    when(teamRoleRepository.findAllByWuaId(USER_2_WUA_ID)).thenReturn(List.of(teamRole));
 
-    teamManagementService.removeUserFromTeam(user2WuaId, regTeam);
-    verify(teamRoleRepository).deleteByWuaIdAndTeam(user2WuaId, regTeam);
+    teamManagementService.removeUserFromTeam(USER_2_WUA_ID, regTeam);
+    verify(teamRoleRepository).deleteByWuaIdAndTeam(USER_2_WUA_ID, regTeam);
     verifyNoInteractions(energyPortalServiceAccessService);
     verify(energyPortalServiceAccessService, never()).removeUser(anyLong());
     verify(energyPortalAccountsMessagePublishingService).publishRemoveUserFromTeam(
-        user2WuaId,
+        USER_2_WUA_ID,
         regTeam.getId().toString()
     );
   }
@@ -666,9 +666,9 @@ class TeamManagementServiceTest {
         .thenReturn(List.of(regTeamUser1RoleManage));
 
     assertThatExceptionOfType(TeamManagementException.class)
-        .isThrownBy(() -> teamManagementService.removeUserFromTeam(user1WuaId, regTeam));
+        .isThrownBy(() -> teamManagementService.removeUserFromTeam(USER_1_WUA_ID, regTeam));
 
-    verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(user1WuaId, regTeam);
+    verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(USER_1_WUA_ID, regTeam);
     verify(energyPortalServiceAccessService, never()).removeUser(anyLong());
     verify(energyPortalAccountsMessagePublishingService, never()).publishRemoveUserFromTeam(
         anyLong(),
@@ -681,14 +681,14 @@ class TeamManagementServiceTest {
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage));
 
-    assertThat(teamManagementService.willManageTeamRoleBePresentAfterMemberRoleUpdate(regTeam, user2WuaId,
+    assertThat(teamManagementService.willManageTeamRoleBePresentAfterMemberRoleUpdate(regTeam, USER_2_WUA_ID,
         List.of(Role.ORGANISATION_MANAGER)))
         .isTrue();
   }
 
   @Test
   void willManageTeamRoleBePresentAfterMemberRoleUpdate_newRolesIncludeManage() {
-    assertThat(teamManagementService.willManageTeamRoleBePresentAfterMemberRoleUpdate(regTeam, user1WuaId,
+    assertThat(teamManagementService.willManageTeamRoleBePresentAfterMemberRoleUpdate(regTeam, USER_1_WUA_ID,
         List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER)))
         .isTrue();
   }
@@ -698,7 +698,7 @@ class TeamManagementServiceTest {
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage));
 
-    assertThat(teamManagementService.willManageTeamRoleBePresentAfterMemberRoleUpdate(regTeam, user1WuaId,
+    assertThat(teamManagementService.willManageTeamRoleBePresentAfterMemberRoleUpdate(regTeam, USER_1_WUA_ID,
         List.of(Role.ORGANISATION_MANAGER)))
         .isFalse();
   }
@@ -708,7 +708,7 @@ class TeamManagementServiceTest {
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage));
 
-    assertThat(teamManagementService.willManageTeamRoleBePresentAfterMemberRemoval(regTeam, user2WuaId))
+    assertThat(teamManagementService.willManageTeamRoleBePresentAfterMemberRemoval(regTeam, USER_2_WUA_ID))
         .isTrue();
   }
 
@@ -717,7 +717,7 @@ class TeamManagementServiceTest {
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage));
 
-    assertThat(teamManagementService.willManageTeamRoleBePresentAfterMemberRemoval(regTeam, user1WuaId))
+    assertThat(teamManagementService.willManageTeamRoleBePresentAfterMemberRemoval(regTeam, USER_1_WUA_ID))
         .isFalse();
   }
 
@@ -748,7 +748,7 @@ class TeamManagementServiceTest {
     var staticTeam = new Team(UUID.randomUUID());
     staticTeam.setTeamType(TeamType.REGULATOR); // not a scoped team
 
-    boolean result = teamManagementService.canAddUserToTeam(user1WuaId, staticTeam);
+    boolean result = teamManagementService.canAddUserToTeam(USER_1_WUA_ID, staticTeam);
 
     assertThat(result).isTrue();
   }
@@ -758,10 +758,10 @@ class TeamManagementServiceTest {
     var scopedTeam = new Team(UUID.randomUUID());
     scopedTeam.setTeamType(TeamType.CONSULTEE); // scoped type with SINGLE_TEAM restriction
 
-    when(teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(scopedTeam.getTeamType(), user1WuaId))
+    when(teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(scopedTeam.getTeamType(), USER_1_WUA_ID))
         .thenReturn(Collections.emptySet());
 
-    boolean result = teamManagementService.canAddUserToTeam(user1WuaId, scopedTeam);
+    boolean result = teamManagementService.canAddUserToTeam(USER_1_WUA_ID, scopedTeam);
 
     assertThat(result).isTrue();
   }
@@ -771,10 +771,10 @@ class TeamManagementServiceTest {
     var scopedTeam = new Team(UUID.randomUUID());
     scopedTeam.setTeamType(TeamType.CONSULTEE); // scoped type with SINGLE_TEAM restriction
 
-    when(teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(scopedTeam.getTeamType(), user1WuaId))
+    when(teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(scopedTeam.getTeamType(), USER_1_WUA_ID))
         .thenReturn(Set.of(new Team()));
 
-    boolean result = teamManagementService.canAddUserToTeam(user1WuaId, scopedTeam);
+    boolean result = teamManagementService.canAddUserToTeam(USER_1_WUA_ID, scopedTeam);
 
     assertThat(result).isFalse();
   }
@@ -784,7 +784,7 @@ class TeamManagementServiceTest {
     var scopedTeam = new Team(UUID.randomUUID());
     scopedTeam.setTeamType(TeamType.ORGANISATION); // scoped type with MULTIPLE_TEAMS restriction
 
-    boolean result = teamManagementService.canAddUserToTeam(user1WuaId, scopedTeam);
+    boolean result = teamManagementService.canAddUserToTeam(USER_1_WUA_ID, scopedTeam);
 
     assertThat(result).isTrue();
   }
@@ -792,55 +792,71 @@ class TeamManagementServiceTest {
   @Test
   void userCanManageAnyOrganisationTeam_whenHasRole_thenTrue() {
 
-    when(teamQueryService.userHasStaticRole(user1WuaId, TeamType.REGULATOR, Role.ORGANISATION_MANAGER))
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.ORGANISATION_MANAGER))
         .thenReturn(true);
 
-    assertThat(teamManagementService.userCanManageAnyOrganisationTeam(user1WuaId)).isTrue();
+    assertThat(teamManagementService.userCanManageAnyOrganisationTeam(USER_1_WUA_ID)).isTrue();
   }
 
   @Test
   void userCanManageAnyOrganisationTeam_whenNoRole_thenFalse() {
 
-    when(teamQueryService.userHasStaticRole(user1WuaId, TeamType.REGULATOR, Role.ORGANISATION_MANAGER))
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.ORGANISATION_MANAGER))
         .thenReturn(false);
 
-    assertThat(teamManagementService.userCanManageAnyOrganisationTeam(user1WuaId)).isFalse();
+    assertThat(teamManagementService.userCanManageAnyOrganisationTeam(USER_1_WUA_ID)).isFalse();
   }
 
   @Test
   void userCanManageAnyConsulteeGroupTeam_whenHasRole_thenTrue() {
 
-    when(teamQueryService.userHasStaticRole(user1WuaId, TeamType.REGULATOR, Role.CONSULTEE_GROUP_MANAGER))
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.CONSULTEE_GROUP_MANAGER))
         .thenReturn(true);
 
-    assertThat(teamManagementService.userCanManageAnyConsulteeGroupTeam(user1WuaId)).isTrue();
+    assertThat(teamManagementService.userCanManageAnyConsulteeGroupTeam(USER_1_WUA_ID)).isTrue();
   }
 
   @Test
   void userCanManageAnyConsulteeGroupTeam_whenNoRole_thenFalse() {
 
-    when(teamQueryService.userHasStaticRole(user1WuaId, TeamType.REGULATOR, Role.CONSULTEE_GROUP_MANAGER))
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.CONSULTEE_GROUP_MANAGER))
         .thenReturn(false);
 
-    assertThat(teamManagementService.userCanManageAnyConsulteeGroupTeam(user1WuaId)).isFalse();
+    assertThat(teamManagementService.userCanManageAnyConsulteeGroupTeam(USER_1_WUA_ID)).isFalse();
+  }
+
+  @Test
+  void userCanManageSecondaryRegulatorTeam_whenHasRole_thenTrue() {
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.SECONDARY_REGULATOR_MANAGER))
+        .thenReturn(true);
+
+    assertThat(teamManagementService.userCanManageSecondaryRegulatorTeam(USER_1_WUA_ID)).isTrue();
+  }
+
+  @Test
+  void userCanManageSecondaryRegulatorTeam_whenNoRole_thenFalse() {
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.SECONDARY_REGULATOR_MANAGER))
+        .thenReturn(false);
+
+    assertThat(teamManagementService.userCanManageSecondaryRegulatorTeam(USER_1_WUA_ID)).isFalse();
   }
 
   @Test
   void isMemberOfTeam_whenMemberOfTeam_thenTrue() {
 
-    when(teamRoleRepository.existsByTeamAndWuaId(regTeam, user1WuaId))
+    when(teamRoleRepository.existsByTeamAndWuaId(regTeam, USER_1_WUA_ID))
         .thenReturn(true);
 
-    assertThat(teamManagementService.isMemberOfTeam(regTeam, user1WuaId)).isTrue();
+    assertThat(teamManagementService.isMemberOfTeam(regTeam, USER_1_WUA_ID)).isTrue();
   }
 
   @Test
   void isMemberOfTeam_whenNotMemberOfTeam_thenFalse() {
 
-    when(teamRoleRepository.existsByTeamAndWuaId(regTeam, user1WuaId))
+    when(teamRoleRepository.existsByTeamAndWuaId(regTeam, USER_1_WUA_ID))
         .thenReturn(false);
 
-    assertThat(teamManagementService.isMemberOfTeam(regTeam, user1WuaId)).isFalse();
+    assertThat(teamManagementService.isMemberOfTeam(regTeam, USER_1_WUA_ID)).isFalse();
   }
 
   @Test
@@ -853,10 +869,10 @@ class TeamManagementServiceTest {
     teamRole.setTeam(scopedTeam);
     teamRole.setRole(Role.TEAM_ADMINISTRATOR);
 
-    when(teamRoleRepository.findByWuaIdAndRole(user1WuaId, Role.TEAM_ADMINISTRATOR))
+    when(teamRoleRepository.findByWuaIdAndRole(USER_1_WUA_ID, Role.TEAM_ADMINISTRATOR))
         .thenReturn(List.of(teamRole));
 
-    assertThat(teamManagementService.canManageTeam(scopedTeam, user1WuaId)).isTrue();
+    assertThat(teamManagementService.canManageTeam(scopedTeam, USER_1_WUA_ID)).isTrue();
   }
 
   @Test
@@ -865,10 +881,10 @@ class TeamManagementServiceTest {
     var scopedTeam = new Team(UUID.randomUUID());
     scopedTeam.setTeamType(TeamType.ORGANISATION);
 
-    when(teamRoleRepository.findByWuaIdAndRole(user1WuaId, Role.TEAM_ADMINISTRATOR))
+    when(teamRoleRepository.findByWuaIdAndRole(USER_1_WUA_ID, Role.TEAM_ADMINISTRATOR))
         .thenReturn(List.of());
 
-    assertThat(teamManagementService.canManageTeam(scopedTeam, user1WuaId)).isFalse();
+    assertThat(teamManagementService.canManageTeam(scopedTeam, USER_1_WUA_ID)).isFalse();
   }
 
   @Test
@@ -879,18 +895,18 @@ class TeamManagementServiceTest {
     scopedTeam.setTeamType(TeamType.ORGANISATION);
 
     // AND the user doesn't have the manage team permission in that team
-    when(teamRoleRepository.findByWuaIdAndRole(user1WuaId, Role.TEAM_ADMINISTRATOR))
+    when(teamRoleRepository.findByWuaIdAndRole(USER_1_WUA_ID, Role.TEAM_ADMINISTRATOR))
         .thenReturn(List.of());
 
     // WHEN the user has the CREATE_MANAGE_ANY_ORGANISATION_TEAM role in the regulator team
-    when(teamQueryService.userHasStaticRole(user1WuaId, TeamType.REGULATOR, Role.ORGANISATION_MANAGER))
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.ORGANISATION_MANAGER))
         .thenReturn(true);
 
     when(teamRepository.findByTeamType(TeamType.ORGANISATION))
         .thenReturn(List.of(scopedTeam));
 
     // THEN the user can manage the team
-    assertThat(teamManagementService.canManageTeam(scopedTeam, user1WuaId)).isTrue();
+    assertThat(teamManagementService.canManageTeam(scopedTeam, USER_1_WUA_ID)).isTrue();
   }
 
   @Test
@@ -901,18 +917,18 @@ class TeamManagementServiceTest {
     scopedTeam.setTeamType(TeamType.CONSULTEE);
 
     // AND the user doesn't have the manage team permission in that team
-    when(teamRoleRepository.findByWuaIdAndRole(user1WuaId, Role.TEAM_ADMINISTRATOR))
+    when(teamRoleRepository.findByWuaIdAndRole(USER_1_WUA_ID, Role.TEAM_ADMINISTRATOR))
         .thenReturn(List.of());
 
     // WHEN the user has the CREATE_MANAGE_ANY_ORGANISATION_TEAM role in the regulator team
-    when(teamQueryService.userHasStaticRole(user1WuaId, TeamType.REGULATOR, Role.CONSULTEE_GROUP_MANAGER))
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.CONSULTEE_GROUP_MANAGER))
         .thenReturn(true);
 
     when(teamRepository.findByTeamType(TeamType.CONSULTEE))
         .thenReturn(List.of(scopedTeam));
 
     // THEN the user can manage the team
-    assertThat(teamManagementService.canManageTeam(scopedTeam, user1WuaId)).isTrue();
+    assertThat(teamManagementService.canManageTeam(scopedTeam, USER_1_WUA_ID)).isTrue();
   }
 
   @Test
@@ -925,10 +941,10 @@ class TeamManagementServiceTest {
     teamRole.setTeam(staticTeam);
     teamRole.setRole(Role.TEAM_ADMINISTRATOR);
 
-    when(teamRoleRepository.findByWuaIdAndRole(user1WuaId, Role.TEAM_ADMINISTRATOR))
+    when(teamRoleRepository.findByWuaIdAndRole(USER_1_WUA_ID, Role.TEAM_ADMINISTRATOR))
         .thenReturn(List.of(teamRole));
 
-    assertThat(teamManagementService.canManageTeam(staticTeam, user1WuaId)).isTrue();
+    assertThat(teamManagementService.canManageTeam(staticTeam, USER_1_WUA_ID)).isTrue();
   }
 
   @Test
@@ -937,10 +953,103 @@ class TeamManagementServiceTest {
     var staticTeam = new Team((UUID.randomUUID()));
     staticTeam.setTeamType(TeamType.REGULATOR);
 
-    when(teamRoleRepository.findByWuaIdAndRole(user1WuaId, Role.TEAM_ADMINISTRATOR))
+    when(teamRoleRepository.findByWuaIdAndRole(USER_1_WUA_ID, Role.TEAM_ADMINISTRATOR))
         .thenReturn(List.of());
 
-    assertThat(teamManagementService.canManageTeam(staticTeam, user1WuaId)).isFalse();
+    assertThat(teamManagementService.canManageTeam(staticTeam, USER_1_WUA_ID)).isFalse();
+  }
+
+  @Test
+  void getStaticTeamOfTypeUserCanView_whenTeamTypeIsScoped_thenException() {
+    var scopedTeamType  = TeamType.ORGANISATION;
+
+    assertThatThrownBy(() -> teamManagementService.getStaticTeamOfTypeUserCanView(scopedTeamType, USER_1_WUA_ID))
+        .isInstanceOf(TeamManagementException.class)
+        .hasMessage("TeamType %s is scoped, expected static".formatted(scopedTeamType));
+  }
+
+  @Test
+  void getStaticTeamOfTypeUserCanView_whenInSecondaryRegulatorTeamAndRegulatorTeam() {
+    var scopedTeamType  = TeamType.SECONDARY_REGULATOR;
+
+    var secondaryRegulatorTeam =  new Team((UUID.randomUUID()));
+    secondaryRegulatorTeam.setTeamType(TeamType.SECONDARY_REGULATOR);
+
+    var team1Role = new TeamRole();
+    team1Role.setTeam(secondaryRegulatorTeam);
+    team1Role.setRole(Role.CONSENT_VIEWER);
+
+    when(teamRepository.findByTeamType(TeamType.SECONDARY_REGULATOR)).thenReturn(List.of(secondaryRegulatorTeam));
+
+    var regulatorTeam =  new Team((UUID.randomUUID()));
+    regulatorTeam.setTeamType(TeamType.REGULATOR);
+
+    var team2Role1 = new TeamRole();
+    team2Role1.setTeam(regulatorTeam);
+    team2Role1.setRole(Role.SECONDARY_REGULATOR_MANAGER);
+
+    var team2Role2 =  new TeamRole();
+    team2Role2.setTeam(regulatorTeam);
+    team2Role2.setRole(Role.TEAM_ADMINISTRATOR);
+
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.SECONDARY_REGULATOR_MANAGER)).thenReturn(true);
+
+    when(teamRoleRepository.findAllByWuaId(USER_1_WUA_ID))
+        .thenReturn(List.of(team1Role, team2Role1, team2Role2));
+
+    assertThat(teamManagementService.getStaticTeamOfTypeUserCanView(scopedTeamType, USER_1_WUA_ID))
+        .contains(secondaryRegulatorTeam);
+  }
+
+  @Test
+  void getStaticTeamOfTypeUserCanView_whenInSecondaryRegulatorTeamOnly() {
+    var scopedTeamType  = TeamType.SECONDARY_REGULATOR;
+
+    var secondaryRegulatorTeam =  new Team((UUID.randomUUID()));
+    secondaryRegulatorTeam.setTeamType(TeamType.SECONDARY_REGULATOR);
+
+    var team1Role = new TeamRole();
+    team1Role.setTeam(secondaryRegulatorTeam);
+    team1Role.setRole(Role.CONSENT_VIEWER);
+
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.SECONDARY_REGULATOR_MANAGER))
+        .thenReturn(false);
+
+    when(teamRoleRepository.findAllByWuaId(USER_1_WUA_ID))
+        .thenReturn(List.of(team1Role));
+
+    assertThat(teamManagementService.getStaticTeamOfTypeUserCanView(scopedTeamType, USER_1_WUA_ID))
+        .contains(secondaryRegulatorTeam);
+  }
+
+  @Test
+  void getStaticTeamOfTypeUserCanView_whenInRegulatorTeamOnly() {
+    var scopedTeamType  = TeamType.SECONDARY_REGULATOR;
+
+    var secondaryRegulatorTeam =  new Team((UUID.randomUUID()));
+    secondaryRegulatorTeam.setTeamType(TeamType.SECONDARY_REGULATOR);
+
+    when(teamRepository.findByTeamType(TeamType.SECONDARY_REGULATOR)).thenReturn(List.of(secondaryRegulatorTeam));
+
+    var regulatorTeam =  new Team((UUID.randomUUID()));
+    regulatorTeam.setTeamType(TeamType.REGULATOR);
+
+    var teamRole1 = new TeamRole();
+    teamRole1.setTeam(regulatorTeam);
+    teamRole1.setRole(Role.SECONDARY_REGULATOR_MANAGER);
+
+    var teamRole2 =  new TeamRole();
+    teamRole2.setTeam(regulatorTeam);
+    teamRole2.setRole(Role.TEAM_ADMINISTRATOR);
+
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.SECONDARY_REGULATOR_MANAGER))
+        .thenReturn(true);
+
+    when(teamRoleRepository.findAllByWuaId(USER_1_WUA_ID))
+        .thenReturn(List.of(teamRole1, teamRole2));
+
+    assertThat(teamManagementService.getStaticTeamOfTypeUserCanView(scopedTeamType, USER_1_WUA_ID))
+        .contains(secondaryRegulatorTeam);
   }
 
   @Test
@@ -948,7 +1057,7 @@ class TeamManagementServiceTest {
 
     var scopedTeamType = TeamType.ORGANISATION;
 
-    assertThatThrownBy(() -> teamManagementService.getStaticTeamOfTypeUserIsMemberOf(scopedTeamType, user1WuaId))
+    assertThatThrownBy(() -> teamManagementService.getStaticTeamOfTypeUserIsMemberOf(scopedTeamType, USER_1_WUA_ID))
         .isInstanceOf(TeamManagementException.class);
   }
 
@@ -957,10 +1066,10 @@ class TeamManagementServiceTest {
 
     var staticTeamType = TeamType.REGULATOR;
 
-    when(teamRoleRepository.findAllByWuaId(user1WuaId))
+    when(teamRoleRepository.findAllByWuaId(USER_1_WUA_ID))
         .thenReturn(List.of());
 
-    var resultingTeam = teamManagementService.getStaticTeamOfTypeUserIsMemberOf(staticTeamType, user1WuaId);
+    var resultingTeam = teamManagementService.getStaticTeamOfTypeUserIsMemberOf(staticTeamType, USER_1_WUA_ID);
 
     assertThat(resultingTeam).isEmpty();
   }
@@ -976,10 +1085,10 @@ class TeamManagementServiceTest {
     var teamRole = new TeamRole();
     teamRole.setTeam(expectedTeam);
 
-    when(teamRoleRepository.findAllByWuaId(user1WuaId))
+    when(teamRoleRepository.findAllByWuaId(USER_1_WUA_ID))
         .thenReturn(List.of(teamRole));
 
-    var resultingTeam = teamManagementService.getStaticTeamOfTypeUserIsMemberOf(staticTeamType, user1WuaId);
+    var resultingTeam = teamManagementService.getStaticTeamOfTypeUserIsMemberOf(staticTeamType, USER_1_WUA_ID);
 
     assertThat(resultingTeam).contains(expectedTeam);
   }
@@ -989,7 +1098,7 @@ class TeamManagementServiceTest {
 
     var staticTeamType = TeamType.REGULATOR;
 
-    assertThatThrownBy(() -> teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(staticTeamType, user1WuaId))
+    assertThatThrownBy(() -> teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(staticTeamType, USER_1_WUA_ID))
         .isInstanceOf(TeamManagementException.class);
   }
 
@@ -998,10 +1107,10 @@ class TeamManagementServiceTest {
 
     var scopedTeamType = TeamType.ORGANISATION;
 
-    when(teamRoleRepository.findAllByWuaId(user1WuaId))
+    when(teamRoleRepository.findAllByWuaId(USER_1_WUA_ID))
         .thenReturn(List.of());
 
-    var resultingScopedTeams = teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(scopedTeamType, user1WuaId);
+    var resultingScopedTeams = teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(scopedTeamType, USER_1_WUA_ID);
 
     assertThat(resultingScopedTeams).isEmpty();
   }
@@ -1029,10 +1138,10 @@ class TeamManagementServiceTest {
     firstRoleForSecondTeam.setTeam(secondTeamOfType);
     firstRoleForSecondTeam.setRole(Role.TEAM_ADMINISTRATOR);
 
-    when(teamRoleRepository.findAllByWuaId(user1WuaId))
+    when(teamRoleRepository.findAllByWuaId(USER_1_WUA_ID))
         .thenReturn(List.of(firstRoleForSecondTeam, firstRoleForFirstTeam, secondRoleForFirstTeam));
 
-    var resultingScopedTeams = teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(scopedTeamType, user1WuaId);
+    var resultingScopedTeams = teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(scopedTeamType, USER_1_WUA_ID);
 
     assertThat(resultingScopedTeams)
         .containsExactlyInAnyOrder(firstTeamOfType, secondTeamOfType);
@@ -1053,16 +1162,16 @@ class TeamManagementServiceTest {
     var teamUserIsNotMemberOf = new Team(UUID.randomUUID());
     teamUserIsNotMemberOf.setTeamType(scopedTeamType);
 
-    when(teamRoleRepository.findAllByWuaId(user1WuaId))
+    when(teamRoleRepository.findAllByWuaId(USER_1_WUA_ID))
         .thenReturn(List.of(roleForTeamUserIsMemberOf));
 
-    when(teamQueryService.userHasStaticRole(user1WuaId, TeamType.REGULATOR, Role.ORGANISATION_MANAGER))
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.ORGANISATION_MANAGER))
         .thenReturn(true);
 
     when(teamRepository.findByTeamType(scopedTeamType))
         .thenReturn(List.of(teamUserIsNotMemberOf, teamUserIsMemberOf));
 
-    var resultingScopedTeams = teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(scopedTeamType, user1WuaId);
+    var resultingScopedTeams = teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(scopedTeamType, USER_1_WUA_ID);
 
     assertThat(resultingScopedTeams)
         .containsExactlyInAnyOrder(teamUserIsNotMemberOf, teamUserIsMemberOf);
@@ -1083,16 +1192,16 @@ class TeamManagementServiceTest {
     var teamUserIsNotMemberOf = new Team(UUID.randomUUID());
     teamUserIsNotMemberOf.setTeamType(scopedTeamType);
 
-    when(teamRoleRepository.findAllByWuaId(user1WuaId))
+    when(teamRoleRepository.findAllByWuaId(USER_1_WUA_ID))
         .thenReturn(List.of(roleForTeamUserIsMemberOf));
 
-    when(teamQueryService.userHasStaticRole(user1WuaId, TeamType.REGULATOR, Role.CONSULTEE_GROUP_MANAGER))
+    when(teamQueryService.userHasStaticRole(USER_1_WUA_ID, TeamType.REGULATOR, Role.CONSULTEE_GROUP_MANAGER))
         .thenReturn(true);
 
     when(teamRepository.findByTeamType(scopedTeamType))
         .thenReturn(List.of(teamUserIsNotMemberOf, teamUserIsMemberOf));
 
-    var resultingScopedTeams = teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(scopedTeamType, user1WuaId);
+    var resultingScopedTeams = teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(scopedTeamType, USER_1_WUA_ID);
 
     assertThat(resultingScopedTeams)
         .containsExactlyInAnyOrder(teamUserIsNotMemberOf, teamUserIsMemberOf);

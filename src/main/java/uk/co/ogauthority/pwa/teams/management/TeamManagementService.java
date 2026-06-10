@@ -41,6 +41,9 @@ public class TeamManagementService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TeamManagementService.class);
 
+  private static final String TEAM_TYPE_SCOPED_EXCEPTION_MESSAGE = "TeamType %s is scoped, expected static";
+  private static final String TEAM_TYPE_STATIC_EXCEPTION_MESSAGE = "TeamType %s is static, expected scoped";
+
   private final TeamRepository teamRepository;
   private final TeamRoleRepository teamRoleRepository;
   private final TeamQueryService teamQueryService;
@@ -137,15 +140,42 @@ public class TeamManagementService {
 
   public Optional<Team> getStaticTeamOfTypeUserCanManage(TeamType teamType, Long wuaId) {
     if (teamType.isScoped()) {
-      throw new TeamManagementException("TeamType %s is scoped, expected static".formatted(teamType));
+      throw new TeamManagementException(TEAM_TYPE_SCOPED_EXCEPTION_MESSAGE.formatted(teamType));
     }
-    return getTeamsOfTypeUserCanManage(teamType, wuaId).stream()
+
+    List<Team> teams = new ArrayList<>();
+    addStaticTeamsUserCanManage(teams, teamType, wuaId);
+    teams.addAll(getTeamsOfTypeUserCanManage(teamType, wuaId));
+
+    return teams
+        .stream()
+        .distinct()
+        .findFirst();
+  }
+
+  private void addStaticTeamsUserCanManage(Collection<Team> teams, TeamType teamType, Long wuaId) {
+    if (TeamType.SECONDARY_REGULATOR.equals(teamType) && userCanManageSecondaryRegulatorTeam(wuaId)) {
+      teams.addAll(teamRepository.findByTeamType(TeamType.SECONDARY_REGULATOR));
+    }
+  }
+
+  public Optional<Team> getStaticTeamOfTypeUserCanView(TeamType teamType, Long wuaId) {
+    if (teamType.isScoped()) {
+      throw new TeamManagementException(TEAM_TYPE_SCOPED_EXCEPTION_MESSAGE.formatted(teamType));
+    }
+    List<Team> teams = new ArrayList<>();
+    addStaticTeamsUserCanManage(teams, teamType, wuaId);
+    teams.addAll(getTeamsOfTypeUserIsMemberOf(teamType, wuaId));
+
+    return teams
+        .stream()
+        .filter(team -> teamType.equals(team.getTeamType()))
         .findFirst();
   }
 
   Optional<Team> getStaticTeamOfTypeUserIsMemberOf(TeamType teamType, Long wuaId) {
     if (teamType.isScoped()) {
-      throw new TeamManagementException("TeamType %s is scoped, expected static".formatted(teamType));
+      throw new TeamManagementException(TEAM_TYPE_SCOPED_EXCEPTION_MESSAGE.formatted(teamType));
     }
     return getTeamsOfTypeUserIsMemberOf(teamType, wuaId)
         .stream()
@@ -154,7 +184,7 @@ public class TeamManagementService {
 
   public List<Team> getScopedTeamsOfTypeUserCanManage(TeamType teamType, Long wuaId) {
     if (!teamType.isScoped()) {
-      throw new TeamManagementException("TeamType %s is static, expected scoped".formatted(teamType));
+      throw new TeamManagementException(TEAM_TYPE_STATIC_EXCEPTION_MESSAGE.formatted(teamType));
     }
     var teams = new ArrayList<>(getTeamsOfTypeUserCanManage(teamType, wuaId));
 
@@ -168,7 +198,7 @@ public class TeamManagementService {
   Set<Team> getScopedTeamsOfTypeUserIsMemberOf(TeamType teamType, Long wuaId) {
 
     if (!teamType.isScoped()) {
-      throw new TeamManagementException("TeamType %s is static, expected scoped".formatted(teamType));
+      throw new TeamManagementException(TEAM_TYPE_STATIC_EXCEPTION_MESSAGE.formatted(teamType));
     }
 
     var teams = new HashSet<>(getTeamsOfTypeUserIsMemberOf(teamType, wuaId));
@@ -361,9 +391,13 @@ public class TeamManagementService {
     return teamQueryService.userHasStaticRole(wuaId, TeamType.REGULATOR, Role.CONSULTEE_GROUP_MANAGER);
   }
 
+  public boolean userCanManageSecondaryRegulatorTeam(long wuaId) {
+    return teamQueryService.userHasStaticRole(wuaId, TeamType.REGULATOR, Role.SECONDARY_REGULATOR_MANAGER);
+  }
+
   private List<Team> getAllScopedTeamsOfType(TeamType teamType) {
     if (!teamType.isScoped()) {
-      throw new TeamManagementException("TeamType %s is static, expected scoped".formatted(teamType));
+      throw new TeamManagementException(TEAM_TYPE_STATIC_EXCEPTION_MESSAGE.formatted(teamType));
     }
     return teamRepository.findByTeamType(teamType);
   }

@@ -17,6 +17,8 @@ BEGIN
   VALUES ('a0af1f10-6341-4af6-a8a7-32ed60b5dc00', reg_team_id, 'TEAM_ADMINISTRATOR', 40272);
   INSERT INTO pwa_xx.team_roles(id, team_id, role, wua_id)
   VALUES ('a0af1f10-6341-4af6-a8a7-32ed60b5dc01', reg_team_id, 'ORGANISATION_MANAGER', 40272);
+  INSERT INTO pwa_xx.team_roles(id, team_id, role, wua_id)
+  VALUES ('a0af1f10-6341-4af6-a8a7-32ed60b5dc02', reg_team_id, 'SECONDARY_REGULATOR_MANAGER', 40272);
 
   -- case.officer@pwa.co.uk
   INSERT INTO pwa_xx.team_roles(id, team_id, role, wua_id)

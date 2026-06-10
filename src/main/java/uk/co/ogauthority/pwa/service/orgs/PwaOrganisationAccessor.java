@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.orgs;
 
 import java.util.List;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -65,8 +66,8 @@ public class PwaOrganisationAccessor {
   }
 
   public List<PortalOrganisationSearchUnit> getOrgUnitsUserCanAccess(AuthenticatedUserAccount user) {
-
-    if (userTypeService.getPriorityUserTypeOrThrow(user) == UserType.OGA) {
+    var userTypes = Set.of(UserType.OGA, UserType.SECONDARY_REGULATOR);
+    if (userTypes.contains(userTypeService.getPriorityUserTypeOrThrow(user))) {
       return portalOrganisationsAccessor.getAllActiveOrganisationUnitsSearch();
     }
 

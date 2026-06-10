@@ -122,6 +122,7 @@ public class TeamManagementHandlerInterceptor implements HandlerInterceptor {
     if (teamManagementService.isMemberOfTeam(team, wuaId)
         || canManageAnyOrgTeam(wuaId, team)
         || canManageAnyConsulteeGroupTeam(wuaId, team)
+        || canManageSecondaryRegulatorTeam(wuaId, team)
     ) {
       return true;
     }
@@ -140,6 +141,11 @@ public class TeamManagementHandlerInterceptor implements HandlerInterceptor {
   private boolean canManageAnyConsulteeGroupTeam(Long wuaId, Team team) {
     return TeamType.CONSULTEE.equals(team.getTeamType())
         && teamManagementService.userCanManageAnyConsulteeGroupTeam(wuaId);
+  }
+
+  private boolean canManageSecondaryRegulatorTeam(Long wuaId, Team team) {
+    return TeamType.SECONDARY_REGULATOR.equals(team.getTeamType())
+        && teamManagementService.userCanManageSecondaryRegulatorTeam(wuaId);
   }
 
   @SuppressWarnings("unchecked")

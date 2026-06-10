@@ -14,12 +14,15 @@ public class ConsentSearchParams {
 
   private String pipelineReference;
 
+  private String pipelineNumberSelectorField;
+
   public static ConsentSearchParams from(ConsentSearchForm form) {
 
     var params = new ConsentSearchParams();
     params.setHolderOrgUnitId(form.getHolderOuId());
     params.setConsentReference(form.getConsentReference());
     params.setPipelineReference(form.getPipelineReference());
+    params.setPipelineNumberSelectorField(form.getPipelineNumberSelectorField());
     return params;
 
   }
@@ -56,6 +59,14 @@ public class ConsentSearchParams {
     this.pipelineReference = pipelineReference;
   }
 
+  public String getPipelineNumberSelectorField() {
+    return pipelineNumberSelectorField;
+  }
+
+  public void setPipelineNumberSelectorField(String pipelineNumberSelectorField) {
+    this.pipelineNumberSelectorField = pipelineNumberSelectorField;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -67,12 +78,13 @@ public class ConsentSearchParams {
     ConsentSearchParams that = (ConsentSearchParams) o;
     return search == that.search
         && Objects.equals(holderOrgUnitId, that.holderOrgUnitId)
-        && Objects.equals(pipelineReference, that.pipelineReference);
+        && Objects.equals(pipelineReference, that.pipelineReference)
+        && Objects.equals(pipelineNumberSelectorField, that.pipelineNumberSelectorField);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(search, holderOrgUnitId, pipelineReference);
+    return Objects.hash(search, holderOrgUnitId, pipelineReference, pipelineNumberSelectorField);
   }
 
 }

@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -214,6 +215,18 @@ public class PipelineDetailService {
           pipelineDetailRepository.save(detail);
         });
 
+  }
+
+  public Map<String, String> getPreSelectedPipelines(String pipelineId) {
+    if (!NumberUtils.isDigits(pipelineId)) {
+      return Map.of();
+    }
+
+    var preSelectedPipeline = pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(Integer.parseInt(pipelineId));
+
+    return preSelectedPipeline
+        .map(pipelineDetail -> Map.of(String.valueOf(pipelineDetail.getPipelineId().asInt()), pipelineDetail.getPipelineNumber()))
+        .orElse(Map.of());
   }
 
 }

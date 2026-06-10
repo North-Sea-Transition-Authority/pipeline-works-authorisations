@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import uk.co.ogauthority.pwa.auth.HasAnyRoleByGroup;
+import uk.co.ogauthority.pwa.auth.RoleGroup;
+import uk.co.ogauthority.pwa.externalapi.PipelineDto;
+import uk.co.ogauthority.pwa.externalapi.PipelineDtoRepository;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
@@ -23,21 +27,24 @@ import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 
 @RestController
 @RequestMapping("/api/pipelines")
-@PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.EDIT)
 public class PipelineRestController {
 
   private final PadPipelineService padPipelineService;
   private final SearchSelectorService searchSelectorService;
+  private final PipelineDtoRepository pipelineDtoRepository;
 
   @Autowired
   public PipelineRestController(
       PadPipelineService padPipelineService,
-      SearchSelectorService searchSelectorService) {
+      SearchSelectorService searchSelectorService,
+      PipelineDtoRepository pipelineDtoRepository) {
     this.padPipelineService = padPipelineService;
     this.searchSelectorService = searchSelectorService;
+    this.pipelineDtoRepository = pipelineDtoRepository;
   }
 
   @GetMapping("/{applicationId}/bundles/search")
+  @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.EDIT)
   @ResponseBody
   public RestSearchResult searchBundleNames(@PathVariable("applicationId") Integer applicationId,
                                             PwaApplicationContext applicationContext,
@@ -60,6 +67,23 @@ public class PipelineRestController {
     // Add manual entry if no match
     searchSelectorService.addManualEntry(searchTerm, results, ManualEntryAttribute.NO_FREE_TEXT_PREFIX);
     return new RestSearchResult(results);
+  }
+
+  @GetMapping()
+  @HasAnyRoleByGroup(roleGroup = RoleGroup.CONSENT_SEARCH)
+  public RestSearchResult searchPipelines(@RequestParam("term") String searchTerm) {
+    if (searchTerm == null || searchTerm.trim().length() < 2) {
+      return new RestSearchResult(List.of());
+    }
+
+    var resultSearchItems = pipelineDtoRepository.searchPipelines(null, searchTerm, null)
+        .stream()
+        .sorted(PipelineDto::compareTo)
+        .map(pipeline -> new RestSearchItem(
+            pipeline.getId().toString(), pipeline.getPipelineNumber())
+        )
+        .toList();
+    return new RestSearchResult(resultSearchItems);
   }
 
 }

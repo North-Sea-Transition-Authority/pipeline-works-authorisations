@@ -10,12 +10,15 @@ public class ConsentSearchForm {
 
   private String pipelineReference;
 
+  private String pipelineNumberSelectorField;
+
   public static ConsentSearchForm fromSearchParams(ConsentSearchParams consentSearchParams) {
 
     var form = new ConsentSearchForm();
     form.setHolderOuId(consentSearchParams.getHolderOrgUnitId());
     form.setConsentReference(consentSearchParams.getConsentReference());
     form.setPipelineReference(consentSearchParams.getPipelineReference());
+    form.setPipelineNumberSelectorField(consentSearchParams.getPipelineNumberSelectorField());
     return form;
 
   }
@@ -42,5 +45,13 @@ public class ConsentSearchForm {
 
   public void setPipelineReference(String pipelineReference) {
     this.pipelineReference = pipelineReference;
+  }
+
+  public String getPipelineNumberSelectorField() {
+    return pipelineNumberSelectorField;
+  }
+
+  public void setPipelineNumberSelectorField(String pipelineNumberSelectorField) {
+    this.pipelineNumberSelectorField = pipelineNumberSelectorField;
   }
 }

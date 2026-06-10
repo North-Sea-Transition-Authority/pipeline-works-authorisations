@@ -22,6 +22,7 @@ public enum TeamType implements Displayable {
           Role.TEAM_ADMINISTRATOR,
           Role.ORGANISATION_MANAGER,
           Role.CONSULTEE_GROUP_MANAGER,
+          Role.SECONDARY_REGULATOR_MANAGER,
           Role.PWA_MANAGER,
           Role.CASE_OFFICER,
           Role.CONSENT_VIEWER,
@@ -58,7 +59,7 @@ public enum TeamType implements Displayable {
       UserMembershipRestriction.MULTIPLE_TEAMS
   ),
   SECONDARY_REGULATOR(
-      "Secondary regulator",
+      "Secondary Regulator",
       "secondary-regulator",
       null,
       List.of(
