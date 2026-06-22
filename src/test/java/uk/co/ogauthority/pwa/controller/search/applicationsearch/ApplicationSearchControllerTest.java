@@ -14,14 +14,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -29,6 +32,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.auth.RoleGroup;
+import uk.co.ogauthority.pwa.config.Profile;
 import uk.co.ogauthority.pwa.controller.ResolverAbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.WithDefaultPageControllerAdvice;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
@@ -55,6 +59,7 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchP
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParametersBuilder;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @WebMvcTest(controllers = ApplicationSearchController.class)
 @ContextConfiguration(classes = ApplicationSearchController.class)
@@ -91,19 +96,8 @@ class ApplicationSearchControllerTest extends ResolverAbstractControllerTest {
 
   private ApplicationSearchContext permittedUserSearchContext;
 
-  private ApplicationSearchController applicationSearchController;
-
   @BeforeEach
   void setUp() {
-    applicationSearchController = new ApplicationSearchController(
-        applicationDetailSearchService,
-        applicationSearchContextCreator,
-        applicationSearchDisplayItemCreator,
-        applicationInvolvementService,
-        pwaHolderTeamService,
-        portalOrganisationsAccessor,
-        analyticsService);
-
     permittedUserSearchContext = ApplicationSearchContextTestUtil.emptyUserContext(permittedUser, UserType.OGA);
     when(applicationSearchContextCreator.createContext(permittedUser)).thenReturn(permittedUserSearchContext);
     when(applicationDetailSearchService.validateSearchParamsUsingContext(any(), any()))
@@ -117,6 +111,10 @@ class ApplicationSearchControllerTest extends ResolverAbstractControllerTest {
 
   @Test
   void getSearchResults_whenPermitted_landingEntry() throws Exception {
+    var pwaApplicationTypeMap = PwaApplicationType.stream()
+        .filter(appType -> appType != PwaApplicationType.PIPELINE_RECORD_MANAGEMENT)
+        .sorted(Comparator.comparing(PwaApplicationType::getDisplayOrder))
+        .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationType::getDisplayName));
 
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
             permittedUser, ApplicationSearchController.AppSearchEntryState.LANDING, null
@@ -127,7 +125,8 @@ class ApplicationSearchControllerTest extends ResolverAbstractControllerTest {
         .andExpect(model().attribute("searchUrl", ApplicationSearchController.routeToBlankSearchUrl()))
         .andExpect(model().attribute("appSearchEntryState", ApplicationSearchController.AppSearchEntryState.LANDING))
         .andExpect(model().attribute("assignedCaseOfficers", Map.of()))
-        .andExpect(model().attributeDoesNotExist("searchScreenView"));
+        .andExpect(model().attributeDoesNotExist("searchScreenView"))
+        .andExpect(model().attribute("pwaApplicationTypeMap", pwaApplicationTypeMap));
   }
 
   @Test
@@ -182,33 +181,70 @@ class ApplicationSearchControllerTest extends ResolverAbstractControllerTest {
         .andExpect(model().attributeExists("preselectedHolderOrgUnits"));
   }
 
+  // TODO: refactor these tests to not directly invoke the controller
+  @Nested
+  class DirectControllerTests {
 
-  @Test
-  void getSearchResults_openAppsAssignedCaseOfficersMapping() {
+    private ApplicationSearchController applicationSearchController;
 
-    var pwaApplication1 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1).getPwaApplication();
-    var pwaApplication2 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 2).getPwaApplication();
+    @BeforeEach
+    void setUp() {
+      var mockEnvironment = new MockEnvironment();
+      mockEnvironment.setActiveProfiles(Profile.ENABLE_PRUAT_ENHANCEMENTS);
 
-    var assignmentViewOpenApp1 = new PwaAppAssignmentView();
-    assignmentViewOpenApp1.setId(1);
-    assignmentViewOpenApp1.setPwaApplicationId(pwaApplication1.getId());
-    assignmentViewOpenApp1.setAssignment(WorkflowAssignment.CASE_OFFICER);
-    assignmentViewOpenApp1.setAssigneePersonId(1);
-    assignmentViewOpenApp1.setAssigneeName("case officer A");
+      applicationSearchController = new ApplicationSearchController(
+          applicationDetailSearchService,
+          applicationSearchContextCreator,
+          applicationSearchDisplayItemCreator,
+          applicationInvolvementService,
+          pwaHolderTeamService,
+          portalOrganisationsAccessor,
+          analyticsService,
+          mockEnvironment
+      );
+    }
 
-    var assignmentViewOpenApp2 = new PwaAppAssignmentView();
-    assignmentViewOpenApp2.setId(2);
-    assignmentViewOpenApp2.setPwaApplicationId(pwaApplication2.getId());
-    assignmentViewOpenApp2.setAssignment(WorkflowAssignment.CASE_OFFICER);
-    assignmentViewOpenApp2.setAssigneePersonId(2);
-    assignmentViewOpenApp2.setAssigneeName("case officer b");
+    @Test
+    void getSearchResults_openAppsAssignedCaseOfficersMapping() {
+      var pwaApplication1 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1).getPwaApplication();
+      var pwaApplication2 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 2).getPwaApplication();
 
-    when(applicationInvolvementService.getCaseOfficersAssignedToInProgressApps()).thenReturn(List.of(assignmentViewOpenApp2, assignmentViewOpenApp1));
+      var assignmentViewOpenApp1 = new PwaAppAssignmentView();
+      assignmentViewOpenApp1.setId(1);
+      assignmentViewOpenApp1.setPwaApplicationId(pwaApplication1.getId());
+      assignmentViewOpenApp1.setAssignment(WorkflowAssignment.CASE_OFFICER);
+      assignmentViewOpenApp1.setAssigneePersonId(1);
+      assignmentViewOpenApp1.setAssigneeName("case officer A");
 
-    var caseOfficersAssignedToOpenAppsMap = applicationSearchController.getCaseOfficersAssignedToInProgressAppsMap();
-    assertThat(caseOfficersAssignedToOpenAppsMap).containsExactly(
-        entry(String.valueOf(assignmentViewOpenApp1.getAssigneePersonId()), assignmentViewOpenApp1.getAssigneeName()),
-        entry(String.valueOf(assignmentViewOpenApp2.getAssigneePersonId()), assignmentViewOpenApp2.getAssigneeName()));
+      var assignmentViewOpenApp2 = new PwaAppAssignmentView();
+      assignmentViewOpenApp2.setId(2);
+      assignmentViewOpenApp2.setPwaApplicationId(pwaApplication2.getId());
+      assignmentViewOpenApp2.setAssignment(WorkflowAssignment.CASE_OFFICER);
+      assignmentViewOpenApp2.setAssigneePersonId(2);
+      assignmentViewOpenApp2.setAssigneeName("case officer b");
+
+      when(applicationInvolvementService.getCaseOfficersAssignedToInProgressApps()).thenReturn(List.of(assignmentViewOpenApp2, assignmentViewOpenApp1));
+
+      var caseOfficersAssignedToOpenAppsMap = applicationSearchController.getCaseOfficersAssignedToInProgressAppsMap();
+      assertThat(caseOfficersAssignedToOpenAppsMap).containsExactly(
+          entry(String.valueOf(assignmentViewOpenApp1.getAssigneePersonId()), assignmentViewOpenApp1.getAssigneeName()),
+          entry(String.valueOf(assignmentViewOpenApp2.getAssigneePersonId()), assignmentViewOpenApp2.getAssigneeName()));
+    }
+
+    @Test
+    void getSearchResults_pipelineRecordsUpdateAppTypeFilterIsIncluded() {
+      var pwaApplicationTypeMap = PwaApplicationType.stream()
+          .sorted(Comparator.comparing(PwaApplicationType::getDisplayOrder))
+          .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationType::getDisplayName));
+
+      var modelAndView = applicationSearchController.getSearchResults(
+          permittedUser,
+          ApplicationSearchController.AppSearchEntryState.LANDING,
+          ApplicationSearchParametersBuilder.createEmptyParams()
+      );
+
+      assertThat(modelAndView.getModel()).containsEntry("pwaApplicationTypeMap", pwaApplicationTypeMap);
+    }
   }
 
   @Test

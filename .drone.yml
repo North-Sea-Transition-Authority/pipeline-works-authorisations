@@ -235,8 +235,8 @@ steps:
   - name: code-analysis
     image: eclipse-temurin:21-jdk
     environment:
-      SONARCLOUD_TOKEN:
-        from_secret: sonarcloud_token
+      SONAR_TOKEN:
+        from_secret: sonar_token
       # This SONAR_USER_HOME is the cache path - not the actual user home
       SONAR_USER_HOME: /drone/src/sonar_cache
     commands:
@@ -273,8 +273,8 @@ data: VC57IAbHNPwp1UyN+bzi3nfNZp5hujE4NQkUjruF1EuJ5M/S+zSVB3rWvAdzfNlVHFJFxOa2Cv
 ---
 
 kind: secret
-name: sonarcloud_token
-data: ZL8uwro8kFVBiRWNgQPbt2lqWVcnqX6soL8SEnKnBOOJZdwRfzuEpSJHAU5i4Fgp94Lsl4MM0OoeM74i292UqMnXgUo=
+name: sonar_token
+data: aW0siut+zLoCoy1mihvxveYJtOj2OFXa6vd8Dwy7NJ97XFDr9lGQiwrbkIZHns/9Z8Jst+n/1niImcIfg9sgyj9pFdSHQkWszbINzPV/1Q+Pg1/SDMzqqCNaV2Y=
 
 ---
 

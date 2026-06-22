@@ -59,6 +59,7 @@ public class StartPwaApplicationController {
   }
 
   private ModelAndView getStartAppModelAndView(PwaResourceType pwaResourceType) {
+    // TODO: EPUO-838: remove the filter once the app type is no longer behind a profile
     var applicationTypes = pwaResourceType.getPermittedApplicationTypes().stream()
         .filter(type -> pipelineRecordManagementEnabled || type != PwaApplicationType.PIPELINE_RECORD_MANAGEMENT)
         .sorted(Comparator.comparing(PwaApplicationType::getDisplayOrder))

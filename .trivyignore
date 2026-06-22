@@ -7,46 +7,13 @@ CVE-2025-48924
 # org.bouncycastle:bcpkix-jdk18on
 CVE-2023-33202
 CVE-2025-8916
+CVE-2026-5588
 
 # org.bouncycastle:bcprov-jdk18on
+CVE-2026-5598
 CVE-2023-33201
 CVE-2023-33202
 CVE-2024-29857
 CVE-2024-30171
 CVE-2024-34447
 CVE-2025-8885
-CVE-2026-5588
-
-# org.apache.tomcat.embed:tomcat-embed-core
-CVE-2026-34483
-CVE-2026-34487
-CVE-2026-34500
-CVE-2026-41293
-CVE-2026-43512
-CVE-2026-41284
-CVE-2026-42498
-CVE-2026-43513
-CVE-2026-43515
-CVE-2026-43514
-
-# uk.co.fivium.energyportalmessagequeue:spring-boot-starter
-CVE-2026-42583
-CVE-2026-42584
-CVE-2026-42587
-CVE-2026-42580
-CVE-2026-42581
-CVE-2026-42585
-CVE-2026-42587
-
-# org.springframework.security:spring-security-saml2-service-provider
-CVE-2026-5598
-CVE-2026-41417
-
-#org.apache.tomcat.embed:tomcat-embed-core
-CVE-2026-43515
-CVE-2026-43514
-
-# uk.co.fivium:file-upload-spring-boot-starter (needs v3.0.0, breaking change)
-CVE-2026-47244
-CVE-2026-44249
-CVE-2026-45416

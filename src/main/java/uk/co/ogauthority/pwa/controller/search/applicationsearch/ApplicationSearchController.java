@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -25,6 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.HasAnyRoleByGroup;
 import uk.co.ogauthority.pwa.auth.RoleGroup;
+import uk.co.ogauthority.pwa.config.Profile;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
@@ -64,6 +66,7 @@ public class ApplicationSearchController {
   private final PwaHolderTeamService pwaHolderTeamService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final AnalyticsService analyticsService;
+  private final boolean pipelineRecordManagementEnabled;
 
   public static String routeToLandingPage() {
     return ReverseRouter.route(on(ApplicationSearchController.class)
@@ -82,7 +85,8 @@ public class ApplicationSearchController {
                                      ApplicationInvolvementService applicationInvolvementService,
                                      PwaHolderTeamService pwaHolderTeamService,
                                      PortalOrganisationsAccessor portalOrganisationsAccessor,
-                                     AnalyticsService analyticsService) {
+                                     AnalyticsService analyticsService,
+                                     Environment environment) {
     this.applicationDetailSearchService = applicationDetailSearchService;
     this.applicationSearchContextCreator = applicationSearchContextCreator;
     this.applicationSearchDisplayItemCreator = applicationSearchDisplayItemCreator;
@@ -90,6 +94,7 @@ public class ApplicationSearchController {
     this.pwaHolderTeamService = pwaHolderTeamService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.analyticsService = analyticsService;
+    this.pipelineRecordManagementEnabled = environment.matchesProfiles(Profile.ENABLE_PRUAT_ENHANCEMENTS);
   }
 
   private ModelAndView redirectAndRunSearch(ApplicationSearchParameters applicationSearchParameters) {
@@ -178,7 +183,9 @@ public class ApplicationSearchController {
 
     }
 
+    // TODO: EPUO-838: remove the filter once the app type is no longer behind a profile
     var pwaApplicationTypeMap = PwaApplicationType.stream()
+        .filter(appType -> pipelineRecordManagementEnabled || appType != PwaApplicationType.PIPELINE_RECORD_MANAGEMENT)
         .sorted(Comparator.comparing(PwaApplicationType::getDisplayOrder))
         .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationType::getDisplayName));
 

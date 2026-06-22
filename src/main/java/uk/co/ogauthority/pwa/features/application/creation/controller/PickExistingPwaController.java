@@ -77,7 +77,8 @@ public class PickExistingPwaController {
       MetricsProvider metricsProvider,
       ApplicantOrganisationService applicantOrganisationService,
       SystemAreaAccessService systemAreaAccessService,
-      Environment environment) {
+      Environment environment
+  ) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pickedPwaRetrievalService = pickPwaService;
     this.controllerHelperService = controllerHelperService;
