@@ -13,6 +13,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -238,12 +239,32 @@ class PadFileManagementServiceTest {
     var uploadedFile2 = mock(UploadedFile.class);
     var uploadedFiles = List.of(uploadedFile1, uploadedFile2);
 
-    when(padFileManagementService.getUploadedFiles(APPLICATION_DETAIL, DOCUMENT_TYPE)).thenReturn(uploadedFiles);
+    var uploadedFileId1 = UUID.randomUUID();
+    var uploadedFileId2 = UUID.randomUUID();
+    var copiedFileId1 = UUID.randomUUID();
+    var copiedFileId2 = UUID.randomUUID();
 
-    padFileManagementService.copyUploadedFiles(APPLICATION_DETAIL, newApplicationDetail, DOCUMENT_TYPE);
+    var copiedFile1 = mock(UploadedFile.class);
+    var copiedFile2 = mock(UploadedFile.class);
+
+    when(uploadedFile1.getId()).thenReturn(uploadedFileId1);
+    when(uploadedFile2.getId()).thenReturn(uploadedFileId2);
+    when(copiedFile1.getId()).thenReturn(copiedFileId1);
+    when(copiedFile2.getId()).thenReturn(copiedFileId2);
+
+    when(padFileManagementService.getUploadedFiles(APPLICATION_DETAIL, DOCUMENT_TYPE)).thenReturn(uploadedFiles);
+    when(fileService.copy(eq(uploadedFile1), any())).thenReturn(copiedFile1);
+    when(fileService.copy(eq(uploadedFile2), any())).thenReturn(copiedFile2);
+
+    var originalToCopiedFileIds = padFileManagementService.copyUploadedFiles(
+        APPLICATION_DETAIL, newApplicationDetail, DOCUMENT_TYPE);
 
     // Verify that the expected methods were called
     verify(fileService, times(1)).copy(eq(uploadedFile1), any());
     verify(fileService, times(1)).copy(eq(uploadedFile2), any());
+
+    // Verify the returned mapping lets callers directly resolve original file id -> copied file id
+    assertThat(originalToCopiedFileIds).containsExactlyInAnyOrderEntriesOf(
+        Map.of(uploadedFileId1, copiedFileId1, uploadedFileId2, copiedFileId2));
   }
 }

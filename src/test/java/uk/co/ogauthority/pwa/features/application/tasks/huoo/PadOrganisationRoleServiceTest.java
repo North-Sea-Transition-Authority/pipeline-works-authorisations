@@ -867,6 +867,36 @@ public class PadOrganisationRoleServiceTest {
   }
 
   @Test
+  public void getOrganisationRoleSummary_pipelineMissingFromSplitInfoMap_excludedWithoutThrowing() {
+
+    // simulates a pipeline linked to the org role which is no longer on the seabed, so it is absent
+    // from the split info map even though the role link itself is still considered active
+    var orgPipelineRole = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
+        HuooRole.HOLDER, orgUnit1.getOuId(), pipelineId1.asInt());
+
+    when(padPipelineService.getPadPipelineInactiveStatuses()).thenReturn(PIPELINE_INACTIVE_STATUSES);
+    when(padPipelineService.getPipelines(detail)).thenReturn(List.of(PadPipelineTestUtil.createActivePadPipeline(detail, pipeline1)));
+
+    when(padOrganisationRolesRepository.findActiveOrganisationPipelineRolesByPwaApplicationDetail(detail))
+        .thenReturn(List.of(orgPipelineRole));
+
+    when(pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(any(), any()))
+        .thenReturn(Map.of());
+
+    var allOrgRolePipelineGroupView = padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(detail);
+
+    assertThat(allOrgRolePipelineGroupView.getOrgRolePipelineGroupView(orgPipelineRole.getHuooRole())).isNotEmpty();
+    var orgRolePipelineGroup = allOrgRolePipelineGroupView.getOrgRolePipelineGroupView(orgPipelineRole.getHuooRole()).get(0);
+
+    assertThat(orgRolePipelineGroup.getPipelineNumbersAndSplits()).isEmpty();
+    assertThat(orgRolePipelineGroup.getPipelineIdentifiersInGroup()).isEmpty();
+
+    // this is the exact call path that threw NullPointerException before the fix
+    assertThat(allOrgRolePipelineGroupView.hasOnlyOneGroupOfPipelineIdentifiersForRole(orgPipelineRole.getHuooRole()))
+        .isTrue();
+  }
+
+  @Test
   public void getOrganisationRoleSummary_pipelinesAssignedToRoleAndInactive_roleInstancesCreatedWithoutPipeline() {
 
     var orgPipelineRole = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(

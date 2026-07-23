@@ -7,7 +7,10 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.TechnicalSupportContactProperties;
@@ -52,8 +55,22 @@ public class ErrorService {
     modelAndView.addObject("technicalSupportContact", technicalSupportContactProperties);
   }
 
+  /**
+   * Only 5xx (server) errors should be given an error reference, so support staff can look them up in the logs.
+   * 4xx errors are caused by the client/request and are not actionable via an error reference. Exceptions with no
+   * resolvable status (i.e. not a {@link ResponseStatusException} and not annotated with {@link ResponseStatus})
+   * are treated as server errors, matching the default 500 status applied when no other status is determined.
+   */
+  private boolean isServerError(Throwable throwable) {
+    if (throwable instanceof ResponseStatusException responseStatusException) {
+      return responseStatusException.getStatusCode().is5xxServerError();
+    }
+    var responseStatus = AnnotatedElementUtils.findMergedAnnotation(throwable.getClass(), ResponseStatus.class);
+    return responseStatus == null || responseStatus.value().is5xxServerError();
+  }
+
   public ModelAndView addErrorAttributesToModel(ModelAndView modelAndView, Throwable throwable) {
-    if (throwable != null) {
+    if (throwable != null && isServerError(throwable)) {
       addErrorReference(modelAndView, throwable);
     }
     addTechnicalSupportContactDetails(modelAndView);

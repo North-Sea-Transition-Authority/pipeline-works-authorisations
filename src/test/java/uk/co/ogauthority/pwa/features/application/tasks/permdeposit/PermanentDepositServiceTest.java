@@ -5,10 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -22,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +43,8 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
+import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.controller.PermanentDepositController;
@@ -48,14 +54,17 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePairTestUtil;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.entitycopier.CopiedEntityIdTuple;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
@@ -478,6 +487,86 @@ class PermanentDepositServiceTest {
 
   }
 
+
+  @Test
+  void copySectionInformation_alreadyCopied_isNoOp() {
+    var fromDetail = pwaApplicationDetail;
+    var toDetail = new PwaApplicationDetail(new PwaApplication(null, PwaApplicationType.INITIAL, null), null, null, null);
+
+    when(depositDrawingsService.getAllDepositDrawingsForDetail(toDetail)).thenReturn(List.of(new PadDepositDrawing()));
+
+    permanentDepositService.copySectionInformation(fromDetail, toDetail);
+
+    verify(depositDrawingsService, times(1)).getAllDepositDrawingsForDetail(toDetail);
+    verifyNoMoreInteractions(depositDrawingsService);
+    verifyNoInteractions(
+        entityCopyingService,
+        permanentDepositInformationRepository,
+        padDepositPipelineRepository,
+        padFileManagementService,
+        padFileService,
+        entityManager
+    );
+  }
+
+  @Test
+  void copySectionInformation_copiesDrawingsAndRepointsFileLinkAtCopiedFile() {
+    var toDetail = new PwaApplicationDetail(new PwaApplication(null, PwaApplicationType.INITIAL, null), null, null, null);
+    toDetail.setId(2);
+
+    var originalFileId = UUID.randomUUID();
+
+    // the pad_files bridge row is reflection-copied verbatim by EntityCopyingService, so it initially
+    // carries the OLD fileId until copySectionInformation re-points it at the newly copied file.
+    var copiedPadFile = new PadFile();
+    copiedPadFile.setId(200);
+    copiedPadFile.setFileId(originalFileId);
+
+    var copiedDrawing = new PadDepositDrawing();
+    copiedDrawing.setId(20);
+    copiedDrawing.setPwaApplicationDetail(toDetail);
+    // reflection-copied verbatim: still references the original PadFile (id 100) until repointed below.
+    var originalPadFileReference = new PadFile();
+    originalPadFileReference.setId(100);
+    copiedDrawing.setFile(originalPadFileReference);
+
+    @SuppressWarnings("unchecked")
+    var padFileCopyTuple = (CopiedEntityIdTuple<Integer, PadFile>) mock(CopiedEntityIdTuple.class);
+    when(padFileCopyTuple.getOriginalEntityId()).thenReturn(100);
+    when(padFileCopyTuple.getDuplicateEntityId()).thenReturn(200);
+
+    when(entityCopyingService.duplicateEntitiesAndSetParent(any(), eq(toDetail), eq(PadPermanentDeposit.class)))
+        .thenReturn(Set.of());
+    when(entityCopyingService.duplicateEntitiesAndSetParentFromCopiedEntities(any(), eq(Set.of()), eq(PadDepositPipeline.class)))
+        .thenReturn(Set.of());
+    when(entityCopyingService.duplicateEntitiesAndSetParent(any(), eq(toDetail), eq(PadDepositDrawing.class)))
+        .thenReturn(Set.of());
+    when(entityCopyingService.duplicateEntitiesAndSetParentFromCopiedEntities(any(), eq(Set.of()), eq(PadDepositDrawingLink.class)))
+        .thenReturn(Set.of());
+
+    // not yet copied, so the guard lets the method proceed; second call (post file-relinking) returns the copy.
+    when(depositDrawingsService.getAllDepositDrawingsForDetail(toDetail)).thenReturn(List.of(), List.of(copiedDrawing));
+    when(depositDrawingsService.getAllDepositDrawingLinksByDetailPermanentDeposits(toDetail)).thenReturn(List.of());
+
+    var copiedFileId = UUID.randomUUID();
+    when(padFileManagementService.copyUploadedFiles(pwaApplicationDetail, toDetail, FileDocumentType.DEPOSIT_DRAWINGS))
+        .thenReturn(Map.of(originalFileId, copiedFileId));
+    when(padFileService.copyPadFilesToPwaApplicationDetail(
+        pwaApplicationDetail, toDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL))
+        .thenReturn(Set.of(padFileCopyTuple));
+    when(padFileService.getAllByPwaApplicationDetailAndPurpose(toDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS))
+        .thenReturn(List.of(copiedPadFile));
+
+    permanentDepositService.copySectionInformation(pwaApplicationDetail, toDetail);
+
+    // the copied drawing must end up pointing at the copied PadFile bridge row...
+    assertThat(copiedDrawing.getFile()).isEqualTo(copiedPadFile);
+    // ...whose fileId has been re-pointed at the newly copied file, not the original one it was cloned with.
+    assertThat(copiedPadFile.getFileId()).isEqualTo(copiedFileId);
+
+    verify(entityManager, times(1)).persist(copiedPadFile);
+    verify(depositDrawingsService, times(1)).saveDepositDrawings(List.of(copiedDrawing));
+  }
 
   @Test
   void removePadPipelineFromDeposits_removeOnlyLinks() {

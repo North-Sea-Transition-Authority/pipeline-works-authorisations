@@ -3,7 +3,9 @@ package uk.co.ogauthority.pwa.features.filemanagement;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
@@ -105,14 +107,21 @@ public class PadFileManagementService {
     );
   }
 
-  public void copyUploadedFiles(PwaApplicationDetail oldApplicationDetail,
-                                PwaApplicationDetail newApplicationDetail,
-                                FileDocumentType fileDocumentType) {
-    getUploadedFiles(
+  /**
+   * Copies all uploaded files of a given document type from one application detail to another.
+   *
+   * @return a map of original file id to copied file id, so callers can re-point their own
+   *     entities at the copy without having to re-derive the correlation themselves.
+   */
+  public Map<UUID, UUID> copyUploadedFiles(PwaApplicationDetail oldApplicationDetail,
+                                           PwaApplicationDetail newApplicationDetail,
+                                           FileDocumentType fileDocumentType) {
+    return getUploadedFiles(
         oldApplicationDetail,
         fileDocumentType
-    ).forEach(uploadedFile ->
-        fileService.copy(
+    ).stream().collect(Collectors.toMap(
+        UploadedFile::getId,
+        uploadedFile -> fileService.copy(
             uploadedFile,
             usageBuilder -> fileManagementService.buildFileUsage(
                 usageBuilder,
@@ -120,8 +129,8 @@ public class PadFileManagementService {
                 getUsageType(),
                 fileDocumentType.name()
             )
-        )
-    );
+        ).getId()
+    ));
   }
 
   public ResponseStatusException getFileNotFoundException(PwaApplicationDetail pwaApplicationDetail, UUID fileId) {

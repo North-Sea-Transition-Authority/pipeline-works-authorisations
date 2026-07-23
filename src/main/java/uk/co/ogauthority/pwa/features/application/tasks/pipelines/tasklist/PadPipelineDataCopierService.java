@@ -4,10 +4,7 @@ import jakarta.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
@@ -86,6 +83,13 @@ public class PadPipelineDataCopierService {
   void copyAllPadPipelineData(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail,
                               Supplier<Collection<PadPipeline>> fromDetailPadPipelines) {
 
+    if (!padTechnicalDrawingService.getDrawings(toDetail).isEmpty()) {
+      LOGGER.warn(
+          "Pipeline data has already been copied to application detail with ID: {} - skipping duplicate copy",
+          toDetail.getId());
+      return;
+    }
+
     Set<CopiedEntityIdTuple<Integer, PadPipeline>> copiedPadPipelineEntityIds = copyPipelineData(
         fromDetail,
         toDetail,
@@ -150,28 +154,10 @@ public class PadPipelineDataCopierService {
             PadTechnicalDrawing.class
         );
 
-    // 4. copy uploaded files to new application detail
-    padFileManagementService.copyUploadedFiles(fromDetail, toDetail, FileDocumentType.PIPELINE_DRAWINGS);
-
-    var fromFiles = padFileManagementService.getUploadedFiles(fromDetail, FileDocumentType.PIPELINE_DRAWINGS).stream()
-        .collect(
-            Collectors.toMap(file -> Pair.of(file.getName(), file.getUploadedAt()),
-                Function.identity())
-        );
-
-    LOGGER.info("Pipeline drawing original FUL files %s".formatted(fromFiles.toString()));
-
-    var toFiles = padFileManagementService.getUploadedFiles(toDetail, FileDocumentType.PIPELINE_DRAWINGS).stream()
-        .collect(Collectors.toMap(file -> Pair.of(file.getName(), file.getUploadedAt()),
-            Function.identity())
+    // 4. copy uploaded files to new application detail, keeping a direct original-file-id -> copied-file-id map
+    var originalToCopiedFileIDs = padFileManagementService.copyUploadedFiles(
+        fromDetail, toDetail, FileDocumentType.PIPELINE_DRAWINGS
     );
-
-    LOGGER.info("Pipeline drawing copied FUL files %s".formatted(toFiles.toString()));
-
-    var originalToCopiedFileIDs = fromFiles.entrySet().stream()
-        .collect(Collectors.toMap(e -> e.getValue().getId(), e -> toFiles.get(e.getKey()).getId()));
-
-    LOGGER.info("Pipeline drawing original pad file ids %s".formatted(originalToCopiedFileIDs.keySet().toString()));
 
     // 5. manually set the drawing PadFile links as they still point to previous detail's files.
     var duplicatedTechnicalDrawings = padTechnicalDrawingService.getDrawings(toDetail);

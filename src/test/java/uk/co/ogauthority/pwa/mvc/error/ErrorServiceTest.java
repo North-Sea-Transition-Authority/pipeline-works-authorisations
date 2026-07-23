@@ -7,10 +7,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.TechnicalSupportContactProperties;
+import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfigurationProperties;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,6 +73,50 @@ class ErrorServiceTest {
         "analyticsClientIdCookieName",
         "analytics"
     );
+    assertCommonModelProperties(resultingModelMap);
+  }
+
+  @Test
+  void addErrorAttributesToModel_when4xxResponseStatusAnnotatedException_assertNoErrorReference() {
+    final var resultingModelMap = errorService.addErrorAttributesToModel(
+        new ModelAndView(),
+        new PwaEntityNotFoundException("not found")
+    ).getModelMap();
+
+    assertThat(resultingModelMap).doesNotContainKey("errorRef");
+    assertCommonModelProperties(resultingModelMap);
+  }
+
+  @Test
+  void addErrorAttributesToModel_when5xxResponseStatusAnnotatedException_assertErrorReference() {
+    final var resultingModelMap = errorService.addErrorAttributesToModel(
+        new ModelAndView(),
+        new ActionNotAllowedException("not allowed")
+    ).getModelMap();
+
+    assertThat(resultingModelMap.get("errorRef")).isNotNull();
+    assertCommonModelProperties(resultingModelMap);
+  }
+
+  @Test
+  void addErrorAttributesToModel_when4xxResponseStatusException_assertNoErrorReference() {
+    final var resultingModelMap = errorService.addErrorAttributesToModel(
+        new ModelAndView(),
+        new ResponseStatusException(HttpStatus.BAD_REQUEST, "bad request")
+    ).getModelMap();
+
+    assertThat(resultingModelMap).doesNotContainKey("errorRef");
+    assertCommonModelProperties(resultingModelMap);
+  }
+
+  @Test
+  void addErrorAttributesToModel_when5xxResponseStatusException_assertErrorReference() {
+    final var resultingModelMap = errorService.addErrorAttributesToModel(
+        new ModelAndView(),
+        new ResponseStatusException(HttpStatus.BAD_GATEWAY, "bad gateway")
+    ).getModelMap();
+
+    assertThat(resultingModelMap.get("errorRef")).isNotNull();
     assertCommonModelProperties(resultingModelMap);
   }
 
