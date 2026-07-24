@@ -251,6 +251,18 @@ public class TeamManagementService {
     return teamMemberQueryService.getTeamMemberViewsForTeam(team);
   }
 
+  /**
+   * This sets the roles for a given user and team. It also validates:
+   * - The given roles are valid for the team type of the given team.
+   * - A user exists for the given wuaId
+   * - The given wuaId is active.
+   * It does not, however, validate that a team has at least one access manager after the roles have been updated. Consumers
+   * should validate that before calling this method, unless calling it in response to an EPAS EPMQ message
+   *
+   * @param wuaId The wuaId of the user who's roles we want to update
+   * @param team  The team which the user roles are being set for.
+   * @param roles The roles to assign to the user.
+   */
   @Transactional
   public void setUserTeamRoles(Long wuaId, Team team, List<Role> roles, Long instigatingWuaId) {
     if (!new HashSet<>(team.getTeamType().getAllowedRoles()).containsAll(roles)) {
@@ -292,10 +304,6 @@ public class TeamManagementService {
           return teamRole;
         }).toList();
     teamRoleRepository.saveAll(newTeamRoles);
-
-    if (!doesTeamHaveTeamManager(team)) {
-      throw new TeamManagementException("At least 1 team manager must exist in team %s".formatted(team.getId()));
-    }
 
     energyPortalAccountsMessagePublishingService.publishUsersRolesForTeam(
         wuaId,
@@ -400,11 +408,6 @@ public class TeamManagementService {
       throw new TeamManagementException(TEAM_TYPE_STATIC_EXCEPTION_MESSAGE.formatted(teamType));
     }
     return teamRepository.findByTeamType(teamType);
-  }
-
-  private boolean doesTeamHaveTeamManager(Team team) {
-    return teamRoleRepository.findByTeam(team).stream()
-        .anyMatch(teamRole -> teamRole.getRole().equals(Role.TEAM_ADMINISTRATOR));
   }
 
   private List<Team> getTeamsUserCanManage(Long wuaId) {

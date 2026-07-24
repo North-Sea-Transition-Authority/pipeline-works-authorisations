@@ -447,8 +447,6 @@ class TeamManagementServiceTest {
         .canLogin();
     when(userApi.findUserById(eq(1L), refEq(expectedProjection), any(RequestPurpose.class), any(LogCorrelationId.class)))
         .thenReturn(Optional.of(user1));
-    when(teamRoleRepository.findByTeam(regTeam))
-        .thenReturn(List.of(regTeamUser1RoleManage)); // Make doesTeamHaveTeamManager() check return true
     when(teamRoleRepository.findAllByWuaId(1L)).thenReturn(List.of(new TeamRole()));
 
     long instigatingUser = 2L;
@@ -479,28 +477,6 @@ class TeamManagementServiceTest {
     var person = new Person();
     webUserAccount.setPerson(person);
     return webUserAccount;
-  }
-
-  @Test
-  void setUserTeamRoles_noTeamManagerLeft() {
-    when(userApi.findUserById(eq(1L), any(), any(RequestPurpose.class), any(LogCorrelationId.class)))
-        .thenReturn(Optional.of(user1));
-    when(userAccountService.getWebUserAccount(USER_1_WUA_ID.intValue())).thenReturn(new WebUserAccount());
-    when(teamRoleRepository.findByTeam(regTeam))
-        .thenReturn(List.of()); // Make doesTeamHaveTeamManager() check return false
-
-    long instigatingUser = 2L;
-    assertThatExceptionOfType(TeamManagementException.class)
-        .isThrownBy(
-            () -> teamManagementService.setUserTeamRoles(USER_1_WUA_ID, regTeam, List.of(Role.ORGANISATION_MANAGER),
-                instigatingUser));
-    verify(energyPortalServiceAccessService, never()).addUser(anyLong());
-    verify(energyPortalAccountsMessagePublishingService, never()).publishUsersRolesForTeam(
-        anyLong(),
-        any(),
-        any(),
-        any()
-    );
   }
 
   @Test
@@ -598,9 +574,6 @@ class TeamManagementServiceTest {
 
     when(teamRoleRepository.findAllByWuaId(USER_1_WUA_ID))
         .thenReturn(List.of());
-
-    when(teamRoleRepository.findByTeam(regTeam))
-        .thenReturn(List.of(regTeamUser1RoleManage));
 
     when(userAccountService.getWebUserAccount(Math.toIntExact(USER_1_WUA_ID))).thenReturn(stubWebUserAccount());
 
