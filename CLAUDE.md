@@ -37,7 +37,7 @@ CI (`.drone.yml`) runs, in order: fetch FDS submodule → build FDS → `npm ins
 ### Local dev environment specifics
 
 - App is normally run from IntelliJ (auto-detects the Spring Boot main class), not `gradlew bootRun`, because a large set of environment variables (SAML certs, S3, GOV.UK Notify/Pay keys, AWS SNS/SQS creds, DB schema) must be set on the run configuration — see README.md for the full table.
-- Requires a local Camunda "fox4" engine for session sharing: `docker compose -f devtools-pwa/local-dev-compose.yml up`.
+- Requires a local Fivium "fox4" SSO/session-sharing container (unrelated to the Camunda workflow engine, which runs in-process against the app's own datasource — see "Two workflow engines" below); its docker-compose file has since been removed from `devtools-pwa/`, so check with the team for the current local-dev setup.
 - Requires the `development, test-harness` Spring profiles active locally.
 - Oracle DB; Flyway user (`pwa_xx_flyway`) must be created manually before first run — see README.md.
 - Reachable at `http://localhost:8081/engedudev1/<CONTEXT_SUFFIX>/work-area` once running; auth redirects through the local fox instance.
