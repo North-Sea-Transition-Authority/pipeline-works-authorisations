@@ -28,6 +28,24 @@ steps:
       - chmod +x gradlew
       - ./gradlew test jacocoTestReport checkstyleMain bootWar bootJar
 
+  # This is a plain branch analysis (sonar.branch.name), not PR decoration, so it doesn't need the
+  # GitHub integration info that the github-pr pipeline's code-analysis step relies on. It exists to
+  # keep SonarCloud's stored develop branch snapshot from going stale, since nothing else refreshes it
+  # and every PR's "new code" comparison is diffed against that snapshot.
+  - name: sonar-analysis
+    image: eclipse-temurin:21-jdk
+    environment:
+      SONAR_TOKEN:
+        from_secret: sonar_token
+    commands:
+      - chmod +x gradlew
+      - ./gradlew sonarqube -info
+    when:
+      branch:
+        - develop
+      status:
+        - success
+
   - name: publish-docker-develop
     image: plugins/docker:19.03.8
     settings:
