@@ -1179,4 +1179,16 @@ class TeamManagementServiceTest {
     assertThat(resultingScopedTeams)
         .containsExactlyInAnyOrder(teamUserIsNotMemberOf, teamUserIsMemberOf);
   }
+
+  @Test
+  void getEnergyPortalUser_whenMultipleUsersFound_thenThrow() {
+    var emailAddress = "test@test.com";
+
+    when(userApi.searchUsersByEmail(eq(emailAddress), any(), any(RequestPurpose.class), any(LogCorrelationId.class)))
+        .thenReturn(List.of(new User(), new User()));
+
+    assertThatThrownBy(() -> teamManagementService.getEnergyPortalUser(emailAddress))
+        .isInstanceOf(TeamManagementException.class)
+        .hasMessage("More than one UK Energy Portal user exists with the email address %s".formatted(emailAddress));
+  }
 }

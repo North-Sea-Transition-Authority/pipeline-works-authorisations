@@ -229,16 +229,27 @@ public class TeamManagementService {
     return teamRepository.findByTeamTypeAndScopeTypeAndScopeId(teamType, scopeRef.getType(), scopeRef.getId());
   }
 
-  public List<User> getEnergyPortalUser(String username) {
+  public Optional<User> getEnergyPortalUser(String emailAddress) {
     var projection = new UsersProjectionRoot()
         .webUserAccountId()
         .isAccountShared()
         .canLogin();
-    return userApi.searchUsersByEmail(
-        username,
+
+    var users = userApi.searchUsersByEmail(
+        emailAddress,
         projection,
         new RequestPurpose("Find user to add to team"),
         CorrelationIdUtil.getLogCorrelationId());
+
+    if (users.size() > 1) {
+      throw new TeamManagementException(
+          "More than one UK Energy Portal user exists with the email address %s".formatted(emailAddress)
+      );
+    }
+
+    return users
+        .stream()
+        .findFirst();
   }
 
   TeamMemberView getTeamMemberView(Team team, Long wuaId) {

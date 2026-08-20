@@ -209,13 +209,13 @@ public class TeamManagementController {
           .addObject("registerUrl", energyPortalConfiguration.registrationUrl());
     }
 
-    var wuaId = teamManagementService.getEnergyPortalUser(form.getUsername()).stream()
+    var wuaId = teamManagementService.getEnergyPortalUser(form.getEmailAddress()).stream()
         .filter(user -> !user.getIsAccountShared() && user.getCanLogin())
         .map(user -> user.getWebUserAccountId().longValue())
         .findFirst()
         .orElseThrow(() -> new ResponseStatusException(
             HttpStatus.BAD_REQUEST,
-            "user with username %s not found or is shared account".formatted(form.getUsername()))
+            "user with username %s not found or is shared account".formatted(form.getEmailAddress()))
         );
 
     return ReverseRouter.redirect(on(TeamManagementController.class).renderUserTeamRoles(teamId, wuaId, null));

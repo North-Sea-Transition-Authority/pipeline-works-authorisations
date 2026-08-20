@@ -560,12 +560,12 @@ class TeamManagementControllerTest extends AbstractControllerTest {
         .thenReturn(true);
 
     when(teamManagementService.getEnergyPortalUser("foo"))
-        .thenReturn(List.of(epaUser));
+        .thenReturn(Optional.of(epaUser));
 
     mockMvc.perform(post(ReverseRouter.route(on(TeamManagementController.class).handleAddMemberToTeam(regTeam.getId(), null, null)))
         .with(csrf())
         .with(user(invokingUser))
-        .param("username", "foo"))
+        .param("emailAddress", "foo"))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TeamManagementController.class).renderUserTeamRoles(regTeam.getId(), 999L, null))));
   }
@@ -602,12 +602,12 @@ class TeamManagementControllerTest extends AbstractControllerTest {
         .thenReturn(true);
 
     when(teamManagementService.getEnergyPortalUser("foo"))
-        .thenReturn(List.of());
+        .thenReturn(Optional.empty());
 
     mockMvc.perform(post(ReverseRouter.route(on(TeamManagementController.class).handleAddMemberToTeam(regTeam.getId(), null, null)))
         .with(csrf())
         .with(user(invokingUser))
-        .param("username", "foo"))
+        .param("emailAddress", "foo"))
         .andExpect(status().isBadRequest());
   }
 
@@ -622,7 +622,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
     mockMvc.perform(post(ReverseRouter.route(on(TeamManagementController.class).handleAddMemberToTeam(regTeam.getId(), null, null)))
         .with(csrf())
         .with(user(invokingUser))
-        .param("username", "foo"))
+        .param("emailAddress", "foo"))
         .andExpect(status().isForbidden());
   }
 

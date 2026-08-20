@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,7 +52,7 @@ class AddMemberFormValidatorTest {
     setupValidForm();
     setupValidUser();
 
-    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(List.of(user));
+    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(Optional.of(user));
     when(teamManagementService.getTeam(teamId)).thenReturn(Optional.of(team));
 
     assertThat(addMemberFormValidator.isValid(form, teamId, errors)).isTrue();
@@ -61,9 +60,9 @@ class AddMemberFormValidatorTest {
   }
 
   @Test
-  void isValid_noUsername() {
+  void isValid_noEmailAddress() {
     var errors = new BeanPropertyBindingResult(form, "form");
-    form.setUsername(null);
+    form.setEmailAddress(null);
     assertThat(addMemberFormValidator.isValid(form, teamId, errors)).isFalse();
     assertThat(errors.hasErrors()).isTrue();
   }
@@ -72,39 +71,7 @@ class AddMemberFormValidatorTest {
   void isValid_noEpaUser() {
     setupValidForm();
 
-    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(List.of());
-
-    assertThat(addMemberFormValidator.isValid(form, teamId, errors)).isFalse();
-    assertThat(errors.hasErrors()).isTrue();
-  }
-
-  @Test
-  void isValid_tooManyEpaUsers() {
-    setupValidForm();
-
-    var user1 = new User();
-    user1.setIsAccountShared(false);
-    user1.setCanLogin(true);
-
-    var user2 = new User();
-    user2.setIsAccountShared(false);
-    user2.setCanLogin(true);
-
-    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(List.of(user1, user2));
-    when(teamManagementService.getTeam(teamId)).thenReturn(Optional.of(team));
-
-    assertThat(addMemberFormValidator.isValid(form, teamId, errors)).isFalse();
-    assertThat(errors.hasErrors()).isTrue();
-  }
-
-  @Test
-  void isValid_sharedAccount() {
-    setupValidForm();
-    user.setIsAccountShared(true);
-    user.setCanLogin(true);
-
-    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(List.of(user));
-    when(teamManagementService.getTeam(teamId)).thenReturn(Optional.of(team));
+    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(Optional.empty());
 
     assertThat(addMemberFormValidator.isValid(form, teamId, errors)).isFalse();
     assertThat(errors.hasErrors()).isTrue();
@@ -116,7 +83,7 @@ class AddMemberFormValidatorTest {
     user.setIsAccountShared(false);
     user.setCanLogin(false);
 
-    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(List.of(user));
+    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(Optional.of(user));
     when(teamManagementService.getTeam(teamId)).thenReturn(Optional.of(team));
 
     assertThat(addMemberFormValidator.isValid(form, teamId, errors)).isFalse();
@@ -128,7 +95,7 @@ class AddMemberFormValidatorTest {
     setupValidForm();
     setupValidUser();
 
-    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(List.of(user));
+    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(Optional.of(user));
     when(teamManagementService.getTeam(teamId)).thenReturn(Optional.empty());
 
     var exception = assertThrows(IllegalStateException.class, () -> addMemberFormValidator.isValid(form, teamId, errors));
@@ -143,14 +110,14 @@ class AddMemberFormValidatorTest {
 
     team.setTeamType(TeamType.CONSULTEE);
 
-    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(List.of(user));
+    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(Optional.of(user));
     when(teamManagementService.getTeam(teamId)).thenReturn(Optional.of(team));
     when(teamManagementService.canAddUserToTeam(user.getWebUserAccountId(), team)).thenReturn(false);
 
     var result = addMemberFormValidator.isValid(form, teamId, errors);
 
     assertThat(result).isFalse();
-    assertThat(errors.getFieldError("username").getCode()).isEqualTo("username.alreadyInTeamType");
+    assertThat(errors.getFieldError("emailAddress").getCode()).isEqualTo("emailAddress.alreadyInTeamType");
   }
 
   @Test
@@ -158,7 +125,7 @@ class AddMemberFormValidatorTest {
     setupValidForm();
     setupValidUser();
 
-    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(List.of(user));
+    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(Optional.of(user));
     when(teamManagementService.getTeam(teamId)).thenReturn(Optional.of(team));
 
     var valid = addMemberFormValidator.isValid(form, teamId, errors);
@@ -174,7 +141,7 @@ class AddMemberFormValidatorTest {
 
     team.setTeamType(TeamType.CONSULTEE);
 
-    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(List.of(user));
+    when(teamManagementService.getEnergyPortalUser("foo")).thenReturn(Optional.of(user));
     when(teamManagementService.getTeam(teamId)).thenReturn(Optional.of(team));
     when(teamManagementService.canAddUserToTeam(user.getWebUserAccountId(), team)).thenReturn(true);
 
@@ -185,7 +152,7 @@ class AddMemberFormValidatorTest {
   }
 
   private void setupValidForm() {
-    form.setUsername("foo");
+    form.setEmailAddress("foo");
   }
 
   private void setupValidUser() {
