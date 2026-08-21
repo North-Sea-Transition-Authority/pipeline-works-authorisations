@@ -323,10 +323,13 @@ public class TeamManagementService {
         roles.stream().map(Role::name).collect(Collectors.toSet())
     );
 
-    if (!isNewUser) {
-      return;
+    if (isNewUser) {
+      energyPortalServiceAccessService.addUser(wuaId);
     }
-    energyPortalServiceAccessService.addUser(wuaId);
+
+    if (teamRoleRepository.findAllByWuaId(wuaId).isEmpty()) {
+      energyPortalServiceAccessService.removeUser(wuaId);
+    }
   }
 
   @Transactional

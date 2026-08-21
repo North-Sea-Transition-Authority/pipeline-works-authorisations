@@ -456,6 +456,7 @@ class TeamManagementServiceTest {
     verify(teamRoleRepository).deleteByWuaIdAndTeam(USER_1_WUA_ID, regTeam);
     verify(teamRoleRepository).saveAll(teamRoleListCaptor.capture());
     verify(energyPortalServiceAccessService, never()).addUser(anyLong());
+    verify(energyPortalServiceAccessService, never()).removeUser(anyLong());
     verify(energyPortalAccountsMessagePublishingService).publishUsersRolesForTeam(
         USER_1_WUA_ID,
         regTeam.getId().toString(),
@@ -573,18 +574,41 @@ class TeamManagementServiceTest {
         .thenReturn(Optional.of(user1));
 
     when(teamRoleRepository.findAllByWuaId(USER_1_WUA_ID))
-        .thenReturn(List.of());
+        .thenReturn(List.of(), List.of(new TeamRole()));
 
     when(userAccountService.getWebUserAccount(Math.toIntExact(USER_1_WUA_ID))).thenReturn(stubWebUserAccount());
 
     teamManagementService.setUserTeamRoles(USER_1_WUA_ID, regTeam, List.of(Role.TEAM_ADMINISTRATOR), USER_1_WUA_ID);
 
     verify(energyPortalServiceAccessService).addUser(USER_1_WUA_ID);
+    verify(energyPortalServiceAccessService, never()).removeUser(anyLong());
     verify(energyPortalAccountsMessagePublishingService).publishUsersRolesForTeam(
         USER_1_WUA_ID,
         regTeam.getId().toString(),
         regTeam.getTeamType().name(),
         Set.of(Role.TEAM_ADMINISTRATOR.name())
+    );
+  }
+
+  @Test
+  void setUserTeamRoles_whenNoTeamRolesLeft_thenRemoveEpasAccess() {
+    when(userApi.findUserById(eq(USER_1_WUA_ID), any(), eq(new RequestPurpose("Validate user account")), any(LogCorrelationId.class)))
+        .thenReturn(Optional.of(user1));
+
+    when(userAccountService.getWebUserAccount(Math.toIntExact(USER_1_WUA_ID))).thenReturn(stubWebUserAccount());
+
+    when(teamRoleRepository.findAllByWuaId(USER_1_WUA_ID))
+        .thenReturn(List.of(new TeamRole()), List.of());
+
+    teamManagementService.setUserTeamRoles(USER_1_WUA_ID, regTeam, List.of(), USER_1_WUA_ID);
+
+    verify(energyPortalServiceAccessService, never()).addUser(anyLong());
+    verify(energyPortalServiceAccessService).removeUser(USER_1_WUA_ID);
+    verify(energyPortalAccountsMessagePublishingService).publishUsersRolesForTeam(
+        USER_1_WUA_ID,
+        regTeam.getId().toString(),
+        regTeam.getTeamType().name(),
+        Set.of()
     );
   }
 
