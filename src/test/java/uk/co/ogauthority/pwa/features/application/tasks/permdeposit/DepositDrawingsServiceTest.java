@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -100,6 +101,27 @@ class DepositDrawingsServiceTest {
 
     var captorDrawingLink = ArgumentCaptor.forClass(PadDepositDrawingLink.class);
     verify(padDepositDrawingLinkRepository, times(1)).save(captorDrawingLink.capture());
+  }
+
+
+  @Test
+  void addDrawing_duplicateSubmission_isNoOp() {
+    var fileForm = FileManagementValidatorTestUtils.createUploadedFileForm();
+
+    var form = new PermanentDepositDrawingForm();
+    form.setUploadedFiles(List.of(fileForm));
+    form.setReference("ref");
+    form.setSelectedDeposits(Set.of("1"));
+
+    var padFile = new PadFile(pwaApplicationDetail, String.valueOf(fileForm.getFileId()), ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL);
+    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(pwaApplicationDetail, String.valueOf(fileForm.getFileId()))).thenReturn(padFile);
+    when(padDepositDrawingRepository.findByPwaApplicationDetailAndFile(pwaApplicationDetail, padFile))
+        .thenReturn(Optional.of(new PadDepositDrawing()));
+
+    depositDrawingsService.addDrawing(pwaApplicationDetail, form, new WebUserAccount());
+
+    verify(padDepositDrawingRepository, never()).save(any());
+    verify(padDepositDrawingLinkRepository, never()).save(any());
   }
 
 

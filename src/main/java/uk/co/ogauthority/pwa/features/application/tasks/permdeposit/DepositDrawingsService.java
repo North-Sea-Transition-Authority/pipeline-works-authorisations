@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -32,6 +34,8 @@ import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 /* Service providing simplified API for Permanent Deposit Drawings app form */
 @Service
 public class DepositDrawingsService implements ApplicationFormSectionService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DepositDrawingsService.class);
 
   private final PadDepositDrawingRepository padDepositDrawingRepository;
   private final PadDepositDrawingLinkRepository padDepositDrawingLinkRepository;
@@ -79,6 +83,19 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   @Transactional
   public void addDrawing(PwaApplicationDetail detail, PermanentDepositDrawingForm form, WebUserAccount webUserAccount) {
     padFileManagementService.saveFiles(form, detail, DOCUMENT_TYPE);
+
+    var file = padFileService.getPadFileByPwaApplicationDetailAndFileId(
+        detail,
+        String.valueOf(form.getUploadedFiles().getFirst().getUploadedFileId())
+    );
+
+    // guards against duplicate drawing rows from a double-submitted/resubmitted add-drawing request
+    if (getDrawingLinkedToPadFile(detail, file).isPresent()) {
+      LOGGER.warn("Ignoring duplicate addDrawing request for detail {} and file {} - a drawing is already linked to this file",
+          detail.getId(), file.getFileId());
+      return;
+    }
+
     saveDrawingAndLinks(detail, form, new PadDepositDrawing());
   }
 

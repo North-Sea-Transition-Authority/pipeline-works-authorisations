@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -34,6 +36,8 @@ import uk.co.ogauthority.pwa.util.CleanupUtils;
 
 @Service
 public class PadTechnicalDrawingService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadTechnicalDrawingService.class);
 
   private final PadTechnicalDrawingRepository padTechnicalDrawingRepository;
   private final PadTechnicalDrawingLinkService padTechnicalDrawingLinkService;
@@ -83,7 +87,7 @@ public class PadTechnicalDrawingService {
     var pipelineIds = padTechnicalDrawingLinkService.getLinksFromDrawingList(List.of(drawing))
         .stream()
         .map(drawingLink -> drawingLink.getPipeline().getId())
-        .collect(Collectors.toUnmodifiableList());
+        .toList();
 
     if (drawing.getFile() != null) {
       var fileForm = FileUploadLibraryUtils.asForm(padFileManagementService.getUploadedFile(detail, drawing.getFileId()));
@@ -97,6 +101,18 @@ public class PadTechnicalDrawingService {
 
   @Transactional
   public void addDrawing(PwaApplicationDetail detail, PipelineDrawingForm form) {
+    var file = padFileService.getPadFileByPwaApplicationDetailAndFileId(
+        detail,
+        String.valueOf(form.getUploadedFiles().getFirst().getUploadedFileId())
+    );
+
+    // guards against duplicate drawing rows from a double-submitted/resubmitted add-drawing request
+    if (getDrawingLinkedToPadFile(detail, file).isPresent()) {
+      LOGGER.warn("Ignoring duplicate addDrawing request for detail {} and file {} - a drawing is already linked to this file",
+          detail.getId(), file.getFileId());
+      return;
+    }
+
     var drawing = new PadTechnicalDrawing();
     saveDrawingAndLink(detail, form, drawing);
   }

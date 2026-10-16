@@ -129,6 +129,27 @@ class PadTechnicalDrawingServiceTest {
   }
 
   @Test
+  void addDrawing_duplicateSubmission_isNoOp() {
+    var fileForm = FileManagementValidatorTestUtils.createUploadedFileForm();
+
+    var form = new PipelineDrawingForm();
+    form.setUploadedFiles(List.of(fileForm));
+    form.setReference("ref");
+
+    var padFile = new PadFile(pwaApplicationDetail, FILE_ID, ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
+        ApplicationFileLinkStatus.FULL);
+    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(pwaApplicationDetail, String.valueOf(fileForm.getFileId())))
+        .thenReturn(padFile);
+    when(padTechnicalDrawingRepository.findByPwaApplicationDetailAndFile(pwaApplicationDetail, padFile))
+        .thenReturn(Optional.of(new PadTechnicalDrawing()));
+
+    padTechnicalDrawingService.addDrawing(pwaApplicationDetail, form);
+
+    verify(padTechnicalDrawingRepository, never()).save(any());
+    verifyNoInteractions(padTechnicalDrawingLinkService);
+  }
+
+  @Test
   void getPipelineDrawingSummaryViews_singleOverview() {
     var pipelineDrawing = new PadTechnicalDrawing();
     pipelineDrawing.setReference("ref");
