@@ -239,7 +239,10 @@ public class TeamManagementService {
         emailAddress,
         projection,
         new RequestPurpose("Find user to add to team"),
-        CorrelationIdUtil.getLogCorrelationId());
+        CorrelationIdUtil.getLogCorrelationId())
+        .stream()
+        .filter(User::getCanLogin)
+        .toList();
 
     if (users.size() > 1) {
       throw new TeamManagementException(

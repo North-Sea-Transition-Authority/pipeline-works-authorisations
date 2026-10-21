@@ -438,6 +438,30 @@ class TeamManagementServiceTest {
   }
 
   @Test
+  void getEnergyPortalUser_whenOnlyOneUserCanLogin_thenReturnsThatUser() {
+    var disabledUser = new User();
+    disabledUser.setWebUserAccountId(99L);
+    disabledUser.setCanLogin(false);
+
+    when(userApi.searchUsersByEmail(eq("foo"), any(), any(RequestPurpose.class), any(LogCorrelationId.class)))
+        .thenReturn(List.of(disabledUser, user1));
+
+    assertThat(teamManagementService.getEnergyPortalUser("foo")).contains(user1);
+  }
+
+  @Test
+  void getEnergyPortalUser_whenNoUsersCanLogin_thenEmpty() {
+    var disabledUser = new User();
+    disabledUser.setWebUserAccountId(99L);
+    disabledUser.setCanLogin(false);
+
+    when(userApi.searchUsersByEmail(eq("foo"), any(), any(RequestPurpose.class), any(LogCorrelationId.class)))
+        .thenReturn(List.of(disabledUser));
+
+    assertThat(teamManagementService.getEnergyPortalUser("foo")).isEmpty();
+  }
+
+  @Test
   void setUserTeamRoles_existingUser() {
     var webUserAccount = stubWebUserAccount();
     when(userAccountService.getWebUserAccount(USER_1_WUA_ID.intValue())).thenReturn(webUserAccount);
@@ -1207,9 +1231,13 @@ class TeamManagementServiceTest {
   @Test
   void getEnergyPortalUser_whenMultipleUsersFound_thenThrow() {
     var emailAddress = "test@test.com";
+    var loginUser1 = new User();
+    loginUser1.setCanLogin(true);
+    var loginUser2 = new User();
+    loginUser2.setCanLogin(true);
 
     when(userApi.searchUsersByEmail(eq(emailAddress), any(), any(RequestPurpose.class), any(LogCorrelationId.class)))
-        .thenReturn(List.of(new User(), new User()));
+        .thenReturn(List.of(loginUser1, loginUser2));
 
     assertThatThrownBy(() -> teamManagementService.getEnergyPortalUser(emailAddress))
         .isInstanceOf(TeamManagementException.class)
