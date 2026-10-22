@@ -51,6 +51,16 @@ public class ErrorService {
     LOGGER.error("Caught unhandled exception (errorRef {})", errorReference, throwable);
   }
 
+  /**
+   * Client (4xx) errors don't get an error reference shown to the user, as they're not actionable via one. They
+   * are still worth a log line though - without this, resolved 4xx exceptions (e.g. a {@link ResponseStatus}
+   * annotated exception with a generic, fixed reason shown to the user) leave no trace of the actual underlying
+   * message anywhere, making them impossible to investigate after the fact.
+   */
+  private void logClientError(Throwable throwable) {
+    LOGGER.warn("Resolved client error response: {}: {}", throwable.getClass().getName(), throwable.getMessage());
+  }
+
   private void addTechnicalSupportContactDetails(ModelAndView modelAndView) {
     modelAndView.addObject("technicalSupportContact", technicalSupportContactProperties);
   }
@@ -70,8 +80,12 @@ public class ErrorService {
   }
 
   public ModelAndView addErrorAttributesToModel(ModelAndView modelAndView, Throwable throwable) {
-    if (throwable != null && isServerError(throwable)) {
-      addErrorReference(modelAndView, throwable);
+    if (throwable != null) {
+      if (isServerError(throwable)) {
+        addErrorReference(modelAndView, throwable);
+      } else {
+        logClientError(throwable);
+      }
     }
     addTechnicalSupportContactDetails(modelAndView);
     modelAndView.addObject("feedbackUrl", ControllerUtils.getFeedbackUrl());

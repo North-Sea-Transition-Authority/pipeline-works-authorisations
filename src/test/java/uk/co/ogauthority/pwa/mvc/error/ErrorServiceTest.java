@@ -1,12 +1,21 @@
 package uk.co.ogauthority.pwa.mvc.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.Appender;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.server.ResponseStatusException;
@@ -29,12 +38,26 @@ class ErrorServiceTest {
   @Mock
   private AnalyticsConfigurationProperties analyticsConfigurationProperties;
 
+  @Mock
+  private Appender<ILoggingEvent> appender;
+
+  private Logger errorServiceLogger;
+
   private ErrorService errorService;
 
   @BeforeEach
   void setup() {
     errorService = new ErrorService(technicalSupportContactProperties, serviceProperties,
         analyticsConfigurationProperties);
+
+    errorServiceLogger = (Logger) LoggerFactory.getLogger(ErrorService.class);
+    errorServiceLogger.addAppender(appender);
+    errorServiceLogger.setLevel(Level.WARN);
+  }
+
+  @AfterEach
+  void tearDown() {
+    errorServiceLogger.detachAppender(appender);
   }
 
   @Test
@@ -88,6 +111,23 @@ class ErrorServiceTest {
   }
 
   @Test
+  void addErrorAttributesToModel_when4xxResponseStatusAnnotatedException_logsUnderlyingMessageAsWarning() {
+    errorService.addErrorAttributesToModel(
+        new ModelAndView(),
+        new PwaEntityNotFoundException("Unable to get UploadedFileView of file with ID: abc-123")
+    );
+
+    var loggingEventCaptor = ArgumentCaptor.forClass(LoggingEvent.class);
+    verify(appender).doAppend(loggingEventCaptor.capture());
+
+    var loggingEvent = loggingEventCaptor.getValue();
+    assertThat(loggingEvent.getLevel()).isEqualTo(Level.WARN);
+    assertThat(loggingEvent.getFormattedMessage())
+        .contains(PwaEntityNotFoundException.class.getName())
+        .contains("Unable to get UploadedFileView of file with ID: abc-123");
+  }
+
+  @Test
   void addErrorAttributesToModel_when5xxResponseStatusAnnotatedException_assertErrorReference() {
     final var resultingModelMap = errorService.addErrorAttributesToModel(
         new ModelAndView(),
@@ -96,6 +136,20 @@ class ErrorServiceTest {
 
     assertThat(resultingModelMap.get("errorRef")).isNotNull();
     assertCommonModelProperties(resultingModelMap);
+  }
+
+  @Test
+  void addErrorAttributesToModel_when5xxResponseStatusAnnotatedException_assertNoClientErrorLogged() {
+    errorService.addErrorAttributesToModel(
+        new ModelAndView(),
+        new ActionNotAllowedException("not allowed")
+    );
+
+    // 5xx errors are still logged (as an ERROR, via the existing errorRef behaviour) - just never as the
+    // WARN-level "resolved client error" line that logClientError() adds for 4xx errors.
+    var loggingEventCaptor = ArgumentCaptor.forClass(LoggingEvent.class);
+    verify(appender).doAppend(loggingEventCaptor.capture());
+    assertThat(loggingEventCaptor.getValue().getLevel()).isEqualTo(Level.ERROR);
   }
 
   @Test
