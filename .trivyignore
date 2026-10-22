@@ -78,3 +78,6 @@ CVE-2026-84939
 # org.springframework:spring-webmvc
 CVE-2026-47884
 CVE-2026-47890
+
+# ognl:ognl
+CVE-2026-113730
