@@ -3,12 +3,10 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import jakarta.annotation.Resource;
-import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.context.annotation.SessionScope;
@@ -31,6 +28,7 @@ import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
@@ -43,6 +41,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.PickHuooPipelinesForm;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.PickableHuooPipelineOption;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.PickableHuooPipelineService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.PickableHuooPipelineType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.ReconciledHuooPickablePipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.controller.PipelinesHuooController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -99,29 +98,79 @@ public class ModifyPipelineHuooJourneyController {
     this.controllerHelperService = controllerHelperService;
   }
 
-  @PostMapping("/editGroup")
-  public ModelAndView editGroupRouter(@PathVariable("applicationType")
-                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                      @PathVariable("applicationId") int applicationId,
-                                      @PathVariable("huooRole") HuooRole huooRole,
-                                      PwaApplicationContext applicationContext,
-                                      @RequestParam(value = "journeyPage") JourneyPage journeyPage,
-                                      @RequestParam(value = "encodedPickedPipelineIds", required = false)
-                                          Set<String> encodedPickedPipelineIds,
-                                      @RequestParam(value = "organisationIds", required = false) Set<Integer> organisationUnitIds,
-                                      @RequestParam(value = "treatyAgreements", required = false) Set<TreatyAgreement> treatyAgreements) {
+  @PostMapping("/assign-unassigned-pipelines")
+  public ModelAndView assignUnassignedPipelines(@PathVariable("applicationType")
+                                                @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                @PathVariable("applicationId") int applicationId,
+                                                @PathVariable("huooRole") HuooRole huooRole,
+                                                PwaApplicationContext applicationContext) {
+
+    var unassignedPipelines = padPipelinesHuooService.getUnassignedPipelineIdentifiersForRole(
+        applicationContext.getApplicationDetail(),
+        huooRole
+    );
+
+    startJourneyWithPreselections(applicationContext, huooRole, unassignedPipelines, Set.of(), Set.of());
+
+    return redirectToJourneyPage(applicationContext, huooRole, JourneyPage.PIPELINE_SELECTION);
+  }
+
+  @PostMapping("/edit-group/{groupKey}")
+  public ModelAndView editGroup(@PathVariable("applicationType")
+                                @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                @PathVariable("applicationId") int applicationId,
+                                @PathVariable("huooRole") HuooRole huooRole,
+                                @PathVariable("groupKey") String groupKey,
+                                PwaApplicationContext applicationContext,
+                                RedirectAttributes redirectAttributes) {
+
+    var groupView = padPipelinesHuooService.getPipelinesAndOrgRoleGroupView(
+        applicationContext.getApplicationDetail(),
+        huooRole,
+        groupKey
+    );
+
+    // group no longer exists, e.g. pipeline roles were changed in another tab since the summary was loaded
+    if (groupView.isEmpty()) {
+      FlashUtils.info(
+          redirectAttributes,
+          String.format("The pipeline %ss have changed since the page was loaded", huooRole.getDisplayText().toLowerCase()),
+          "Check the pipelines below and try again");
+      return ReverseRouter.redirect(on(PipelinesHuooController.class).renderSummary(
+          pwaApplicationType, applicationId, null
+      ));
+    }
+
+    startJourneyWithPreselections(
+        applicationContext,
+        huooRole,
+        groupView.get().getPipelineIdentifierSet(),
+        groupView.get().getOrganisationIdsOfRoleOwners().stream()
+            .map(OrganisationUnitId::asInt)
+            .collect(Collectors.toSet()),
+        groupView.get().getTreatyAgreementsOfRoleOwners()
+    );
+
+    return redirectToJourneyPage(applicationContext, huooRole, JourneyPage.ORGANISATION_SELECTION);
+  }
+
+  private void startJourneyWithPreselections(PwaApplicationContext applicationContext,
+                                             HuooRole huooRole,
+                                             Set<PipelineIdentifier> pipelineIdentifiers,
+                                             Set<Integer> organisationUnitIds,
+                                             Set<TreatyAgreement> treatyAgreements) {
 
     var detail = applicationContext.getApplicationDetail();
     modifyPipelineHuooJourneyData.reset();
 
-    // Workaround using Base64 encoded strings as params
-    // Otherwise url params in the desired format are not being correctly mapped as single string entries into the set.
-    var decodedPickedPipelineIds = decodeEncodedStrings(SetUtils.emptyIfNull(encodedPickedPipelineIds));
+    var pickablePipelineStrings = pipelineIdentifiers.stream()
+        .map(PickableHuooPipelineType::createPickableString)
+        .collect(Collectors.toSet());
 
     var reconciledPipelinePickableIds = padPipelinesHuooService.reconcilePickablePipelinesFromPipelineIds(
-        applicationContext.getApplicationDetail(),
+        detail,
         huooRole,
-        decodedPickedPipelineIds
+        pickablePipelineStrings
     )
         .stream()
         .map(ReconciledHuooPickablePipeline::getPickableIdAsString)
@@ -133,8 +182,8 @@ public class ModifyPipelineHuooJourneyController {
     var reconciledRoleOwners = padPipelinesHuooService.reconcileOrganisationRoleOwnersFrom(
         detail,
         huooRole,
-        SetUtils.emptyIfNull(organisationUnitIds),
-        SetUtils.emptyIfNull(treatyAgreements)
+        organisationUnitIds,
+        treatyAgreements
     );
 
     var reconciledOrgUnitIds = reconciledRoleOwners.stream()
@@ -150,16 +199,6 @@ public class ModifyPipelineHuooJourneyController {
     //update journey orgs role owners
     modifyPipelineHuooJourneyData.updateJourneyOrganisationData(detail, huooRole, reconciledOrgUnitIds,
         reconciledTreaties);
-
-    return redirectToJourneyPage(applicationContext, huooRole, journeyPage);
-  }
-
-  private Set<String> decodeEncodedStrings(Set<String> encodedStrings) {
-    var decoder = Base64.getUrlDecoder();
-    return encodedStrings.stream()
-        // yuck
-        .map(s -> new String(decoder.decode(s)))
-        .collect(Collectors.toSet());
   }
 
   @GetMapping("/pipelines")

@@ -46,6 +46,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PadPipelineHuooViewFactory;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelineAndOrgRoleGroupViewsByRole;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelineHuooValidationResult;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelinesAndOrgRoleGroupView;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -98,6 +99,24 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
 
     return padPipelineHuooViewFactory.createPipelineAndOrgGroupViewsByRole(pwaApplicationDetail, pipelineAndOrgGroupAppSummary);
 
+  }
+
+  public Set<PipelineIdentifier> getUnassignedPipelineIdentifiersForRole(PwaApplicationDetail pwaApplicationDetail,
+                                                                        HuooRole huooRole) {
+    return getPadPipelinesHuooSummaryView(pwaApplicationDetail)
+        .getRoleSummaryView(huooRole)
+        .getUnassignedPipelineIds();
+  }
+
+  public Optional<PipelinesAndOrgRoleGroupView> getPipelinesAndOrgRoleGroupView(PwaApplicationDetail pwaApplicationDetail,
+                                                                                HuooRole huooRole,
+                                                                                String groupKey) {
+    return getPadPipelinesHuooSummaryView(pwaApplicationDetail)
+        .getRoleSummaryView(huooRole)
+        .getPipelinesAndOrgRoleGroupViews()
+        .stream()
+        .filter(groupView -> groupView.getGroupKey().equals(groupKey))
+        .findFirst();
   }
 
   public PipelineHuooValidationResult generatePipelineHuooValidationResult(

@@ -2,15 +2,9 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.Base64;
-import java.util.Collections;
-import java.util.stream.Collectors;
-import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.definesections.controller.SplitPipelineHuooJourneyController;
-import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.PickableHuooPipelineType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.controller.ModifyPipelineHuooJourneyController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -71,42 +65,22 @@ public class PipelineHuooUrlFactory {
 
   public String changeGroupPipelineOwnersUrl(HuooRole huooRole,
                                              PipelinesAndOrgRoleGroupView pipelinesAndOrgRoleGroupView) {
-    return ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class).editGroupRouter(
+    return ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class).editGroup(
         applicationType,
         applicationId,
         huooRole,
+        pipelinesAndOrgRoleGroupView.getGroupKey(),
         null,
-        ModifyPipelineHuooJourneyController.JourneyPage.ORGANISATION_SELECTION,
-        pipelinesAndOrgRoleGroupView.getPipelineIdentifierSet().stream()
-            .map(this::getPipelineIdentifierPickableStringAsBase64)
-            .collect(Collectors.toSet()),
-        pipelinesAndOrgRoleGroupView.getOrganisationIdsOfRoleOwners().stream()
-            .map(OrganisationUnitId::asInt)
-            .collect(Collectors.toSet()),
-        pipelinesAndOrgRoleGroupView.getTreatyAgreementsOfRoleOwners()
+        null
     ));
   }
 
-  public String assignUnassignedPipelineOwnersUrl(HuooRole huooRole,
-                                                  PipelineHuooRoleSummaryView pipelineHuooRoleSummaryView) {
-    return ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class).editGroupRouter(
+  public String assignUnassignedPipelineOwnersUrl(HuooRole huooRole) {
+    return ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class).assignUnassignedPipelines(
         applicationType,
         applicationId,
         huooRole,
-        null,
-        ModifyPipelineHuooJourneyController.JourneyPage.PIPELINE_SELECTION,
-        pipelineHuooRoleSummaryView.getUnassignedPipelineIds()
-            .stream()
-            .map(this::getPipelineIdentifierPickableStringAsBase64)
-            .collect(Collectors.toSet()),
-        Collections.emptySet(),
-        Collections.emptySet()
+        null
     ));
-  }
-
-  private String getPipelineIdentifierPickableStringAsBase64(PipelineIdentifier pipelineIdentifier) {
-    var pickableString = PickableHuooPipelineType.createPickableString(pipelineIdentifier);
-    // Yuck, workaround as otherise string pickableString is not correctly mapped into Set<String> by controller. dont know why.
-    return Base64.getUrlEncoder().encodeToString(pickableString.getBytes());
   }
 }

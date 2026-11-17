@@ -51,6 +51,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PadPipelineHuooViewFactory;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelineAndOrgRoleGroupViewsByRoleTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelineHuooRoleSummaryViewTestUtil;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelinesAndOrgRoleGroupView;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelinesAndOrgRoleGroupViewTestUtil;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentView;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentView;
@@ -744,6 +745,62 @@ class PadPipelinesHuooServiceTest {
     verify(padPipelineHuooViewFactory,times(1)).createPipelineAndOrgGroupViewsByRole(
         eq(pwaApplicationDetail),
         isNotNull());
+  }
+
+  @Test
+  void getUnassignedPipelineIdentifiersForRole_returnsUnassignedPipelinesForRequestedRoleOnly() {
+    var holderUnassignedPipeline = new PipelineId(1);
+    var userUnassignedPipeline = new PipelineId(2);
+    var rolesByView = PipelineAndOrgRoleGroupViewsByRoleTestUtil.createFrom(
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithUnassigned(
+            HuooRole.HOLDER, Map.of(holderUnassignedPipeline, "PL1"), Map.of()),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithUnassigned(
+            HuooRole.USER, Map.of(userUnassignedPipeline, "PL2"), Map.of()),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.OPERATOR),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.OWNER)
+    );
+    when(padPipelineHuooViewFactory.createPipelineAndOrgGroupViewsByRole(eq(pwaApplicationDetail), any()))
+        .thenReturn(rolesByView);
+
+    assertThat(padPipelinesHuooService.getUnassignedPipelineIdentifiersForRole(pwaApplicationDetail, HuooRole.HOLDER))
+        .containsExactly(holderUnassignedPipeline);
+  }
+
+  @Test
+  void getPipelinesAndOrgRoleGroupView_whenGroupKeyMatches_thenGroupReturned() {
+    var orgRoleOwner = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(new OrganisationUnitId(1));
+    var group1 = PipelinesAndOrgRoleGroupViewTestUtil.createSinglePipelineSingleOrgGroupView(
+        new PipelineId(1), orgRoleOwner, "PL1", "org");
+    var group2 = PipelinesAndOrgRoleGroupViewTestUtil.createSinglePipelineSingleOrgGroupView(
+        new PipelineId(2), orgRoleOwner, "PL2", "org");
+    mockHolderGroups(List.of(group1, group2));
+
+    assertThat(padPipelinesHuooService.getPipelinesAndOrgRoleGroupView(
+        pwaApplicationDetail, HuooRole.HOLDER, group2.getGroupKey()))
+        .contains(group2);
+  }
+
+  @Test
+  void getPipelinesAndOrgRoleGroupView_whenNoGroupKeyMatches_thenEmpty() {
+    var orgRoleOwner = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(new OrganisationUnitId(1));
+    var group = PipelinesAndOrgRoleGroupViewTestUtil.createSinglePipelineSingleOrgGroupView(
+        new PipelineId(1), orgRoleOwner, "PL1", "org");
+    mockHolderGroups(List.of(group));
+
+    assertThat(padPipelinesHuooService.getPipelinesAndOrgRoleGroupView(
+        pwaApplicationDetail, HuooRole.HOLDER, "unknown-group-key"))
+        .isEmpty();
+  }
+
+  private void mockHolderGroups(List<PipelinesAndOrgRoleGroupView> holderGroups) {
+    var rolesByView = PipelineAndOrgRoleGroupViewsByRoleTestUtil.createFrom(
+        PipelineHuooRoleSummaryViewTestUtil.createWithNoUnassignedPipelinesOrOrgs(HuooRole.HOLDER, holderGroups),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.USER),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.OPERATOR),
+        PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.OWNER)
+    );
+    when(padPipelineHuooViewFactory.createPipelineAndOrgGroupViewsByRole(eq(pwaApplicationDetail), any()))
+        .thenReturn(rolesByView);
   }
 
   @Test

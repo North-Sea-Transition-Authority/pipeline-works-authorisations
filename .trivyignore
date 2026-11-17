@@ -1,39 +1,23 @@
-# commons-io:commons-io
-CVE-2024-47554
-
-# org.apache.commons:commons-lang3
-CVE-2025-48924
-
-# org.bouncycastle:bcpkix-jdk18on
-CVE-2023-33202
-CVE-2025-8916
-CVE-2026-5588
-
-# org.bouncycastle:bcprov-jdk18on
-CVE-2026-5598
-CVE-2023-33201
-CVE-2023-33202
-CVE-2024-29857
-CVE-2024-30171
-CVE-2024-34447
-CVE-2025-8885
-CVE-2025-14813
-CVE-2026-8763
-CVE-2026-13506
-
-# ch.qos.logback:logback-core
-CVE-2026-10532
+# com.fasterxml.jackson.core:jackson-core
+CVE-2026-89407
+CVE-2026-89425
 
 # com.fasterxml.jackson.core:jackson-databind
-CVE-2026-54515
-CVE-2026-59889
-GHSA-mhm7-754m-9p8w
 CVE-2026-68497
 CVE-2026-91776
 CVE-2026-91777
 CVE-2026-19032
+CVE-2026-54515
+CVE-2026-59889
 CVE-2026-77310
 CVE-2026-83557
+GHSA-mhm7-754m-9p8w
+
+# com.google.guava:guava
+CVE-2026-102554
+
+# commons-io:commons-io
+CVE-2024-47554
 
 # io.netty:netty-codec
 CVE-2026-59901
@@ -45,39 +29,61 @@ CVE-2026-56745
 CVE-2026-56746
 CVE-2026-59898
 CVE-2026-59899
-CVE-2026-59921
-CVE-2026-59900
 CVE-2026-59903
+CVE-2026-59921
 
 # io.netty:netty-codec-http2
 CVE-2026-56819
-
-# org.apache.logging.log4j:log4j-api
-CVE-2026-49844
-
-# org.jsoup:jsoup
-CVE-2026-71497
-CVE-2026-75140
-
-# com.fasterxml.jackson.core:jackson-core
-CVE-2026-89407
-CVE-2026-89425
+CVE-2026-59900
 
 # io.netty:netty-handler
 CVE-2026-75595
 CVE-2026-75596
 
+# ognl:ognl
+CVE-2026-113730
+
+# org.apache.commons:commons-lang3
+CVE-2025-48924
+
+# org.apache.logging.log4j:log4j-api
+CVE-2026-49844
+
 # org.apache.tomcat.embed:tomcat-embed-core
+CVE-2026-55276
 CVE-2026-65182
+CVE-2026-65637
 CVE-2026-65905
 CVE-2026-68525
+CVE-2026-53404
+CVE-2026-55956
+
+# org.bouncycastle:bcpkix-jdk18on
+CVE-2023-33202
+CVE-2025-8916
+CVE-2026-5588
+
+# org.bouncycastle:bcprov-jdk18on
+CVE-2025-14813
+CVE-2026-8763
+CVE-2026-13506
+CVE-2026-5598
+CVE-2023-33201
+CVE-2024-29857
+CVE-2024-30171
+CVE-2024-34447
+CVE-2025-8885
 
 # org.freemarker:freemarker
 CVE-2026-84939
 
+# org.json:json
+CVE-2026-59171
+
+# org.jsoup:jsoup
+CVE-2026-75140
+CVE-2026-71497
+
 # org.springframework:spring-webmvc
 CVE-2026-47884
 CVE-2026-47890
-
-# ognl:ognl
-CVE-2026-113730

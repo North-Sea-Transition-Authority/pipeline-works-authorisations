@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview;
 
 import java.util.List;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 
 /**
  * Used by Pipeline Huoo overview screen to show summarised pipeline huoos.
@@ -8,17 +9,17 @@ import java.util.List;
 public class PipelineAndOrgRoleGroupViewsByRole {
 
   private final PipelineHuooRoleSummaryView holderRoleSummaryView;
-  private final PipelineHuooRoleSummaryView userRoleSumaryView;
+  private final PipelineHuooRoleSummaryView userRoleSummaryView;
   private final PipelineHuooRoleSummaryView operatorRoleSummaryView;
   private final PipelineHuooRoleSummaryView ownerRoleSummaryView;
 
   PipelineAndOrgRoleGroupViewsByRole(
       PipelineHuooRoleSummaryView holderRoleSummaryView,
-      PipelineHuooRoleSummaryView userRoleSumaryView,
+      PipelineHuooRoleSummaryView userRoleSummaryView,
       PipelineHuooRoleSummaryView operatorRoleSummaryView,
       PipelineHuooRoleSummaryView ownerRoleSummaryView) {
     this.holderRoleSummaryView = holderRoleSummaryView;
-    this.userRoleSumaryView = userRoleSumaryView;
+    this.userRoleSummaryView = userRoleSummaryView;
     this.operatorRoleSummaryView = operatorRoleSummaryView;
     this.ownerRoleSummaryView = ownerRoleSummaryView;
   }
@@ -28,7 +29,7 @@ public class PipelineAndOrgRoleGroupViewsByRole {
   }
 
   public List<PipelinesAndOrgRoleGroupView> getUserGroups() {
-    return userRoleSumaryView.getPipelinesAndOrgRoleGroupViews();
+    return userRoleSummaryView.getPipelinesAndOrgRoleGroupViews();
   }
 
   public List<PipelinesAndOrgRoleGroupView> getOperatorGroups() {
@@ -44,7 +45,7 @@ public class PipelineAndOrgRoleGroupViewsByRole {
   }
 
   public PipelineHuooRoleSummaryView getUserRoleSummaryView() {
-    return userRoleSumaryView;
+    return userRoleSummaryView;
   }
 
   public PipelineHuooRoleSummaryView getOperatorRoleSummaryView() {
@@ -55,11 +56,20 @@ public class PipelineAndOrgRoleGroupViewsByRole {
     return ownerRoleSummaryView;
   }
 
+  public PipelineHuooRoleSummaryView getRoleSummaryView(HuooRole huooRole) {
+    return switch (huooRole) {
+      case HOLDER -> holderRoleSummaryView;
+      case USER -> userRoleSummaryView;
+      case OPERATOR -> operatorRoleSummaryView;
+      case OWNER -> ownerRoleSummaryView;
+    };
+  }
+
   @Override
   public String toString() {
     return "PipelineAndOrgRoleGroupViewsByRole{" +
         "holderRoleSummaryView=" + holderRoleSummaryView +
-        ", userRoleSumaryView=" + userRoleSumaryView +
+        ", userRoleSumaryView=" + userRoleSummaryView +
         ", operatorRoleSummaryView=" + operatorRoleSummaryView +
         ", ownerRoleSummaryView=" + ownerRoleSummaryView +
         '}';

@@ -28,7 +28,7 @@
           organisationNameList=["No ${roleSingular?lower_case}s assigned"]
           linkText="Assign ${roleSingular?lower_case}s for these pipelines"
           insetText="All pipelines must have at least one ${roleSingular?lower_case} assigned for the section to be complete"
-          linkUrl=urlFactory.assignUnassignedPipelineOwnersUrl(summaryView.huooRole, summaryView)
+          linkUrl=urlFactory.assignUnassignedPipelineOwnersUrl(summaryView.huooRole)
           cardId=unassignedPipelineCardId
           summaryValidationResult=summaryValidationResult!
         />
