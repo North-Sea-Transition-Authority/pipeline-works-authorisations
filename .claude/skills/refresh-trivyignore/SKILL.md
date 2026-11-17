@@ -22,7 +22,7 @@ Trivy cache and output. `$S` below stands for that directory.
 ```bash
 : > .trivyignore
 ./gradlew bootJar -q
-docker build -q -t lms:trivy-scan-target .
+docker build -q -t pwa:trivy-scan-target .
 ```
 
 ## 2. Scan with the CI's Trivy version
@@ -37,7 +37,7 @@ MSYS_NO_PATHCONV=1 docker run --rm \
   -e TRIVY_DB_REPOSITORY=public.ecr.aws/aquasecurity/trivy-db,aquasec/trivy-db,ghcr.io/aquasecurity/trivy-db \
   -e TRIVY_JAVA_DB_REPOSITORY=public.ecr.aws/aquasecurity/trivy-java-db,aquasec/trivy-java-db,ghcr.io/aquasecurity/trivy-java-db \
   aquasec/trivy:<version> --cache-dir /cache image --timeout 30m \
-  --format json --output /out/trivy.json lms:trivy-scan-target
+  --format json --output /out/trivy.json pwa:trivy-scan-target
 ```
 
 `MSYS_NO_PATHCONV=1` stops Git Bash from rewriting the container paths.
@@ -62,7 +62,7 @@ MSYS_NO_PATHCONV=1 docker run --rm \
   -v //var/run/docker.sock:/var/run/docker.sock \
   -v "$S/trivy_cache:/cache" -v "$(pwd -W)/.trivyignore:/.trivyignore" -w / \
   aquasec/trivy:<version> --cache-dir /cache image \
-  --skip-db-update --skip-java-db-update --exit-code 1 lms:trivy-scan-target
+  --skip-db-update --skip-java-db-update --exit-code 1 pwa:trivy-scan-target
 ```
 
 ## 5. Report
