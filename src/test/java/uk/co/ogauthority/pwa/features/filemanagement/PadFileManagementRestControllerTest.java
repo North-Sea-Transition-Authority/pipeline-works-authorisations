@@ -117,7 +117,7 @@ class PadFileManagementRestControllerTest extends PwaApplicationContextAbstractC
     var uploadedFile = new UploadedFile();
     when(fileService.find(FILE_ID)).thenReturn(Optional.of(uploadedFile));
 
-    when(fileService.delete(uploadedFile)).thenReturn(FileDeleteResponse.success(FILE_ID));
+    when(padFileService.deleteFileAndPadFileLinks(pwaApplicationDetail, uploadedFile)).thenReturn(FileDeleteResponse.success(FILE_ID));
 
     mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER)
             .delete(APPLICATION_DETAIL_ID, FILE_ID)))
@@ -126,7 +126,7 @@ class PadFileManagementRestControllerTest extends PwaApplicationContextAbstractC
         .andExpect(status().isOk());
 
     verify(padFileManagementService).throwIfFileDoesNotBelongToApplicationDetail(uploadedFile, pwaApplicationDetail);
-    verify(fileService).delete(uploadedFile);
+    verify(padFileService).deleteFileAndPadFileLinks(pwaApplicationDetail, uploadedFile);
   }
 
   @Test

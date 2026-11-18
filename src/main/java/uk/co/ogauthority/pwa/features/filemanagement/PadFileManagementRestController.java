@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
+import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 
 @RestController
@@ -34,15 +35,18 @@ public class PadFileManagementRestController {
   private final FileService fileService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PadFileManagementService padFileManagementService;
+  private final PadFileService padFileService;
 
   PadFileManagementRestController(
       FileService fileService,
       PwaApplicationDetailService pwaApplicationDetailService,
-      PadFileManagementService padFileManagementService
+      PadFileManagementService padFileManagementService,
+      PadFileService padFileService
   ) {
     this.fileService = fileService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.padFileManagementService = padFileManagementService;
+    this.padFileService = padFileService;
   }
 
   @GetMapping("/download/{fileId}")
@@ -74,6 +78,6 @@ public class PadFileManagementRestController {
 
     padFileManagementService.throwIfFileDoesNotBelongToApplicationDetail(file, pwaApplicationDetail);
 
-    return fileService.delete(file);
+    return padFileService.deleteFileAndPadFileLinks(pwaApplicationDetail, file);
   }
 }

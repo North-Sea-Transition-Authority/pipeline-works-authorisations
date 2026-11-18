@@ -5,8 +5,13 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.fds.FileDeleteResponse;
 import uk.co.fivium.fileuploadlibrary.fds.FileUploadResponse;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawingRepository;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingRepository;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.CopiedEntityIdTuple;
@@ -20,12 +25,21 @@ public class PadFileService {
 
   private final PadFileRepository padFileRepository;
   private final EntityCopyingService entityCopyingService;
+  private final FileService fileService;
+  private final PadTechnicalDrawingRepository padTechnicalDrawingRepository;
+  private final PadDepositDrawingRepository padDepositDrawingRepository;
 
   @Autowired
   public PadFileService(PadFileRepository padFileRepository,
-                        EntityCopyingService entityCopyingService) {
+                        EntityCopyingService entityCopyingService,
+                        FileService fileService,
+                        PadTechnicalDrawingRepository padTechnicalDrawingRepository,
+                        PadDepositDrawingRepository padDepositDrawingRepository) {
     this.padFileRepository = padFileRepository;
     this.entityCopyingService = entityCopyingService;
+    this.fileService = fileService;
+    this.padTechnicalDrawingRepository = padTechnicalDrawingRepository;
+    this.padDepositDrawingRepository = padDepositDrawingRepository;
   }
 
   @Transactional
@@ -73,6 +87,36 @@ public class PadFileService {
 
   public List<PadFile> getAllByFileId(String fileId) {
     return padFileRepository.findAllByFileId(fileId);
+  }
+
+  /**
+   * Delete an uploaded file and the pad_files bridge row linking it to the given application detail, so a
+   * file removed via the file-upload widget doesn't leave a pad_files row pointing at a file that no longer
+   * exists. Scoped to the given detail only, so a file id that (due to historic data corruption) is also
+   * referenced by a pad_files row on a different application detail version is left untouched.
+   *
+   * <p>pad_technical_drawings.pf_id and pad_deposit_drawings.pf_id are the only foreign keys onto pad_files,
+   * so a drawing being edited can still reference this pad_files row (the widget removes a file from the
+   * form before it's resubmitted) - that link is cleared first so the bridge row can be deleted without
+   * violating those constraints.</p>
+   */
+  @Transactional
+  public FileDeleteResponse deleteFileAndPadFileLinks(PwaApplicationDetail pwaApplicationDetail, UploadedFile uploadedFile) {
+    padFileRepository.findByPwaApplicationDetailAndFileId(pwaApplicationDetail, String.valueOf(uploadedFile.getId()))
+        .ifPresent(padFile -> {
+          padTechnicalDrawingRepository.findByPwaApplicationDetailAndFile(pwaApplicationDetail, padFile)
+              .ifPresent(drawing -> {
+                drawing.setFile(null);
+                padTechnicalDrawingRepository.save(drawing);
+              });
+          padDepositDrawingRepository.findByPwaApplicationDetailAndFile(pwaApplicationDetail, padFile)
+              .ifPresent(drawing -> {
+                drawing.setFile(null);
+                padDepositDrawingRepository.save(drawing);
+              });
+          padFileRepository.delete(padFile);
+        });
+    return fileService.delete(uploadedFile);
   }
 
   public PadFile getPadFileByPwaApplicationDetailAndFileId(PwaApplicationDetail detail,

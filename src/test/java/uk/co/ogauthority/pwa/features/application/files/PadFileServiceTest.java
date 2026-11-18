@@ -1,19 +1,29 @@
 package uk.co.ogauthority.pwa.features.application.files;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.fds.FileDeleteResponse;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawing;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawingRepository;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawing;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingRepository;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
@@ -30,6 +40,15 @@ public class PadFileServiceTest {
   @Mock
   private EntityCopyingService entityCopyingService;
 
+  @Mock
+  private FileService fileService;
+
+  @Mock
+  private PadTechnicalDrawingRepository padTechnicalDrawingRepository;
+
+  @Mock
+  private PadDepositDrawingRepository padDepositDrawingRepository;
+
   private PadFileService padFileService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -39,7 +58,8 @@ public class PadFileServiceTest {
   @BeforeEach
   public void setUp() {
 
-    padFileService = new PadFileService(padFileRepository, entityCopyingService);
+    padFileService = new PadFileService(
+        padFileRepository, entityCopyingService, fileService, padTechnicalDrawingRepository, padDepositDrawingRepository);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     file = new PadFile();
@@ -56,6 +76,87 @@ public class PadFileServiceTest {
 
     verify(padFileRepository, times(1)).delete(file);
 
+  }
+
+  @Test
+  public void deleteFileAndPadFileLinks_removesLinkedPadFileForDetailAndDeletesUploadedFile() {
+
+    var uploadedFile = new UploadedFile();
+    uploadedFile.setId(UUID.fromString(FILE_ID));
+    var expectedResponse = FileDeleteResponse.success(uploadedFile.getId());
+
+    when(padFileRepository.findByPwaApplicationDetailAndFileId(pwaApplicationDetail, FILE_ID))
+        .thenReturn(Optional.of(file));
+    when(fileService.delete(uploadedFile)).thenReturn(expectedResponse);
+
+    var response = padFileService.deleteFileAndPadFileLinks(pwaApplicationDetail, uploadedFile);
+
+    verify(padFileRepository, times(1)).delete(file);
+    assertThat(response).isEqualTo(expectedResponse);
+  }
+
+  @Test
+  public void deleteFileAndPadFileLinks_fileLinkedToPipelineDrawing_unlinksDrawingBeforeDeletingPadFile() {
+
+    var uploadedFile = new UploadedFile();
+    uploadedFile.setId(UUID.fromString(FILE_ID));
+
+    var drawing = new PadTechnicalDrawing();
+    drawing.setFile(file);
+
+    when(padFileRepository.findByPwaApplicationDetailAndFileId(pwaApplicationDetail, FILE_ID))
+        .thenReturn(Optional.of(file));
+    when(padTechnicalDrawingRepository.findByPwaApplicationDetailAndFile(pwaApplicationDetail, file))
+        .thenReturn(Optional.of(drawing));
+    when(fileService.delete(uploadedFile)).thenReturn(FileDeleteResponse.success(uploadedFile.getId()));
+
+    padFileService.deleteFileAndPadFileLinks(pwaApplicationDetail, uploadedFile);
+
+    assertThat(drawing.getFile()).isNull();
+    verify(padTechnicalDrawingRepository, times(1)).save(drawing);
+    verify(padFileRepository, times(1)).delete(file);
+  }
+
+  @Test
+  public void deleteFileAndPadFileLinks_fileLinkedToDepositDrawing_unlinksDrawingBeforeDeletingPadFile() {
+
+    var uploadedFile = new UploadedFile();
+    uploadedFile.setId(UUID.fromString(FILE_ID));
+
+    var drawing = new PadDepositDrawing();
+    drawing.setFile(file);
+
+    when(padFileRepository.findByPwaApplicationDetailAndFileId(pwaApplicationDetail, FILE_ID))
+        .thenReturn(Optional.of(file));
+    when(padDepositDrawingRepository.findByPwaApplicationDetailAndFile(pwaApplicationDetail, file))
+        .thenReturn(Optional.of(drawing));
+    when(fileService.delete(uploadedFile)).thenReturn(FileDeleteResponse.success(uploadedFile.getId()));
+
+    padFileService.deleteFileAndPadFileLinks(pwaApplicationDetail, uploadedFile);
+
+    assertThat(drawing.getFile()).isNull();
+    verify(padDepositDrawingRepository, times(1)).save(drawing);
+    verify(padFileRepository, times(1)).delete(file);
+  }
+
+  @Test
+  public void deleteFileAndPadFileLinks_noPadFileOnThisDetail_doesNotTouchOtherDetailsPadFiles() {
+
+    // simulates a file id that (due to historic data corruption) is also referenced by a pad_files row on
+    // a different/previous application detail version - that row must not be touched by this detail's delete.
+    var uploadedFile = new UploadedFile();
+    uploadedFile.setId(UUID.fromString(FILE_ID));
+    var expectedResponse = FileDeleteResponse.success(uploadedFile.getId());
+
+    when(padFileRepository.findByPwaApplicationDetailAndFileId(pwaApplicationDetail, FILE_ID))
+        .thenReturn(Optional.empty());
+    when(fileService.delete(uploadedFile)).thenReturn(expectedResponse);
+
+    var response = padFileService.deleteFileAndPadFileLinks(pwaApplicationDetail, uploadedFile);
+
+    verify(padFileRepository, never()).delete(any());
+    verify(padFileRepository, never()).deleteAll(any());
+    assertThat(response).isEqualTo(expectedResponse);
   }
 
   @Test
