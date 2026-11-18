@@ -475,7 +475,15 @@ public class PermanentDepositService implements ApplicationFormSectionService {
             padFileCopiedEntityIdTuple -> {
               // point the new pad file to the new file id
               var fileWithOldId = toDetailDrawingPadFileLookup.get(padFileCopiedEntityIdTuple.getDuplicateEntityId());
-              fileWithOldId.setFileId(originalToCopiedFileIDs.get(fileWithOldId.getFileId()));
+              var copiedFileId = originalToCopiedFileIDs.get(fileWithOldId.getFileId());
+
+              if (copiedFileId == null) {
+                LOGGER.warn("Could not find a copied file for original file id {} on padFile {} - leaving" +
+                        " existing file reference unchanged",
+                    fileWithOldId.getFileId(), fileWithOldId.getId());
+              } else {
+                fileWithOldId.setFileId(copiedFileId);
+              }
 
               entityManager.persist(fileWithOldId);
 

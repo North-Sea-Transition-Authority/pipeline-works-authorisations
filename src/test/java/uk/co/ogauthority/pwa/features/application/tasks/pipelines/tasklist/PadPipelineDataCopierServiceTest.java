@@ -166,4 +166,61 @@ class PadPipelineDataCopierServiceTest {
     verify(entityManager, times(1)).persist(copiedPadFile);
     verify(entityManager, times(1)).persist(copiedDrawing);
   }
+
+  @Test
+  void copyAllPadPipelineData_copiedFileNotFound_leavesExistingFileIdUnchanged() {
+    var toDetail = new PwaApplicationDetail(new PwaApplication(null, PwaApplicationType.INITIAL, null), null, null, null);
+    toDetail.setId(2);
+
+    var originalFileId = UUID.randomUUID();
+
+    // the pad_files bridge row is reflection-copied verbatim by EntityCopyingService, so it initially
+    // carries the OLD fileId until copyPipelineDrawingData re-points it at the newly copied file.
+    var copiedPadFile = new PadFile();
+    copiedPadFile.setId(200);
+    copiedPadFile.setFileId(originalFileId);
+
+    var copiedDrawing = new PadTechnicalDrawing();
+    copiedDrawing.setId(20);
+    copiedDrawing.setPwaApplicationDetail(toDetail);
+    var originalPadFileReference = new PadFile();
+    originalPadFileReference.setId(100);
+    copiedDrawing.setFile(originalPadFileReference);
+
+    @SuppressWarnings("unchecked")
+    var padFileCopyTuple = (CopiedEntityIdTuple<Integer, PadFile>) mock(CopiedEntityIdTuple.class);
+
+    when(entityCopyingService.duplicateEntitiesAndSetParent(any(), eq(toDetail), eq(PadPipeline.class)))
+        .thenReturn(Set.of());
+    when(entityCopyingService.duplicateEntitiesAndSetParentFromCopiedEntities(any(), eq(Set.of()), any()))
+        .thenReturn(Set.of());
+    when(entityCopyingService.duplicateEntitiesAndSetParent(any(), eq(toDetail), eq(PadTechnicalDrawing.class)))
+        .thenReturn(Set.of());
+    when(entityCopyingService.createMapOfOriginalIdToNewEntityReference(Set.of()))
+        .thenReturn(Map.of());
+    when(entityCopyingService.createMapOfOriginalIdToNewEntityReference(Set.of(padFileCopyTuple)))
+        .thenReturn(Map.of(100, copiedPadFile));
+
+    when(padTechnicalDrawingService.getDrawings(toDetail)).thenReturn(List.of(), List.of(copiedDrawing));
+    when(padTechnicalDrawingLinkService.getLinksFromAppDetail(toDetail)).thenReturn(List.of());
+
+    when(padFileService.copyPadFilesToPwaApplicationDetail(
+        fromDetail, toDetail, ApplicationDetailFilePurpose.PIPELINE_DRAWINGS, ApplicationFileLinkStatus.FULL))
+        .thenReturn(Set.of(padFileCopyTuple));
+
+    // the original file is already orphaned/missing, so the library-side copy never produces a mapping for it.
+    when(padFileManagementService.copyUploadedFiles(fromDetail, toDetail, FileDocumentType.PIPELINE_DRAWINGS))
+        .thenReturn(Map.of());
+
+    padPipelineDataCopierService.copyAllPadPipelineData(fromDetail, toDetail, List::of);
+
+    // the copied drawing still ends up pointing at the copied PadFile bridge row...
+    assertThat(copiedDrawing.getFile()).isEqualTo(copiedPadFile);
+    // ...but since no copied file could be found, the existing fileId is left alone rather than being
+    // overwritten with a bogus value.
+    assertThat(copiedPadFile.getFileId()).isEqualTo(originalFileId);
+
+    verify(entityManager, times(1)).persist(copiedPadFile);
+    verify(entityManager, times(1)).persist(copiedDrawing);
+  }
 }

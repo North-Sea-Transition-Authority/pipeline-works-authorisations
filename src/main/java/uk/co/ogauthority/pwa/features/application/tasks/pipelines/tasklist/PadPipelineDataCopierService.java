@@ -171,7 +171,15 @@ public class PadPipelineDataCopierService {
     duplicatedTechnicalDrawings.forEach(padTechnicalDrawing -> {
           // point the new pad file to the new file id
           var fileWithOldId = originalPadFileIdToDuplicateEntityReference.get(padTechnicalDrawing.getFile().getId());
-          fileWithOldId.setFileId(originalToCopiedFileIDs.get(fileWithOldId.getFileId()));
+          var copiedFileId = originalToCopiedFileIDs.get(fileWithOldId.getFileId());
+
+          if (copiedFileId == null) {
+            LOGGER.warn("Could not find a copied file for original file id {} on padFile {} - leaving" +
+                    " existing file reference unchanged",
+                fileWithOldId.getFileId(), fileWithOldId.getId());
+          } else {
+            fileWithOldId.setFileId(copiedFileId);
+          }
 
           entityManager.persist(fileWithOldId);
 

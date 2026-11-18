@@ -569,6 +569,64 @@ class PermanentDepositServiceTest {
   }
 
   @Test
+  void copySectionInformation_copiedFileNotFound_leavesExistingFileIdUnchanged() {
+    var toDetail = new PwaApplicationDetail(new PwaApplication(null, PwaApplicationType.INITIAL, null), null, null, null);
+    toDetail.setId(2);
+
+    var originalFileId = UUID.randomUUID();
+
+    // the pad_files bridge row is reflection-copied verbatim by EntityCopyingService, so it initially
+    // carries the OLD fileId until copySectionInformation re-points it at the newly copied file.
+    var copiedPadFile = new PadFile();
+    copiedPadFile.setId(200);
+    copiedPadFile.setFileId(originalFileId);
+
+    var copiedDrawing = new PadDepositDrawing();
+    copiedDrawing.setId(20);
+    copiedDrawing.setPwaApplicationDetail(toDetail);
+    var originalPadFileReference = new PadFile();
+    originalPadFileReference.setId(100);
+    copiedDrawing.setFile(originalPadFileReference);
+
+    @SuppressWarnings("unchecked")
+    var padFileCopyTuple = (CopiedEntityIdTuple<Integer, PadFile>) mock(CopiedEntityIdTuple.class);
+    when(padFileCopyTuple.getOriginalEntityId()).thenReturn(100);
+    when(padFileCopyTuple.getDuplicateEntityId()).thenReturn(200);
+
+    when(entityCopyingService.duplicateEntitiesAndSetParent(any(), eq(toDetail), eq(PadPermanentDeposit.class)))
+        .thenReturn(Set.of());
+    when(entityCopyingService.duplicateEntitiesAndSetParentFromCopiedEntities(any(), eq(Set.of()), eq(PadDepositPipeline.class)))
+        .thenReturn(Set.of());
+    when(entityCopyingService.duplicateEntitiesAndSetParent(any(), eq(toDetail), eq(PadDepositDrawing.class)))
+        .thenReturn(Set.of());
+    when(entityCopyingService.duplicateEntitiesAndSetParentFromCopiedEntities(any(), eq(Set.of()), eq(PadDepositDrawingLink.class)))
+        .thenReturn(Set.of());
+
+    when(depositDrawingsService.getAllDepositDrawingsForDetail(toDetail)).thenReturn(List.of(), List.of(copiedDrawing));
+    when(depositDrawingsService.getAllDepositDrawingLinksByDetailPermanentDeposits(toDetail)).thenReturn(List.of());
+
+    // the original file is already orphaned/missing, so the library-side copy never produces a mapping for it.
+    when(padFileManagementService.copyUploadedFiles(pwaApplicationDetail, toDetail, FileDocumentType.DEPOSIT_DRAWINGS))
+        .thenReturn(Map.of());
+    when(padFileService.copyPadFilesToPwaApplicationDetail(
+        pwaApplicationDetail, toDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL))
+        .thenReturn(Set.of(padFileCopyTuple));
+    when(padFileService.getAllByPwaApplicationDetailAndPurpose(toDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS))
+        .thenReturn(List.of(copiedPadFile));
+
+    permanentDepositService.copySectionInformation(pwaApplicationDetail, toDetail);
+
+    // the copied drawing still ends up pointing at the copied PadFile bridge row...
+    assertThat(copiedDrawing.getFile()).isEqualTo(copiedPadFile);
+    // ...but since no copied file could be found, the existing fileId is left alone rather than being
+    // overwritten with a bogus value.
+    assertThat(copiedPadFile.getFileId()).isEqualTo(originalFileId);
+
+    verify(entityManager, times(1)).persist(copiedPadFile);
+    verify(depositDrawingsService, times(1)).saveDepositDrawings(List.of(copiedDrawing));
+  }
+
+  @Test
   void removePadPipelineFromDeposits_removeOnlyLinks() {
 
     var pipeline = new Pipeline();
